@@ -523,56 +523,51 @@ function initializeCharts() {
 
 // --- Supabase Authentication and User Management ---
 
+/**
+ * Handles user login.
+ * @param {Event} event
+ */
 async function handleLogin(event) {
-  event.preventDefault();
+    event.preventDefault();
+    const email = emailInput.value;
+    const password = passwordInput.value;
+    const role = selectedRoleInput.value;
 
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-  const role = document.querySelector('.role-button.active')?.dataset.role;
+    try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password,
+        });
 
-  if (!email || !password || !role) {
-    alert('Please fill all fields and select a role.');
-    return;
-  }
+        if (error) throw error;
 
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        // Verify user role after successful login
+        const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', data.user.id)
+            .single();
 
-  if (error) {
-    alert('Login failed: ' + error.message);
-    return;
-  }
+        if (profileError) throw profileError;
 
-  // Save role in localStorage and redirect
-  localStorage.setItem('userRole', role);
-  localStorage.setItem('userEmail', email);
-  document.getElementById('login-ui').style.display = 'none';
-  document.getElementById('school-site-ui').style.display = 'block';
-  loadUserDashboard(role);
+        if (profile.role !== role) {
+            await supabase.auth.signOut(); // Log out if role doesn't match
+            showToast('Login failed: Invalid role for this account.', 'error');
+            return;
+        }
+
+        loggedInUser = data.user;
+        currentRole = profile.role; // Set the actual role from the profile
+        showToast(`Logged in as ${profile.role}!`, 'success');
+        showSchoolSite();
+        updateLoggedInUserUI();
+        setActiveModule('dashboard'); // Load dashboard after login
+
+    } catch (error) {
+        showToast(`Login failed: ${error.message}`, 'error');
+        console.error('Login error:', error.message);
+    }
 }
-
-function loadUserDashboard(role) {
-  const adminModules = document.querySelectorAll('.admin-only');
-  adminModules.forEach(el => el.style.display = (role === 'admin') ? 'block' : 'none');
-}
-
-async function checkUserSession() {
-  const { data: { session } } = await supabase.auth.getSession();
-  const role = localStorage.getItem('userRole');
-
-  if (session && role) {
-    document.getElementById('login-ui').style.display = 'none';
-    document.getElementById('school-site-ui').style.display = 'block';
-    loadUserDashboard(role);
-  }
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  const loginForm = document.getElementById("loginForm");
-  if (loginForm) {
-    loginForm.addEventListener("submit", handleLogin);
-  }
-  checkUserSession();
-});
 
 /**
  * Handles user logout.
@@ -749,10 +744,10 @@ async function loadRecentActivity() {
 
         if (error) throw error;
 
-        // Ensure recentActivityList exists before trying to manipulate it
-        const recentActivityList = document.getElementById('recentActivityList');
+        // This element is not defined in the provided context, assuming it exists in HTML
+        const recentActivityList = document.getElementById('recentActivityList'); 
         if (!recentActivityList) {
-            console.warn('recentActivityList element not found.');
+            console.warn("Element with ID 'recentActivityList' not found. Cannot display recent activity.");
             return;
         }
 
@@ -2865,3 +2860,54 @@ window.registerStudentFingerprint = registerStudentFingerprint;
 window.verifyStudentFingerprint = verifyStudentFingerprint;
 window.registerTeacherFingerprint = registerTeacherFingerprint;
 window.verifyTeacherFingerprint = verifyTeacherFingerprint;
+
+
+// ✅ DOMContentLoaded event to bind all listeners and check session
+document.addEventListener('DOMContentLoaded', () => {
+    checkUserSession();
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+    }
+
+    if (logoutButton) {
+        logoutButton.addEventListener('click', handleLogout);
+    }
+
+    roleButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            selectedRoleInput.value = button.dataset.role;
+            roleButtons.forEach(btn => btn.classList.remove('bg-blue-600', 'text-white'));
+            button.classList.add('bg-blue-600', 'text-white');
+        });
+    });
+});
+
+
+// ✅ DOM Ready Login Check and Event Binding
+document.addEventListener('DOMContentLoaded', () => {
+    checkUserSession();
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+    }
+
+    if (logoutButton) {
+        logoutButton.addEventListener('click', handleLogout);
+    }
+
+    roleButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            selectedRoleInput.value = button.dataset.role;
+            roleButtons.forEach(btn => btn.classList.remove('bg-blue-600', 'text-white'));
+            button.classList.add('bg-blue-600', 'text-white');
+        });
+    });
+});
+
+// Voice Assistant Placeholder (from index.html)
+function startVoiceAssistant() {
+    showToast('Voice assistant functionality not yet implemented.', 'info');
+    // This would typically involve Web Speech API or a third-party voice AI service.
+}
+window.startVoiceAssistant = startVoiceAssistant; // Make it globally accessible
