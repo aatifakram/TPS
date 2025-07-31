@@ -2884,6 +2884,25 @@ function handleRoleSelection(role) {
     });
 }
 
+// ✅ DOMContentLoaded event to bind all listeners and check session
+document.addEventListener('DOMContentLoaded', () => {
+    checkUserSession();
 
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+    }
+
+    if (logoutButton) {
+        logoutButton.addEventListener('click', handleLogout);
+    }
+
+    roleButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            selectedRoleInput.value = button.dataset.role;
+            roleButtons.forEach(btn => btn.classList.remove('bg-blue-600', 'text-white'));
+            button.classList.add('bg-blue-600', 'text-white');
+        });
+    });
+});
 
  
