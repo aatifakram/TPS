@@ -523,69 +523,85 @@ function initializeCharts() {
 
 // --- Supabase Authentication and User Management ---
 
-/**
- * Handles user login.
- * @param {Event} event
- */
+const loginForm = document.getElementById('loginForm');
+const logoutButton = document.getElementById('logoutButton');
+const roleButtons = document.querySelectorAll('.role-button');
+const selectedRoleInput = document.getElementById('selectedRole');
+
+// Supabase Client Initialization
+const supabase = supabase || createClient('https://your-project.supabase.co', 'public-anon-key'); // Replace with your keys
+
+// DOM references
+const loginUI = document.getElementById('login-ui');
+const dashboardUI = document.getElementById('school-site-ui');
+
+// Check login session on load
+async function checkUserSession() {
+    const { data, error } = await supabase.auth.getSession();
+    if (data.session) {
+        showDashboard();
+    } else {
+        showLogin();
+    }
+}
+
+// Show dashboard UI
+function showDashboard() {
+    loginUI.classList.add('hidden');
+    dashboardUI.classList.remove('hidden');
+}
+
+// Show login UI
+function showLogin() {
+    loginUI.classList.remove('hidden');
+    dashboardUI.classList.add('hidden');
+}
+
+// Handle login
 async function handleLogin(event) {
     event.preventDefault();
-    const email = emailInput.value;
-    const password = passwordInput.value;
-    const role = selectedRoleInput.value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
 
-    try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email: email,
-            password: password,
-        });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-        if (error) throw error;
-
-        // Verify user role after successful login
-        const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', data.user.id)
-            .single();
-
-        if (profileError) throw profileError;
-
-        if (profile.role !== role) {
-            await supabase.auth.signOut(); // Log out if role doesn't match
-            showToast('Login failed: Invalid role for this account.', 'error');
-            return;
-        }
-
-        loggedInUser = data.user;
-        currentRole = profile.role; // Set the actual role from the profile
-        showToast(`Logged in as ${profile.role}!`, 'success');
-        showSchoolSite();
-        updateLoggedInUserUI();
-        setActiveModule('dashboard'); // Load dashboard after login
-
-    } catch (error) {
-        showToast(`Login failed: ${error.message}`, 'error');
-        console.error('Login error:', error.message);
+    if (error) {
+        alert('Login failed: ' + error.message);
+        return;
     }
-}
-document.getElementById('school-site-ui').classList.remove('hidden');
-document.getElementById('dashboardMainContent').classList.remove('hidden');
 
-/**
- * Handles user logout.
- */
+    showDashboard();
+}
+
+// Handle logout
 async function handleLogout() {
-    try {
-        const { error } = await supabase.auth.signOut();
-        if (error) throw error;
-        loggedInUser = null;
-        showToast('Logged out successfully!', 'info');
-        showLoginUI();
-    } catch (error) {
-        showToast(`Logout failed: ${error.message}`, 'error');
-        console.error('Logout error:', error.message);
-    }
+    await supabase.auth.signOut();
+    showLogin();
 }
+
+// Role selection logic
+roleButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        selectedRoleInput.value = button.dataset.role;
+        roleButtons.forEach(btn => btn.classList.remove('bg-blue-600', 'text-white'));
+        button.classList.add('bg-blue-600', 'text-white');
+    });
+});
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+    checkUserSession();
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+    }
+
+    if (logoutButton) {
+        logoutButton.addEventListener('click', handleLogout);
+    }
+});
+
+
 
 /**
  * Handles forgot password request.
