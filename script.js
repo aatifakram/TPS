@@ -95,8 +95,6 @@ async function fetchStudents() {
         students = data;
     } catch (error) {
         console.error('Error fetching students:', error);
-        // This error (403 Forbidden) means your RLS policies on the 'students' table are preventing SELECT.
-        // Ensure you have a SELECT policy for the roles that should see student data (e.g., 'admin', 'teacher', 'student').
         students = [];
     } finally {
         renderStudentTable();
@@ -111,8 +109,6 @@ async function fetchTeachers() {
         teachers = data;
     } catch (error) {
         console.error('Error fetching teachers:', error);
-        // This error (403 Forbidden) means your RLS policies on the 'teachers' table are preventing SELECT.
-        // Ensure you have a SELECT policy for the roles that should see teacher data (e.g., 'admin', 'teacher').
         teachers = [];
     } finally {
         renderTeacherTable();
@@ -127,8 +123,6 @@ async function fetchPayrollEntries() {
         payrollEntries = data;
     } catch (error) {
         console.error('Error fetching payroll entries:', error);
-        // This error (403 Forbidden) means your RLS policies on the 'payroll_entries' table are preventing SELECT.
-        // Ensure you have a SELECT policy for the roles that should see payroll data (e.g., 'admin').
         payrollEntries = [];
     } finally {
         renderPayrollTable();
@@ -142,8 +136,6 @@ async function fetchInvoices() {
         invoices = data;
     } catch (error) {
         console.error('Error fetching invoices:', error);
-        // This error (403 Forbidden) means your RLS policies on the 'invoices' table are preventing SELECT.
-        // Ensure you have a SELECT policy for the roles that should see invoice data (e.g., 'admin').
         invoices = [];
     } finally {
         renderFinanceTable();
@@ -158,8 +150,6 @@ async function fetchAnnouncements() {
         announcements = data;
     } catch (error) {
         console.error('Error fetching announcements:', error);
-        // This error (403 Forbidden) means your RLS policies on the 'announcements' table are preventing SELECT.
-        // Ensure you have a SELECT policy for the roles that should see announcements (e.g., 'admin', 'teacher', 'student').
         announcements = [];
     } finally {
         renderAnnouncementTable();
@@ -184,8 +174,6 @@ async function fetchAuditLogs() {
         auditLogs = data;
     } catch (error) {
         console.error('Error fetching audit logs:', error);
-        // This error (403 Forbidden) means your RLS policies on the 'audit_logs' table are preventing SELECT.
-        // Ensure you have a SELECT policy for the roles that should see audit logs (e.g., 'admin').
         auditLogs = [];
     } finally {
         renderAuditLogs();
@@ -209,8 +197,6 @@ async function fetchAttendanceRecords() {
         attendanceRecords = data;
     } catch (error) {
         console.error('Error fetching attendance records:', error);
-        // This error (403 Forbidden) means your RLS policies on the 'attendance_records' table are preventing SELECT.
-        // Ensure you have a SELECT policy for the roles that should see attendance data (e.g., 'admin', 'teacher').
         attendanceRecords = [];
     } finally {
         renderAttendanceTable();
@@ -224,8 +210,6 @@ async function fetchTeacherAttendanceRecords() {
         teacherAttendanceRecords = data;
     } catch (error) {
         console.error('Error fetching teacher attendance records:', error);
-        // This error (403 Forbidden) means your RLS policies on the 'teacher_attendance_records' table are preventing SELECT.
-        // Ensure you have a SELECT policy for the roles that should see teacher attendance data (e.g., 'admin').
         teacherAttendanceRecords = [];
     } finally {
         renderTeacherAttendanceTable();
@@ -239,11 +223,8 @@ async function fetchProfiles() {
         profiles = data;
     } catch (error) {
         console.error('Error fetching profiles:', error);
-        // This error (403 Forbidden) means your RLS policies on the 'profiles' table are preventing SELECT.
-        // Ensure you have a SELECT policy for the roles that should see profile data.
         profiles = [];
     } finally {
-        // You might want to render a user management table or update other UI elements here
         renderUserTable(); // Assuming renderUserTable will now use the 'profiles' data
     }
 }
@@ -461,7 +442,7 @@ async function showSchoolSiteUi() {
     await loadAllData(); // Load all data from Supabase
 
     updateLoggedInUserName();
-    updateUIAccessByRole(); // Adjust UI based on role
+    updateUIAccess(); // Adjust UI based on role
 
     if (typeof calendar !== 'undefined' && calendar) {
         calendar.render();
@@ -470,202 +451,29 @@ async function showSchoolSiteUi() {
 }
 
 /**
- * Updates UI elements (navigation, buttons) based on the logged-in user's role.
+ * Updates UI elements (navigation, buttons) to be fully visible.
+ * All role-based restrictions are removed.
  */
-function updateUIAccessByRole() {
-    try {
-        // 1. Get logged in user from localStorage
-        const loggedInUserString = localStorage.getItem('loggedInUser');
-        if (!loggedInUserString) {
-            console.warn('No logged in user found - showing minimal UI');
-            return hideRestrictedUIElements();
-        }
-
-        // 2. Parse user data safely
-        const loggedInUser = JSON.parse(loggedInUserString);
-        if (!loggedInUser) {
-            console.error('Failed to parse user data');
-            return hideRestrictedUIElements();
-        }
-
-        // 3. Determine user role with clear precedence
-        let userRole;
-        // Check raw_user_meta_data first, then app_metadata, then default to 'admin'
-        // This ensures that if a user is explicitly assigned a role in Supabase, it's used.
-        // If no role is found, it defaults to 'admin' for broader access in this demo.
-        if (loggedInUser.raw_user_meta_data?.role) {
-            userRole = loggedInUser.raw_user_meta_data.role; // Highest priority for raw_user_meta_data
-        } else if (loggedInUser.app_metadata?.role) { 
-            userRole = loggedInUser.app_metadata.role; // Second priority for app_metadata
-        } else {
-            userRole = 'admin'; // Default fallback if no role is explicitly set
-            console.info('No specific role found in user metadata, defaulting to "admin" for UI access.');
-        }
-
-        // 4. Update UI elements based on role
-        updateUIElementsForRole(userRole);
-
-    } catch (error) {
-        console.error('Error in updateUIAccessByRole:', error);
-        // Fallback to most restrictive access in case of an error
-        hideRestrictedUIElements();
-    }
-}
-
-// Helper functions
-function hideRestrictedUIElements() {
-    // Hide all admin/privileged UI elements
-    document.querySelectorAll('[data-role="admin"]').forEach(el => {
-        el.style.display = 'none';
-    });
-    // Also hide teacher-specific elements if no user is logged in or role is not teacher/admin
-    document.querySelectorAll('[data-role="teacher"]').forEach(el => {
-        el.style.display = 'none';
-    });
-    // Ensure student elements are visible if they are meant to be for all logged-in users
-    document.querySelectorAll('[data-role="student"]').forEach(el => {
+function updateUIAccess() {
+    // Show all elements with data-role attributes
+    document.querySelectorAll('[data-role]').forEach(el => {
         el.style.display = 'block';
     });
 
-    // Specific navigation items based on the original logic
+    // Show all navigation items
     document.querySelectorAll('.nav-item').forEach(navItem => {
-        const module = navItem.dataset.module;
-        let show = false;
-        switch (module) {
-            case 'dashboard':
-            case 'announcements':
-            case 'calendar':
-                show = true; // These are generally visible to all logged-in users
-                break;
-            default:
-                show = false; // Hide others by default
-        }
-        if (show) {
-            navItem.classList.remove('hidden');
-        } else {
-            navItem.classList.add('hidden');
-        }
+        navItem.classList.remove('hidden');
     });
 
-    // Specific buttons/forms based on the original logic
+    // Show all specific buttons/forms
     const addStudentBtn = document.getElementById('addStudentBtn');
-    if (addStudentBtn) addStudentBtn.classList.add('hidden');
+    if (addStudentBtn) addStudentBtn.classList.remove('hidden');
     const addTeacherBtn = document.getElementById('addTeacherBtn');
-    if (addTeacherBtn) addTeacherBtn.classList.add('hidden');
+    if (addTeacherBtn) addTeacherBtn.classList.remove('hidden');
     const addUserBtn = document.getElementById('addUserBtn');
-    if (addUserBtn) addUserBtn.classList.add('hidden');
-    if (openPayrollModalBtn) openPayrollModalBtn.classList.add('hidden');
-    if (openAddInvoiceModalBtn) openAddInvoiceModalBtn.classList.add('hidden');
-}
-
-function updateUIElementsForRole(role) {
-    // Show/hide elements based on role
-    // This function now handles both data-role attributes and specific element IDs
-    // to maintain the original script's behavior while integrating the new role logic.
-
-    // Handle elements with data-role attributes
-    document.querySelectorAll('[data-role]').forEach(el => {
-        const requiredRole = el.dataset.role;
-        let showElement = false;
-
-        switch (requiredRole) {
-            case 'admin':
-                showElement = role === 'admin';
-                break;
-            case 'teacher':
-                showElement = ['admin', 'teacher'].includes(role);
-                break;
-            case 'student':
-                showElement = ['admin', 'teacher', 'student'].includes(role); // Visible to all logged-in users
-                break;
-            default:
-                showElement = false;
-        }
-        el.style.display = showElement ? 'block' : 'none';
-    });
-
-    // Handle navigation items based on the original script's logic
-    document.querySelectorAll('.nav-item').forEach(navItem => {
-        const module = navItem.dataset.module;
-        let show = false;
-        switch (module) {
-            case 'dashboard':
-                show = true; // Always visible
-                break;
-            case 'students':
-            case 'teachers':
-            case 'payroll':
-            case 'finance':
-            case 'audit-logs':
-            case 'backup-restore':
-            case 'user-management':
-                show = role === 'admin'; // Only 'admin' can see these modules
-                break;
-            case 'attendance':
-                show = role === 'admin' || role === 'teacher'; // 'admin' and 'teacher'
-                break;
-            case 'teacher-attendance':
-                show = role === 'admin'; // 'admin'-only for teacher attendance management
-                break;
-            case 'announcements':
-            case 'calendar':
-                show = role === 'admin' || role === 'teacher' || role === 'student'; // All roles
-                break;
-            case 'reports':
-                show = role === 'admin' || role === 'teacher'; // 'admin' and 'teacher'
-                break;
-            default:
-                show = false;
-        }
-        if (show) {
-            navItem.classList.remove('hidden');
-        } else {
-            navItem.classList.add('hidden');
-        }
-    });
-
-    // Hide/show specific buttons or forms based on role (original script's logic)
-    const addStudentBtn = document.getElementById('addStudentBtn');
-    if (addStudentBtn) {
-        if (role === 'admin' || role === 'teacher') { // MODIFIED: Allow teachers to add students
-            addStudentBtn.classList.remove('hidden');
-        } else {
-            addStudentBtn.classList.add('hidden');
-        }
-    }
-
-    const addTeacherBtn = document.getElementById('addTeacherBtn');
-    if (addTeacherBtn) {
-        if (role === 'admin') {
-            addTeacherBtn.classList.remove('hidden');
-        } else {
-            addTeacherBtn.classList.add('hidden');
-        }
-    }
-
-    const addUserBtn = document.getElementById('addUserBtn');
-    if (addUserBtn) {
-        if (role === 'admin') {
-            addUserBtn.classList.remove('hidden');
-        } else {
-            addUserBtn.classList.add('hidden');
-        }
-    }
-
-    if (openPayrollModalBtn) {
-        if (role === 'admin') {
-            openPayrollModalBtn.classList.remove('hidden');
-        } else {
-            openPayrollModalBtn.classList.add('hidden');
-        }
-    }
-    if (openAddInvoiceModalBtn) {
-        if (role === 'admin') {
-            openAddInvoiceModalBtn.classList.remove('hidden');
-        } else {
-            openAddInvoiceModal.classList.add('hidden');
-        }
-    }
+    if (addUserBtn) addUserBtn.classList.remove('hidden');
+    if (openPayrollModalBtn) openPayrollModalBtn.classList.remove('hidden');
+    if (openAddInvoiceModalBtn) openAddInvoiceModalBtn.classList.remove('hidden');
 }
 
 
@@ -738,12 +546,13 @@ async function handleLogin() {
             // Role mismatch check:
             // An admin user can log in as any role (for testing/management purposes in a demo).
             // Other roles must match their registered role.
-            if (userRole !== selectedRole && selectedRole !== 'admin') {
-                alert(`Login failed: You are registered as a ${userRole}, not a ${selectedRole}. Please select your correct role.`);
-                // Removed supabase.auth.signOut() here to keep only login functionality
-                await addAuditLog(emailInput, 'Login Failed (Role Mismatch)', 'Authentication', `User ${emailInput} attempted login as ${selectedRole}, but actual role is ${userRole}.`);
-                return;
-            }
+            // REMOVED ROLE MISMATCH CHECK
+            // if (userRole !== selectedRole && selectedRole !== 'admin') {
+            //     alert(`Login failed: You are registered as a ${userRole}, not a ${selectedRole}. Please select your correct role.`);
+            //     // Removed supabase.auth.signOut() here to keep only login functionality
+            //     await addAuditLog(emailInput, 'Login Failed (Role Mismatch)', 'Authentication', `User ${emailInput} attempted login as ${selectedRole}, but actual role is ${userRole}.`);
+            //     return;
+            // }
 
             // Proceed with login if roles match or if the selected role is 'admin' (allowing admin to impersonate/test)
             localStorage.setItem('loggedIn', 'true');
@@ -981,7 +790,7 @@ function renderHolidayList() {
 
 /**
  * Shows the specified module content and updates active navigation/tab states.
- * Implements role-based access control for modules.
+ * All modules are accessible.
  * @param {string} moduleName - The name of the module to show (e.g., 'dashboard', 'students').
  */
 window.showModule = async function(moduleName) {
@@ -989,30 +798,8 @@ window.showModule = async function(moduleName) {
     const modulesContainer = document.getElementById('modulesContainer');
     const moduleTabs = document.getElementById('moduleTabs');
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role || 'admin' : null;
-
-    const moduleAccess = {
-        'dashboard': ['admin', 'teacher', 'student'],
-        'students': ['admin'],
-        'teachers': ['admin'],
-        'payroll': ['admin'],
-        'finance': ['admin'],
-        'attendance': ['admin', 'teacher'],
-        'teacher-attendance': ['admin'],
-        'user-management': ['admin'],
-        'announcements': ['admin', 'teacher', 'student'],
-        'audit-logs': ['admin'],
-        'backup-restore': ['admin'],
-        'calendar': ['admin', 'teacher', 'student'],
-        'reports': ['admin', 'teacher']
-    };
-
-    if (!userRole || !moduleAccess[moduleName] || !moduleAccess[moduleName].includes(userRole)) {
-        alert('Access Denied: You do not have permission to view this module.');
-        showModule('dashboard'); // Redirect to dashboard or a default accessible module
-        return;
-    }
 
     currentModuleTitle.textContent = moduleName.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 
@@ -1191,7 +978,7 @@ function renderPayrollTable() {
         return;
     }
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
 
     payrollEntries.forEach(entry => {
@@ -1215,11 +1002,9 @@ function renderPayrollTable() {
                 <button class="text-blue-600 hover:text-blue-800 mr-3" title="View Details" onclick="alert('Viewing details for payroll ${entry.period}')">
                     <i class="fas fa-eye"></i>
                 </button>
-                ${userRole === 'admin' ? `
                 <button class="text-red-600 hover:text-red-800" title="Download PDF" onclick="alert('Downloading PDF for payroll ${entry.period}')">
                     <i class="fas fa-file-pdf"></i>
                 </button>
-                ` : ''}
             </td>
         `;
         payrollTableBody.prepend(newRow);
@@ -1259,12 +1044,9 @@ if (payrollForm) {
     payrollForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-        // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+        // Role retrieval is kept for audit logging, but not for access control
         const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-        if (userRole !== 'admin') {
-            alert('Access Denied: Only admin can process payroll.');
-            return;
-        }
+        // Removed role check: if (userRole !== 'admin') { alert('Access Denied: Only admin can process payroll.'); return; }
 
         const periodInput = document.getElementById('payrollPeriod').value;
         const staffCount = document.getElementById('staffCount').value;
@@ -1316,7 +1098,7 @@ function renderFinanceTable() {
         return;
     }
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
 
     invoices.forEach(invoice => {
@@ -1340,11 +1122,9 @@ function renderFinanceTable() {
                 <button class="text-blue-600 hover:text-blue-800 mr-3" title="View Details" onclick="alert('Viewing details for invoice ${invoice.invoice_number}')">
                     <i class="fas fa-eye"></i>
                 </button>
-                ${userRole === 'admin' ? `
                 <button class="text-red-600 hover:text-red-800" title="Download PDF" onclick="alert('Downloading PDF for invoice ${invoice.invoice_number}')">
                     <i class="fas fa-file-pdf"></i>
                 </button>
-                ` : ''}
             </td>
         `;
         financeTableBody.prepend(newRow);
@@ -1384,12 +1164,9 @@ if (addInvoiceForm) {
     addInvoiceForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-        // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+        // Role retrieval is kept for audit logging, but not for access control
         const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-        if (userRole !== 'admin') {
-            alert('Access Denied: Only admin can add invoices.');
-            return;
-        }
+        // Removed role check: if (userRole !== 'admin') { alert('Access Denied: Only admin can add invoices.'); return; }
 
         const invoiceNumber = document.getElementById('invoiceNumber').value;
         const invoiceDateInput = document.getElementById('invoiceDate').value;
@@ -1461,7 +1238,7 @@ function renderStudentTable(filteredStudents = students) {
         return;
     }
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
 
     filteredStudents.forEach(student => {
@@ -1485,14 +1262,12 @@ function renderStudentTable(filteredStudents = students) {
                 <span class="px-2 py-1 ${statusBgClass} ${statusTextColorClass} text-xs rounded-full">${student.status}</span>
             </td>
             <td class="py-3 px-4 table-actions">
-                ${userRole === 'admin' ? `
                 <button class="text-blue-600 mr-3" title="Edit Student" onclick="editStudent('${student.id}')">
                     <i class="fas fa-edit"></i>
                 </button>
                 <button class="text-red-600" title="Delete Student" onclick="deleteStudent('${student.id}')">
                     <i class="fas fa-trash"></i>
                 </button>
-                ` : ''}
             </td>
         `;
         studentTableBody.appendChild(newRow);
@@ -1524,7 +1299,7 @@ function renderTeacherTable() {
         return;
     }
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
 
     teachers.forEach(teacher => {
@@ -1536,14 +1311,12 @@ function renderTeacherTable() {
             <td class="py-3 px-4">${teacher.subject}</td>
             <td class="py-3 px-4">${teacher.classes}</td>
             <td class="py-3 px-4 table-actions">
-                ${userRole === 'admin' ? `
                 <button class="text-blue-600 mr-3" title="Edit Teacher" onclick="editTeacher('${teacher.id}')">
                     <i class="fas fa-edit"></i>
                 </button>
                 <button class="text-red-600" title="Delete Teacher" onclick="deleteTeacher('${teacher.id}')">
                     <i class="fas fa-trash"></i>
                 </button>
-                ` : ''}
             </td>
         `;
         teacherTableBody.appendChild(newRow);
@@ -1571,14 +1344,12 @@ function renderUserTable() {
             <td class="py-3 px-4">${profile.role || 'N/A'}</td>
             <td class="py-3 px-4">${profile.status || 'N/A'}</td>
             <td class="py-3 px-4 table-actions">
-                ${currentUserRole === 'admin' ? `
                 <button class="text-blue-600 mr-3" title="Edit User" onclick="editUser('${profile.id}')">
                     <i class="fas fa-edit"></i>
                 </button>
                 <button class="text-red-600" title="Delete User" onclick="deleteUser('${profile.id}')">
                     <i class="fas fa-trash"></i>
                 </button>
-                ` : ''}
             </td>
         `;
         userTableBody.appendChild(newRow);
@@ -1594,7 +1365,7 @@ function renderAnnouncementTable() {
         return;
     }
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
 
     announcements.forEach(announcement => {
@@ -1614,14 +1385,12 @@ function renderAnnouncementTable() {
                 <span class="px-2 py-1 ${statusBgClass} ${statusTextColorClass} text-xs rounded-full">${announcement.status}</span>
             </td>
             <td class="py-3 px-4 table-actions">
-                ${userRole === 'admin' || userRole === 'teacher' ? `
                 <button class="text-blue-600 mr-3" title="Edit Announcement" onclick="editAnnouncement('${announcement.id}')">
                     <i class="fas fa-edit"></i>
                 </button>
                 <button class="text-red-600" title="Delete Announcement" onclick="deleteAnnouncement('${announcement.id}')">
                     <i class="fas fa-trash"></i>
                 </button>
-                ` : ''}
             </td>
         `;
         announcementTableBody.appendChild(newRow);
@@ -1659,7 +1428,7 @@ function renderBackupTable() {
         return;
     }
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
 
     backups.forEach(backup => {
@@ -1671,7 +1440,6 @@ function renderBackupTable() {
             <td class="py-3 px-4">${backup.size}</td>
             <td class="py-3 px-4">${backup.type}</td>
             <td class="py-3 px-4 table-actions">
-                ${userRole === 'admin' ? `
                 <button class="text-blue-600 mr-3" title="Download Backup" onclick="alert('Downloading backup ${backup.backup_id}...')">
                     <i class="fas fa-download"></i>
                 </button>
@@ -1681,7 +1449,6 @@ function renderBackupTable() {
                 <button class="text-red-600" title="Delete Backup" onclick="alert('Deleting backup ${backup.backup_id}...')">
                     <i class="fas fa-trash"></i>
                 </button>
-                ` : ''}
             </td>
         `;
         backupTableBody.appendChild(newRow);
@@ -1698,7 +1465,7 @@ function renderAttendanceTable(filteredAttendance = attendanceRecords) {
     let uniqueStudents = new Set();
 
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
 
     if (filteredAttendance.length === 0) {
@@ -1735,14 +1502,12 @@ function renderAttendanceTable(filteredAttendance = attendanceRecords) {
                 </td>
                 <td class="py-3 px-4">${record.remarks || '-'}</td>
                 <td class="py-3 px-4 table-actions">
-                    ${userRole === 'admin' || userRole === 'teacher' ? `
                     <button class="text-blue-600 mr-3" title="Edit Attendance" onclick="editAttendance('${record.id}')">
                         <i class="fas fa-edit"></i>
                     </button>
                     <button class="text-red-600" title="Delete Attendance" onclick="deleteAttendance('${record.id}')">
                         <i class="fas fa-trash"></i>
                     </button>
-                    ` : ''}
                 </td>
             `;
             attendanceTableBody.appendChild(newRow);
@@ -1787,7 +1552,7 @@ function renderTeacherAttendanceTable(filteredRecords = teacherAttendanceRecords
     let uniqueTeachers = new Set();
 
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
 
     if (filteredRecords.length === 0) {
@@ -1823,14 +1588,12 @@ function renderTeacherAttendanceTable(filteredRecords = teacherAttendanceRecords
                 </td>
                 <td class="py-3 px-4">${record.remarks || '-'}</td>
                 <td class="py-3 px-4 table-actions">
-                    ${userRole === 'admin' ? `
                     <button class="text-blue-600 mr-3" title="Edit Attendance" onclick="editTeacherAttendance('${record.id}')">
                         <i class="fas fa-edit"></i>
                     </button>
                     <button class="text-red-600" title="Delete Attendance" onclick="deleteTeacherAttendance('${record.id}')">
                         <i class="fas fa-trash"></i>
                     </button>
-                    ` : ''}
                 </td>
             `;
             teacherAttendanceTableBody.appendChild(newRow);
@@ -1867,12 +1630,9 @@ if (teacherAttendanceNameFilter) teacherAttendanceNameFilter.addEventListener('k
 
 window.showAddTeacherAttendanceModal = function() {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-    if (userRole !== 'admin') {
-        alert('Access Denied: Only admin can mark teacher attendance.');
-        return;
-    }
+    // Removed role check: if (userRole !== 'admin') { alert('Access Denied: Only admin can mark teacher attendance.'); return; }
     teacherAttendanceModalTitle.textContent = 'Mark Teacher Attendance';
     teacherAttendanceFormSubmitBtn.textContent = 'Mark Attendance';
     document.getElementById('teacherAttendanceId').value = '';
@@ -1887,12 +1647,9 @@ window.showAddTeacherAttendanceModal = function() {
 
 window.editTeacherAttendance = function(id) {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-    if (userRole !== 'admin') {
-        alert('Access Denied: Only admin can edit teacher attendance.');
-        return;
-    }
+    // Removed role check: if (userRole !== 'admin') { alert('Access Denied: Only admin can edit teacher attendance.'); return; }
     const record = teacherAttendanceRecords.find(r => r.id === id);
     if (record) {
         teacherAttendanceModalTitle.textContent = 'Edit Teacher Attendance';
@@ -1911,12 +1668,9 @@ window.editTeacherAttendance = function(id) {
 
 window.deleteTeacherAttendance = async function(id) {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-    if (userRole !== 'admin') {
-        alert('Access Denied: Only admin can delete teacher attendance records.');
-        return;
-    }
+    // Removed role check: if (userRole !== 'admin') { alert('Access Denied: Only admin can delete teacher attendance records.'); return; }
     if (confirm('Are you sure you want to delete this teacher attendance record?')) {
         try {
             const { error } = await supabase.from('teacher_attendance_records').delete().eq('id', id);
@@ -2082,13 +1836,9 @@ function renderReportsCharts() {
 // Modals for Add/Edit Student, Teacher, User, Announcement, Attendance
 window.showAddStudentForm = function() {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-    // MODIFIED: Allow teachers to add students
-    if (userRole !== 'admin' && userRole !== 'teacher') { 
-        alert('Access Denied: Only admin and teachers can add students.');
-        return;
-    }
+    // Removed role check: if (userRole !== 'admin' && userRole !== 'teacher') { alert('Access Denied: Only admin and teachers can add students.'); return; }
     studentModalTitle.textContent = 'Add New Student';
     studentFormSubmitBtn.textContent = 'Add Student';
     document.getElementById('studentId').value = '';
@@ -2100,12 +1850,9 @@ window.showAddStudentForm = function() {
 }
 window.editStudent = function(id) {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-    if (userRole !== 'admin') {
-        alert('Access Denied: Only admin can edit students.');
-        return;
-    }
+    // Removed role check: if (userRole !== 'admin') { alert('Access Denied: Only admin can edit students.'); return; }
     const student = students.find(s => s.id === id);
     if (student) {
         studentModalTitle.textContent = 'Edit Student';
@@ -2128,12 +1875,9 @@ window.editStudent = function(id) {
 }
 window.deleteStudent = async function(id) {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-    if (userRole !== 'admin') {
-        alert('Access Denied: Only admin can delete students.');
-        return;
-    }
+    // Removed role check: if (userRole !== 'admin') { alert('Access Denied: Only admin can delete students.'); return; }
     if (confirm('Are you sure you want to delete this student?')) {
         try {
             const { error } = await supabase.from('students').delete().eq('id', id);
@@ -2153,12 +1897,9 @@ window.deleteStudent = async function(id) {
 
 window.showAddTeacherForm = function() {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-    if (userRole !== 'admin') {
-        alert('Access Denied: Only admin can add teachers.');
-        return;
-    }
+    // Removed role check: if (userRole !== 'admin') { alert('Access Denied: Only admin can add teachers.'); return; }
     teacherModalTitle.textContent = 'Add New Teacher';
     teacherFormSubmitBtn.textContent = 'Add Teacher';
     document.getElementById('teacherId').value = '';
@@ -2170,12 +1911,9 @@ window.showAddTeacherForm = function() {
 }
 window.editTeacher = function(id) {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-    if (userRole !== 'admin') {
-        alert('Access Denied: Only admin can edit teachers.');
-        return;
-    }
+    // Removed role check: if (userRole !== 'admin') { alert('Access Denied: Only admin can edit teachers.'); return; }
     const teacher = teachers.find(t => t.id === id);
     if (teacher) {
         teacherModalTitle.textContent = 'Edit Teacher';
@@ -2193,12 +1931,9 @@ window.editTeacher = function(id) {
 }
 window.deleteTeacher = async function(id) {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-    if (userRole !== 'admin') {
-        alert('Access Denied: Only admin can delete teachers.');
-        return;
-    }
+    // Removed role check: if (userRole !== 'admin') { alert('Access Denied: Only admin can delete teachers.'); return; }
     if (confirm('Are you sure you want to delete this teacher?')) {
         try {
             const { error } = await supabase.from('teachers').delete().eq('id', id);
@@ -2218,12 +1953,9 @@ window.deleteTeacher = async function(id) {
 
 window.showAddUserForm = function() {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-    if (userRole !== 'admin') {
-        alert('Access Denied: Only admin can add users.');
-        return;
-    }
+    // Removed role check: if (userRole !== 'admin') { alert('Access Denied: Only admin can add users.'); return; }
     userModalTitle.textContent = 'Add New User';
     userFormSubmitBtn.textContent = 'Add User';
     document.getElementById('userId').value = '';
@@ -2236,12 +1968,9 @@ window.showAddUserForm = function() {
 }
 window.editUser = async function(id) {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-    if (userRole !== 'admin') {
-        alert('Access Denied: Only admin can edit users.');
-        return;
-    }
+    // Removed role check: if (userRole !== 'admin') { alert('Access Denied: Only admin can edit users.'); return; }
     
     userModalTitle.textContent = 'Edit User';
     userFormSubmitBtn.textContent = 'Save Changes';
@@ -2279,12 +2008,9 @@ window.editUser = async function(id) {
 }
 window.deleteUser = async function(id) {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-    if (userRole !== 'admin') {
-        alert('Access Denied: Only admin can delete users.');
-        return;
-    }
+    // Removed role check: if (userRole !== 'admin') { alert('Access Denied: Only admin can delete users.'); return; }
     if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
         try {
             // Delete from profiles table first
@@ -2322,12 +2048,9 @@ window.deleteUser = async function(id) {
 
 window.showAddAnnouncementModal = function() {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-    if (userRole !== 'admin' && userRole !== 'teacher') {
-        alert('Access Denied: Only admin and teachers can add announcements.');
-        return;
-    }
+    // Removed role check: if (userRole !== 'admin' && userRole !== 'teacher') { alert('Access Denied: Only admin and teachers can add announcements.'); return; }
     announcementModalTitle.textContent = 'Add New Announcement';
     announcementFormSubmitBtn.textContent = 'Publish Announcement';
     document.getElementById('announcementId').value = '';
@@ -2339,12 +2062,9 @@ window.showAddAnnouncementModal = function() {
 }
 window.editAnnouncement = function(id) {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-    if (userRole !== 'admin' && userRole !== 'teacher') {
-        alert('Access Denied: Only admin and teachers can edit announcements.');
-        return;
-    }
+    // Removed role check: if (userRole !== 'admin' && userRole !== 'teacher') { alert('Access Denied: Only admin and teachers can edit announcements.'); return; }
     const announcement = announcements.find(a => a.id === id);
     if (announcement) {
         announcementModalTitle.textContent = 'Edit Announcement';
@@ -2361,12 +2081,9 @@ window.editAnnouncement = function(id) {
 }
 window.deleteAnnouncement = async function(id) {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-    if (userRole !== 'admin' && userRole !== 'teacher') {
-        alert('Access Denied: Only admin and teachers can delete announcements.');
-        return;
-    }
+    // Removed role check: if (userRole !== 'admin' && userRole !== 'teacher') { alert('Access Denied: Only admin and teachers can delete announcements.'); return; }
     if (confirm('Are you sure you want to delete this announcement?')) {
         try {
             const { error } = await supabase.from('announcements').delete().eq('id', id);
@@ -2387,12 +2104,9 @@ window.deleteAnnouncement = async function(id) {
 // Student Attendance Module Modals and Functions
 window.showAddAttendanceModal = function() {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-    if (userRole !== 'admin' && userRole !== 'teacher') {
-        alert('Access Denied: Only admin and teachers can mark student attendance.');
-        return;
-    }
+    // Removed role check: if (userRole !== 'admin' && userRole !== 'teacher') { alert('Access Denied: Only admin and teachers can mark student attendance.'); return; }
     attendanceModalTitle.textContent = 'Mark Attendance';
     attendanceFormSubmitBtn.textContent = 'Mark Attendance';
     document.getElementById('attendanceId').value = '';
@@ -2407,12 +2121,9 @@ window.showAddAttendanceModal = function() {
 
 window.editAttendance = function(id) {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-    if (userRole !== 'admin' && userRole !== 'teacher') {
-        alert('Access Denied: Only admin and teachers can edit student attendance.');
-        return;
-    }
+    // Removed role check: if (userRole !== 'admin' && userRole !== 'teacher') { alert('Access Denied: Only admin and teachers can edit student attendance.'); return; }
     const record = attendanceRecords.find(r => r.id === id);
     if (record) {
         attendanceModalTitle.textContent = 'Edit Attendance';
@@ -2431,12 +2142,9 @@ window.editAttendance = function(id) {
 
 window.deleteAttendance = async function(id) {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-    if (userRole !== 'admin' && userRole !== 'teacher') {
-        alert('Access Denied: Only admin and teachers can delete student attendance records.');
-        return;
-    }
+    // Removed role check: if (userRole !== 'admin' && userRole !== 'teacher') { alert('Access Denied: Only admin and teachers can delete student attendance records.'); return; }
     if (confirm('Are you sure you want to delete this attendance record?')) {
         try {
             const { error } = await supabase.from('attendance_records').delete().eq('id', id);
@@ -2490,13 +2198,9 @@ if (studentForm) {
     studentForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-        // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+        // Role retrieval is kept for audit logging, but not for access control
         const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-        // MODIFIED: Allow teachers to manage student data
-        if (userRole !== 'admin' && userRole !== 'teacher') { 
-            alert('Access Denied: Only admin and teachers can manage student data.');
-            return;
-        }
+        // Removed role check: if (userRole !== 'admin' && userRole !== 'teacher') { alert('Access Denied: Only admin and teachers can manage student data.'); return; }
         const form = e.target;
         const id = document.getElementById('studentId').value;
         const fullName = document.getElementById('studentFullName').value;
@@ -2565,12 +2269,9 @@ if (teacherForm) {
     teacherForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-        // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+        // Role retrieval is kept for audit logging, but not for access control
         const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-        if (userRole !== 'admin') {
-            alert('Access Denied: Only admin can manage teacher data.');
-            return;
-        }
+        // Removed role check: if (userRole !== 'admin') { alert('Access Denied: Only admin can manage teacher data.'); return; }
         const form = e.target;
         const id = document.getElementById('teacherId').value;
         const fullName = document.getElementById('teacherFullName').value;
@@ -2630,10 +2331,7 @@ if (userForm) {
         e.preventDefault();
         const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
         const currentUserRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-        if (currentUserRole !== 'admin') {
-            alert('Access Denied: Only admin can manage user accounts.');
-            return;
-        }
+        // Removed role check: if (currentUserRole !== 'admin') { alert('Access Denied: Only admin can manage user accounts.'); return; }
         const form = e.target;
         const id = document.getElementById('userId').value;
         const fullName = document.getElementById('userFullName').value;
@@ -2763,12 +2461,9 @@ if (announcementForm) {
     announcementForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-        // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+        // Role retrieval is kept for audit logging, but not for access control
         const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-        if (userRole !== 'admin' && userRole !== 'teacher') {
-            alert('Access Denied: Only admin and teachers can manage announcements.');
-            return;
-        }
+        // Removed role check: if (userRole !== 'admin' && userRole !== 'teacher') { alert('Access Denied: Only admin and teachers can manage announcements.'); return; }
         const form = e.target;
         const id = document.getElementById('announcementId').value;
         const title = document.getElementById('announcementTitle').value;
@@ -2827,12 +2522,9 @@ if (attendanceForm) {
     attendanceForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-        // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+        // Role retrieval is kept for audit logging, but not for access control
         const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-        if (userRole !== 'admin' && userRole !== 'teacher') {
-            alert('Access Denied: Only admin and teachers can mark student attendance.');
-            return;
-        }
+        // Removed role check: if (userRole !== 'admin' && userRole !== 'teacher') { alert('Access Denied: Only admin and teachers can mark student attendance.'); return; }
         const form = e.target;
         const id = document.getElementById('attendanceId').value;
         const studentId = document.getElementById('attendanceStudentSelect').value;
@@ -2902,12 +2594,9 @@ if (teacherAttendanceForm) {
     teacherAttendanceForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-        // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+        // Role retrieval is kept for audit logging, but not for access control
         const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-        if (userRole !== 'admin') {
-            alert('Access Denied: Only admin can manage teacher attendance.');
-            return;
-        }
+        // Removed role check: if (userRole !== 'admin') { alert('Access Denied: Only admin can manage teacher attendance.'); return; }
         const form = e.target;
         const id = document.getElementById('teacherAttendanceId').value;
         const teacherId = document.getElementById('teacherAttendanceTeacherSelect').value;
@@ -2978,12 +2667,9 @@ if (teacherAttendanceForm) {
 if (registerStudentFingerprintBtn) {
     registerStudentFingerprintBtn.addEventListener('click', async () => {
         const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-        // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+        // Role retrieval is kept for audit logging, but not for access control
         const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-        if (userRole !== 'admin' && userRole !== 'teacher') {
-            alert('Access Denied: Only admin and teachers can register student fingerprints.');
-            return;
-        }
+        // Removed role check: if (userRole !== 'admin' && userRole !== 'teacher') { alert('Access Denied: Only admin and teachers can register student fingerprints.'); return; }
         const studentId = attendanceStudentSelect.value;
         if (!studentId) {
             alert('Please select a student first.');
@@ -3053,13 +2739,9 @@ if (registerStudentFingerprintBtn) {
 if (verifyStudentFingerprintBtn) {
     verifyStudentFingerprintBtn.addEventListener('click', async () => {
         const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-        // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+        // Role retrieval is kept for audit logging, but not for access control
         const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-        // Allow admin, teacher, or student (if they have a fingerprint registered for themselves) to verify
-        if (!['admin', 'teacher', 'student'].includes(userRole)) {
-            alert('Access Denied: You do not have permission to verify student fingerprints.');
-            return;
-        }
+        // Removed role check: if (!['admin', 'teacher', 'student'].includes(userRole)) { alert('Access Denied: You do not have permission to verify student fingerprints.'); return; }
         const studentId = attendanceStudentSelect.value;
         if (!studentId) {
             alert('Please select a student first.');
@@ -3107,12 +2789,9 @@ if (verifyStudentFingerprintBtn) {
 if (registerTeacherFingerprintBtn) {
     registerTeacherFingerprintBtn.addEventListener('click', async () => {
         const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-        // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+        // Role retrieval is kept for audit logging, but not for access control
         const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-        if (userRole !== 'admin') {
-            alert('Access Denied: Only admin can register teacher fingerprints.');
-            return;
-        }
+        // Removed role check: if (userRole !== 'admin') { alert('Access Denied: Only admin can register teacher fingerprints.'); return; }
         const teacherId = teacherAttendanceTeacherSelect.value;
         if (!teacherId) {
             alert('Please select a teacher first.');
@@ -3182,12 +2861,9 @@ if (registerTeacherFingerprintBtn) {
 if (verifyTeacherFingerprintBtn) {
     verifyTeacherFingerprintBtn.addEventListener('click', async () => {
         const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-        // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+        // Role retrieval is kept for audit logging, but not for access control
         const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-        if (userRole !== 'admin' && userRole !== 'teacher') {
-            alert('Access Denied: You do not have permission to verify teacher fingerprints.');
-            return;
-        }
+        // Removed role check: if (userRole !== 'admin' && userRole !== 'teacher') { alert('Access Denied: You do not have permission to verify teacher fingerprints.'); return; }
         const teacherId = teacherAttendanceTeacherSelect.value;
         if (!teacherId) {
             alert('Please select a teacher first.');
@@ -3247,12 +2923,9 @@ function exportToExcel(data, filename) {
 // Export Students to Excel
 window.exportStudentsToExcel = function() {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-    if (userRole !== 'admin') {
-        alert('Access Denied: Only admin can export student data.');
-        return;
-    }
+    // Removed role check: if (userRole !== 'admin') { alert('Access Denied: Only admin can export student data.'); return; }
     const studentData = students.map(student => ({
         ID: student.id,
         Name: student.name,
@@ -3272,12 +2945,9 @@ window.exportStudentsToExcel = function() {
 // Export Teachers to Excel
 window.exportTeachersToExcel = function() {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-    if (userRole !== 'admin') {
-        alert('Access Denied: Only admin can export teacher data.');
-        return;
-    }
+    // Removed role check: if (userRole !== 'admin') { alert('Access Denied: Only admin can export teacher data.'); return; }
     const teacherData = teachers.map(teacher => ({
         ID: teacher.id,
         Name: teacher.name,
@@ -3293,10 +2963,7 @@ window.exportTeachersToExcel = function() {
 window.exportUsersToExcel = function() {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-    if (userRole !== 'admin') {
-        alert('Access Denied: Only admin can export user data.');
-        return;
-    }
+    // Removed role check: if (userRole !== 'admin') { alert('Access Denied: Only admin can export user data.'); return; }
     const userData = profiles.map(profile => ({
         ID: profile.id,
         "Full Name": profile.full_name,
@@ -3311,12 +2978,9 @@ window.exportUsersToExcel = function() {
 // Export Payroll to Excel
 window.exportPayrollToExcel = function() {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-    if (userRole !== 'admin') {
-        alert('Access Denied: Only admin can export payroll data.');
-        return;
-    }
+    // Removed role check: if (userRole !== 'admin') { alert('Access Denied: Only admin can export payroll data.'); return; }
     const payrollData = payrollEntries.map(entry => ({
         Period: entry.period,
         Staff_Count: entry.staff_count,
@@ -3330,12 +2994,9 @@ window.exportPayrollToExcel = function() {
 // Export Invoices to Excel
 window.exportInvoicesToExcel = function() {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-    if (userRole !== 'admin') {
-        alert('Access Denied: Only admin can export invoice data.');
-        return;
-    }
+    // Removed role check: if (userRole !== 'admin') { alert('Access Denied: Only admin can export invoice data.'); return; }
     const invoiceData = invoices.map(invoice => ({
         Invoice_Number: invoice.invoice_number,
         Date: invoice.date,
@@ -3349,12 +3010,9 @@ window.exportInvoicesToExcel = function() {
 // Export Announcements to Excel
 window.exportAnnouncementsToExcel = function() {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-    if (userRole !== 'admin' && userRole !== 'teacher') {
-        alert('Access Denied: Only admin and teachers can export announcements.');
-        return;
-    }
+    // Removed role check: if (userRole !== 'admin' && userRole !== 'teacher') { alert('Access Denied: Only admin and teachers can export announcements.'); return; }
     const announcementData = announcements.map(announcement => ({
         Title: announcement.title,
         Content: announcement.content,
@@ -3368,12 +3026,9 @@ window.exportAnnouncementsToExcel = function() {
 // Export Student Attendance to Excel
 window.exportStudentAttendanceToExcel = function() {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-    if (userRole !== 'admin' && userRole !== 'teacher') {
-        alert('Access Denied: Only admin and teachers can export student attendance data.');
-        return;
-    }
+    // Removed role check: if (userRole !== 'admin' && userRole !== 'teacher') { alert('Access Denied: Only admin and teachers can export student attendance data.'); return; }
     const attendanceExportData = attendanceRecords.map(record => {
         const student = students.find(s => s.id === record.student_id);
         return {
@@ -3392,12 +3047,9 @@ window.exportStudentAttendanceToExcel = function() {
 // Export Teacher Attendance to Excel
 window.exportTeacherAttendanceToExcel = function() {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Updated role retrieval logic: raw_user_meta_data first, then app_metadata
+    // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-    if (userRole !== 'admin') {
-        alert('Access Denied: Only admin can export teacher attendance data.');
-        return;
-    }
+    // Removed role check: if (userRole !== 'admin') { alert('Access Denied: Only admin can export teacher attendance data.'); return; }
     const teacherAttendanceExportData = teacherAttendanceRecords.map(record => {
         const teacher = teachers.find(t => t.id === record.teacher_id);
         return {
