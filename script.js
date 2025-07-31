@@ -523,51 +523,56 @@ function initializeCharts() {
 
 // --- Supabase Authentication and User Management ---
 
-/**
- * Handles user login.
- * @param {Event} event
- */
 async function handleLogin(event) {
-    event.preventDefault();
-    const email = emailInput.value;
-    const password = passwordInput.value;
-    const role = selectedRoleInput.value;
+  event.preventDefault();
 
-    try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email: email,
-            password: password,
-        });
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  const role = document.querySelector('.role-button.active')?.dataset.role;
 
-        if (error) throw error;
+  if (!email || !password || !role) {
+    alert('Please fill all fields and select a role.');
+    return;
+  }
 
-        // Verify user role after successful login
-        const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', data.user.id)
-            .single();
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-        if (profileError) throw profileError;
+  if (error) {
+    alert('Login failed: ' + error.message);
+    return;
+  }
 
-        if (profile.role !== role) {
-            await supabase.auth.signOut(); // Log out if role doesn't match
-            showToast('Login failed: Invalid role for this account.', 'error');
-            return;
-        }
-
-        loggedInUser = data.user;
-        currentRole = profile.role; // Set the actual role from the profile
-        showToast(`Logged in as ${profile.role}!`, 'success');
-        showSchoolSite();
-        updateLoggedInUserUI();
-        setActiveModule('dashboard'); // Load dashboard after login
-
-    } catch (error) {
-        showToast(`Login failed: ${error.message}`, 'error');
-        console.error('Login error:', error.message);
-    }
+  // Save role in localStorage and redirect
+  localStorage.setItem('userRole', role);
+  localStorage.setItem('userEmail', email);
+  document.getElementById('login-ui').style.display = 'none';
+  document.getElementById('school-site-ui').style.display = 'block';
+  loadUserDashboard(role);
 }
+
+function loadUserDashboard(role) {
+  const adminModules = document.querySelectorAll('.admin-only');
+  adminModules.forEach(el => el.style.display = (role === 'admin') ? 'block' : 'none');
+}
+
+async function checkUserSession() {
+  const { data: { session } } = await supabase.auth.getSession();
+  const role = localStorage.getItem('userRole');
+
+  if (session && role) {
+    document.getElementById('login-ui').style.display = 'none';
+    document.getElementById('school-site-ui').style.display = 'block';
+    loadUserDashboard(role);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const loginForm = document.getElementById("loginForm");
+  if (loginForm) {
+    loginForm.addEventListener("submit", handleLogin);
+  }
+  checkUserSession();
+});
 
 /**
  * Handles user logout.
