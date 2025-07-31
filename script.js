@@ -2857,6 +2857,38 @@ window.verifyTeacherFingerprint = verifyTeacherFingerprint;
 // Voice Assistant Placeholder (from index.html)
 function startVoiceAssistant() {
     showToast('Voice assistant functionality not yet implemented.', 'info');
+
+function handleRoleSelection(role) {
+    selectedRoleInput.value = role;
+    roleButtons.forEach(button => {
+        button.classList.remove("bg-blue-600", "text-white");
+        if (button.getAttribute("data-role") === role) {
+            button.classList.add("bg-blue-600", "text-white");
+        }
+    });
+}
+
+// ✅ DOMContentLoaded event to bind all listeners and check session
+document.addEventListener('DOMContentLoaded', () => {
+    checkUserSession();
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+    }
+
+    if (logoutButton) {
+        logoutButton.addEventListener('click', handleLogout);
+    }
+
+    roleButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            selectedRoleInput.value = button.dataset.role;
+            roleButtons.forEach(btn => btn.classList.remove('bg-blue-600', 'text-white'));
+            button.classList.add('bg-blue-600', 'text-white');
+        });
+    });
+});
+
     // This would typically involve Web Speech API or a third-party voice AI service.
 }
 window.startVoiceAssistant = startVoiceAssistant; // Make it globally accessible
