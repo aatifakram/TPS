@@ -744,6 +744,13 @@ async function loadRecentActivity() {
 
         if (error) throw error;
 
+        // Ensure recentActivityList exists before trying to manipulate it
+        const recentActivityList = document.getElementById('recentActivityList');
+        if (!recentActivityList) {
+            console.warn('recentActivityList element not found.');
+            return;
+        }
+
         recentActivityList.innerHTML = ''; // Clear previous entries
         if (data.length === 0) {
             recentActivityList.innerHTML = '<p class="text-gray-500">No recent activity.</p>';
@@ -759,7 +766,7 @@ async function loadRecentActivity() {
                 </div>
                 <div>
                     <p class="text-sm font-medium">${activity.action} by ${activity.user_email}</p>
-                    <p class="text-xs text-gray-500">${activity.details} - ${new Date(activity.timestamp).toLocaleString()}</p>
+                    <p class="text-xs text-gray-500">${new Date(activity.timestamp).toLocaleString()}</p>
                 </div>
             `;
             recentActivityList.appendChild(activityItem);
@@ -2853,47 +2860,3 @@ window.registerStudentFingerprint = registerStudentFingerprint;
 window.verifyStudentFingerprint = verifyStudentFingerprint;
 window.registerTeacherFingerprint = registerTeacherFingerprint;
 window.verifyTeacherFingerprint = verifyTeacherFingerprint;
-
-
-// ✅ DOMContentLoaded event to bind all listeners and check session
-document.addEventListener('DOMContentLoaded', () => {
-    checkUserSession();
-
-    if (loginForm) {
-        loginForm.addEventListener('submit', handleLogin);
-    }
-
-    if (logoutButton) {
-        logoutButton.addEventListener('click', handleLogout);
-    }
-
-    roleButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            selectedRoleInput.value = button.dataset.role;
-            roleButtons.forEach(btn => btn.classList.remove('bg-blue-600', 'text-white'));
-            button.classList.add('bg-blue-600', 'text-white');
-        });
-    });
-});
-
-
-// ✅ DOM Ready Login Check and Event Binding
-document.addEventListener('DOMContentLoaded', () => {
-    checkUserSession();
-
-    if (loginForm) {
-        loginForm.addEventListener('submit', handleLogin);
-    }
-
-    if (logoutButton) {
-        logoutButton.addEventListener('click', handleLogout);
-    }
-
-    roleButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            selectedRoleInput.value = button.dataset.role;
-            roleButtons.forEach(btn => btn.classList.remove('bg-blue-600', 'text-white'));
-            button.classList.add('bg-blue-600', 'text-white');
-        });
-    });
-});
