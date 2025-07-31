@@ -1,9 +1,3 @@
-// Supabase Configuration (REPLACE WITH YOUR ACTUAL DETAILS)
-const SUPABASE_URL = 'https://wjmvgdaoehgymnhzqeuv.supabase.co'; // e.g., 'https://abcdefg.supabase.co'
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqbXZnZGFvZWhneW1uaHpxZXV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM4NzM2ODgsImV4cCI6MjA2OTQ0OTY4OH0.NnrLIIu3e8DrkjcKtexZs50kV0kPYH25Oz7dc_lsiDA'; // e.g., 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-
-const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
 // --- Global Variables ---
 let currentRole = 'admin'; // Default role
 let loggedInUser = null;
@@ -11,6 +5,12 @@ let typedWelcomeText = "Welcome to Tapowan Public School!";
 let typedWelcomeIndex = 0;
 let typingSpeed = 70; // milliseconds
 let isDarkMode = false;
+
+
+// Supabase Client Initialization (Replace with your actual keys)
+const SUPABASE_URL = 'https://wjmvgdaoehgymnhzqeuv.supabase.co'; // Replace with your Supabase URL
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqbXZnZGFvZWhneW1uaHpxZXV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM4NzM2ODgsImV4cCI6MjA2OTQ0OTY4OH0.NnrLIIu3e8DrkjcKtexZs50kV0kPYH25Oz7dc_lsiDA'; // Replace with your actual Supabase Anon Key
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // --- DOM Elements ---
 const loginUI = document.getElementById('login-ui');
