@@ -611,7 +611,35 @@ async function handleForgotPassword(event) {
 /**
  * Checks if a user is currently logged in and updates UI.
  */
+async function checkUserSession() {
+    const { data: { session }, error } = await supabase.auth.getSession();
 
+    if (session) {
+        loggedInUser = session.user;
+        // Fetch user profile to get the role
+        const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', loggedInUser.id)
+            .single();
+
+        if (profileError) {
+            console.error('Error fetching user profile:', profileError.message);
+            await supabase.auth.signOut(); // Log out if profile can't be fetched
+            showLoginUI();
+            return;
+        }
+
+        currentRole = profile.role;
+        showSchoolSite();
+        updateLoggedInUserUI();
+        // Determine initial module based on hash or default to dashboard
+        const initialModule = window.location.hash ? window.location.hash.substring(1) : 'dashboard';
+        setActiveModule(initialModule);
+    } else {
+        showLoginUI();
+    }
+}
 
 /**
  * Updates the UI with logged-in user's name and role.
@@ -2680,7 +2708,7 @@ document.querySelectorAll('.open-module').forEach(button => {
     button.addEventListener('click', handleNavigationClick);
 });
 
-logoutButton.addEventListener('click', handleLogout);
+logoutButton.addEventListener('click', handleLogout); // Added logout event listener
 
 userProfileToggle.addEventListener('click', () => {
     userDropdown.classList.toggle('hidden');
@@ -2832,50 +2860,6 @@ window.registerStudentFingerprint = registerStudentFingerprint;
 window.verifyStudentFingerprint = verifyStudentFingerprint;
 window.registerTeacherFingerprint = registerTeacherFingerprint;
 window.verifyTeacherFingerprint = verifyTeacherFingerprint;
-
-
-// ✅ DOMContentLoaded event to bind all listeners and check session
-document.addEventListener('DOMContentLoaded', () => {
-    checkUserSession();
-
-    if (loginForm) {
-        loginForm.addEventListener('submit', handleLogin);
-    }
-
-    if (logoutButton) {
-        logoutButton.addEventListener('click', handleLogout);
-    }
-
-    roleButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            selectedRoleInput.value = button.dataset.role;
-            roleButtons.forEach(btn => btn.classList.remove('bg-blue-600', 'text-white'));
-            button.classList.add('bg-blue-600', 'text-white');
-        });
-    });
-});
-
-
-// ✅ DOM Ready Login Check and Event Binding
-document.addEventListener('DOMContentLoaded', () => {
-    checkUserSession();
-
-    if (loginForm) {
-        loginForm.addEventListener('submit', handleLogin);
-    }
-
-    if (logoutButton) {
-        logoutButton.addEventListener('click', handleLogout);
-    }
-
-    roleButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            selectedRoleInput.value = button.dataset.role;
-            roleButtons.forEach(btn => btn.classList.remove('bg-blue-600', 'text-white'));
-            button.classList.add('bg-blue-600', 'text-white');
-        });
-    });
-});
 
 // Voice Assistant Placeholder (from index.html)
 function startVoiceAssistant() {
