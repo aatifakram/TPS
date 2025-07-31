@@ -611,35 +611,7 @@ async function handleForgotPassword(event) {
 /**
  * Checks if a user is currently logged in and updates UI.
  */
-async function checkUserSession() {
-    const { data: { session }, error } = await supabase.auth.getSession();
 
-    if (session) {
-        loggedInUser = session.user;
-        // Fetch user profile to get the role
-        const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', loggedInUser.id)
-            .single();
-
-        if (profileError) {
-            console.error('Error fetching user profile:', profileError.message);
-            await supabase.auth.signOut(); // Log out if profile can't be fetched
-            showLoginUI();
-            return;
-        }
-
-        currentRole = profile.role;
-        showSchoolSite();
-        updateLoggedInUserUI();
-        // Determine initial module based on hash or default to dashboard
-        const initialModule = window.location.hash ? window.location.hash.substring(1) : 'dashboard';
-        setActiveModule(initialModule);
-    } else {
-        showLoginUI();
-    }
-}
 
 /**
  * Updates the UI with logged-in user's name and role.
