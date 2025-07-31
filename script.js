@@ -8,8 +8,8 @@ let isDarkMode = false;
 
 
 // Supabase Client Initialization (Replace with your actual keys)
-const SUPABASE_URL = 'https://wjmvgdaoehgymnhzqeuv.supabase.co'; // Replace with your Supabase URL
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqbXZnZGFvZWhneW1uaHpxZXV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM4NzM2ODgsImV4cCI6MjA2OTQ0OTY4OH0.NnrLIIu3e8DrkjcKtexZs50kV0kPYH25Oz7dc_lsiDA'; // Replace with your actual Supabase Anon Key
+const SUPABASE_URL = 'https://zyvwttzwjweeslvjbatg.supabase.co'; // Replace with your Supabase URL
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp5dnd0dHp3andlZXNsdmpiYXRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5NTQwODMsImV4cCI6MjA2OTUzMDA4M30.pgzB45XBJAyGBlkKUJF4Jr0yVNunXjwa8p8JOaX7Nso'; // Replace with your actual Supabase Anon Key
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // --- DOM Elements ---
