@@ -568,6 +568,8 @@ async function handleLogin(event) {
         console.error('Login error:', error.message);
     }
 }
+document.getElementById('school-site-ui').classList.remove('hidden');
+document.getElementById('dashboardMainContent').classList.remove('hidden');
 
 /**
  * Handles user logout.
