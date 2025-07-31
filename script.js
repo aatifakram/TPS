@@ -528,8 +528,6 @@ const logoutButton = document.getElementById('logoutButton');
 const roleButtons = document.querySelectorAll('.role-button');
 const selectedRoleInput = document.getElementById('selectedRole');
 
-// Supabase Client Initialization
-const supabase = supabase || createClient('https://your-project.supabase.co', 'public-anon-key'); // Replace with your keys
 
 // DOM references
 const loginUI = document.getElementById('login-ui');
@@ -2886,27 +2884,6 @@ function handleRoleSelection(role) {
     });
 }
 
-// ✅ DOMContentLoaded event to bind all listeners and check session
-document.addEventListener('DOMContentLoaded', () => {
-    checkUserSession();
 
-    if (loginForm) {
-        loginForm.addEventListener('submit', handleLogin);
-    }
 
-    if (logoutButton) {
-        logoutButton.addEventListener('click', handleLogout);
-    }
-
-    roleButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            selectedRoleInput.value = button.dataset.role;
-            roleButtons.forEach(btn => btn.classList.remove('bg-blue-600', 'text-white'));
-            button.classList.add('bg-blue-600', 'text-white');
-        });
-    });
-});
-
-    // This would typically involve Web Speech API or a third-party voice AI service.
-}
-window.startVoiceAssistant = startVoiceAssistant; // Make it globally accessible
+ 
