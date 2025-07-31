@@ -2854,21 +2854,6 @@ window.verifyStudentFingerprint = verifyStudentFingerprint;
 window.registerTeacherFingerprint = registerTeacherFingerprint;
 window.verifyTeacherFingerprint = verifyTeacherFingerprint;
 
-// Voice Assistant Placeholder (from index.html)
-function startVoiceAssistant() {
-    showToast('Voice assistant functionality not yet implemented.', 'info');
-    // This would typically involve Web Speech API or a third-party voice AI service.
-}
-window.startVoiceAssistant = startVoiceAssistant; // Make it globally accessible
-function handleRoleSelection(role) {
-    selectedRoleInput.value = role;
-    roleButtons.forEach(button => {
-        button.classList.remove("bg-blue-600", "text-white");
-        if (button.getAttribute("data-role") === role) {
-            button.classList.add("bg-blue-600", "text-white");
-        }
-    });
-}
 
 // ✅ DOMContentLoaded event to bind all listeners and check session
 document.addEventListener('DOMContentLoaded', () => {
