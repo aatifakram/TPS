@@ -2861,9 +2861,3 @@ window.verifyStudentFingerprint = verifyStudentFingerprint;
 window.registerTeacherFingerprint = registerTeacherFingerprint;
 window.verifyTeacherFingerprint = verifyTeacherFingerprint;
 
-// Voice Assistant Placeholder (from index.html)
-function startVoiceAssistant() {
-    showToast('Voice assistant functionality not yet implemented.', 'info');
-    // This would typically involve Web Speech API or a third-party voice AI service.
-}
-window.startVoiceAssistant = startVoiceAssistant; // Make it globally accessible
