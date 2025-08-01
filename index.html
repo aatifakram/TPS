@@ -758,6 +758,7 @@
                     </div>
                     <div class="module-card p-6">
                         <div class="flex flex-wrap items-center gap-4 mb-4">
+                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-auto" id="searchStudentName" placeholder="Search by Name" type="text" name="searchStudentName"/>
                             <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-auto" id="searchRoll" placeholder="Search by Roll No." type="text" name="searchRoll"/>
                             <select class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-auto" id="searchClass" name="searchClass">
                                 <option value="">All Classes</option>
@@ -774,7 +775,7 @@
                                 <option>Grade 11</option>
                                 <option>Grade 12</option>
                             </select>
-                            <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 w-full md:w-auto" id="applySearch" type="button">
+                            <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 w-full md:w-auto" id="applyStudentSearch" type="button">
                                 <i class="fas fa-search mr-2"></i>Search
                             </button>
                         </div>
@@ -789,6 +790,11 @@
                                     <th class="text-left py-3 px-4">Class</th>
                                     <th class="text-left py-3 px-4">Roll No.</th>
                                     <th class="text-left py-3 px-4">Aadhar No.</th>
+                                    <th class="text-left py-3 px-4">Blood Group</th>
+                                    <th class="text-left py-3 px-4">Admission No.</th>
+                                    <th class="text-left py-3 px-4">Admission Date</th>
+                                    <th class="text-left py-3 px-4">Father's Aadhar</th>
+                                    <th class="text-left py-3 px-4">Mother's Aadhar</th>
                                     <th class="text-left py-3 px-4">Status</th>
                                     <th class="text-left py-3 px-4">Actions</th>
                                 </tr>
@@ -814,6 +820,23 @@
                         </div>
                     </div>
                     <div class="module-card p-6">
+                        <div class="flex flex-wrap items-center gap-4 mb-4">
+                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 w-full md:w-auto" id="searchTeacherName" placeholder="Search by Name" type="text" name="searchTeacherName"/>
+                            <select class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 w-full md:w-auto" id="searchTeacherSubject" name="searchTeacherSubject">
+                                <option value="">All Subjects</option>
+                                <option>English</option>
+                                <option>Hindi</option>
+                                <option>Science</option>
+                                <option>Math</option>
+                                <option>Computer</option>
+                                <option>Sanskrit</option>
+                                <option>Social Study</option>
+                                <option>Soil Science</option>
+                            </select>
+                            <button class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 w-full md:w-auto" id="applyTeacherSearch" type="button">
+                                <i class="fas fa-search mr-2"></i>Search
+                            </button>
+                        </div>
                         <div class="overflow-x-auto">
                             <table class="min-w-full" id="teachersTable"> <!-- Added ID for easy access -->
                                 <thead>
@@ -842,6 +865,12 @@
                         </button>
                     </div>
                     <div class="module-card p-6">
+                        <div class="flex flex-wrap items-center gap-4 mb-4">
+                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 w-full md:w-auto" id="searchPayrollPeriod" placeholder="Search by Period (e.g., October 2023)" type="text" name="searchPayrollPeriod"/>
+                            <button class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 w-full md:w-auto" id="applyPayrollSearch" type="button">
+                                <i class="fas fa-search mr-2"></i>Search
+                            </button>
+                        </div>
                         <div class="overflow-x-auto">
                             <table class="min-w-full">
                                 <thead>
@@ -870,6 +899,12 @@
                         </button>
                     </div>
                     <div class="module-card p-6">
+                        <div class="flex flex-wrap items-center gap-4 mb-4">
+                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 w-full md:w-auto" id="searchInvoiceNumber" placeholder="Search by Invoice #" type="text" name="searchInvoiceNumber"/>
+                            <button class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 w-full md:w-auto" id="applyInvoiceSearch" type="button">
+                                <i class="fas fa-search mr-2"></i>Search
+                            </button>
+                        </div>
                         <div class="overflow-x-auto">
                             <table class="min-w-full">
                                 <thead>
@@ -1253,6 +1288,36 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="studentAadharNo">Aadhar No.</label>
                             <input class="w-full p-2 border rounded-lg" id="studentAadharNo" name="studentAadharNo" required="" type="text"/>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" for="studentBloodGroup">Blood Group</label>
+                            <select class="w-full p-2 border rounded-lg" id="studentBloodGroup" name="studentBloodGroup">
+                                <option value="">Select Blood Group</option>
+                                <option>A+</option>
+                                <option>A-</option>
+                                <option>B+</option>
+                                <option>B-</option>
+                                <option>AB+</option>
+                                <option>AB-</option>
+                                <option>O+</option>
+                                <option>O-</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" for="studentAdmissionNo">Admission No.</label>
+                            <input class="w-full p-2 border rounded-lg" id="studentAdmissionNo" name="studentAdmissionNo" type="text"/>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" for="studentAdmissionDate">Admission Date</label>
+                            <input class="w-full p-2 border rounded-lg" id="studentAdmissionDate" name="studentAdmissionDate" type="date"/>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" for="studentFatherAadhar">Father's Aadhar</label>
+                            <input class="w-full p-2 border rounded-lg" id="studentFatherAadhar" name="studentFatherAadhar" type="text"/>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" for="studentMotherAadhar">Mother's Aadhar</label>
+                            <input class="w-full p-2 border rounded-lg" id="studentMotherAadhar" name="studentMotherAadhar" type="text"/>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="studentEmail">Email</label>
