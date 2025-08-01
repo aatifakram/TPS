@@ -14,6 +14,7 @@ let profiles = []; // New global variable for profiles
 // Supabase Client Initialization (Replace with your actual keys)
 const SUPABASE_URL = 'https://zyvwttzwjweeslvjbatg.supabase.co'; // Replace with your Supabase URL
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp5dnd0dHp3andlZXNsdmpiYXRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5NTQwODMsImV4cCI6MjA2OTUzMDA4M30.pgzB45XBJAyGBlkKUJF4Jr0yVNunXjwa8p8JOaX7Nso'; // Replace with your actual Supabase Anon Key
+const SERVICE_ROLE_KEY = 'sb_secret_Cv8fccnWSRACSkg92y3oqw_sCmq4T2g'; // <<< REPLACE THIS WITH YOUR ACTUAL SERVICE ROLE KEY
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // --- IMPORTANT RLS NOTE ---
