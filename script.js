@@ -203,14 +203,14 @@ async function fetchAttendanceRecords() {
     }
 }
 
-async function fetchTeacherAttendanceRecords() {
+async function fetchTeacherAttendance() {
     try {
-        const { data, error } = await supabase.from('teacher_attendance_records').select('*');
+        const { data, error } = await supabase.from('teacher_attendance').select('*');
         if (error) throw error;
-        teacherAttendanceRecords = data;
+        teacherAttendance = data;
     } catch (error) {
-        console.error('Error fetching teacher attendance records:', error);
-        teacherAttendanceRecords = [];
+        console.error('Error fetching teacher attendance:', error);
+        teacherAttendance = [];
     } finally {
         renderTeacherAttendanceTable();
     }
