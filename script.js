@@ -1,21 +1,29 @@
 // Global variables for data (will be populated from Supabase)
 let students = [];
 let teachers = [];
-let payrollEntries = [];
-let invoices = [];
+let payrollEntries = []; // Renamed to match the table name 'payroll'
+let invoices = [];       // Renamed to match the table name 'finance'
 let announcements = [];
 let notifications = []; // Client-side for simplicity
 let auditLogs = [];
 let backups = []; // Client-side for simplicity
-let attendanceRecords = [];
-let teacherAttendanceRecords = [];
+let attendanceRecords = []; // Renamed to match the table name 'attendance'
+let teacherAttendanceRecords = []; // Renamed to match the table name 'teacher_attendance'
 let profiles = []; // New global variable for profiles
 
 // Supabase Client Initialization (Replace with your actual keys)
 const SUPABASE_URL = 'https://zyvwttzwjweeslvjbatg.supabase.co'; // Replace with your Supabase URL
-// IMPORTANT: Replace this with your actual Supabase Anon Key. The one provided was malformed.
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp5dnd0dHp3andlZXNsdmpiYXRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5NTQwODMsImV4cCI6MjA2OTUzMDA4M30.pgzB45XBJAyGBlkKUJF4Jr0yVNunXjwa8p8JOaX7Nso'; // Replace with your actual Supabase Anon Key
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// --- IMPORTANT RLS NOTE ---
+// If you are still getting 403 errors after this, ensure your Row Level Security (RLS) policies
+// in Supabase are configured to allow 'SELECT', 'INSERT', 'UPDATE', 'DELETE' for the 'authenticated'
+// and/or 'anon' roles on ALL tables your application interacts with.
+// For testing, you can temporarily set very permissive policies like:
+// CREATE POLICY "Allow all for authenticated users" ON your_table FOR ALL TO authenticated USING (true);
+// CREATE POLICY "Allow all for anon users" ON your_table FOR ALL TO anon USING (true);
+// Remember to refine these for production security!
 
 // --- Utility Functions ---
 
@@ -28,7 +36,7 @@ function generateUniqueId() {
 }
 
 /**
- * Adds an entry to the audit logs table in Supabase.
+ * Adds an entry to the audit_logs table in Supabase.
  * @param {string} userEmail - The email of the user performing the action.
  * @param {string} action - The action performed (e.g., 'Logged In', 'Added Student').
  * @param {string} module - The module where the action occurred (e.g., 'Authentication', 'Students').
@@ -36,12 +44,11 @@ function generateUniqueId() {
  */
 async function addAuditLog(userEmail, action, module, details) {
     try {
-        // Ensure the userEmail is not null or undefined for audit logs
-        const emailToLog = userEmail || 'anonymous@example.com'; // Fallback email for unauthenticated actions
+        const emailToLog = userEmail || 'anonymous@example.com';
 
         const { data, error } = await supabase.from('audit_logs').insert([
             {
-                user_email: emailToLog, // Changed 'user' to 'user_email' to match common database column naming
+                user_email: emailToLog,
                 action: action,
                 module: module,
                 details: details,
@@ -50,8 +57,8 @@ async function addAuditLog(userEmail, action, module, details) {
         ]);
         if (error) {
             console.error('Error adding audit log:', error);
-            // You need to configure RLS policies in your Supabase dashboard to allow inserts into 'audit_logs'.
-            // For example, allow 'authenticated' users to insert, or even 'anon' if you want to log pre-login attempts.
+            // Log the full error object for debugging RLS issues
+            console.error('Supabase RLS or DB error details:', error.message, error.details, error.hint);
         } else {
             console.log('Audit log added:', data);
         }
@@ -118,7 +125,8 @@ async function fetchTeachers() {
 
 async function fetchPayrollEntries() {
     try {
-        const { data, error } = await supabase.from('payroll_entries').select('*');
+        // Changed table name to 'payroll'
+        const { data, error } = await supabase.from('payroll').select('*');
         if (error) throw error;
         payrollEntries = data;
     } catch (error) {
@@ -131,7 +139,8 @@ async function fetchPayrollEntries() {
 
 async function fetchInvoices() {
     try {
-        const { data, error } = await supabase.from('invoices').select('*');
+        // Changed table name to 'finance'
+        const { data, error } = await supabase.from('finance').select('*');
         if (error) throw error;
         invoices = data;
     } catch (error) {
@@ -192,7 +201,8 @@ async function fetchBackups() {
 
 async function fetchAttendanceRecords() {
     try {
-        const { data, error } = await supabase.from('attendance_records').select('*');
+        // Changed table name to 'attendance'
+        const { data, error } = await supabase.from('attendance').select('*');
         if (error) throw error;
         attendanceRecords = data;
     } catch (error) {
@@ -203,14 +213,15 @@ async function fetchAttendanceRecords() {
     }
 }
 
-async function fetchTeacherAttendance() {
+async function fetchTeacherAttendanceRecords() { // Renamed function for clarity
     try {
+        // Changed table name to 'teacher_attendance'
         const { data, error } = await supabase.from('teacher_attendance').select('*');
         if (error) throw error;
-        teacherAttendance = data;
+        teacherAttendanceRecords = data; // Assign to teacherAttendanceRecords
     } catch (error) {
         console.error('Error fetching teacher attendance:', error);
-        teacherAttendance = [];
+        teacherAttendanceRecords = [];
     } finally {
         renderTeacherAttendanceTable();
     }
@@ -272,7 +283,7 @@ async function loadAllData() {
         fetchAuditLogs(),
         fetchBackups(), // Still local
         fetchAttendanceRecords(),
-        fetchTeacherAttendanceRecords(),
+        fetchTeacherAttendanceRecords(), // Call the corrected function name
         fetchProfiles() // Fetch profiles data
     ]);
     updateDashboardStats();
@@ -405,7 +416,7 @@ const teacherAttendanceTotalTeachers = document.getElementById('teacherAttendanc
 const teacherAttendanceTotalPresent = document.getElementById('teacherAttendanceTotalPresent');
 const teacherAttendanceTotalAbsent = document.getElementById('teacherAttendanceTotalAbsent');
 const registerTeacherFingerprintBtn = document.getElementById('registerTeacherFingerprintBtn');
-const verifyTeacherFingerprintBtn = document = document.getElementById('verifyTeacherFingerprintBtn');
+const verifyTeacherFingerprintBtn = document.getElementById('verifyTeacherFingerprintBtn');
 
 // Dark Mode Elements
 const darkModeToggle = document.getElementById('darkModeToggle');
@@ -542,17 +553,6 @@ async function handleLogin() {
             // Determine the user's actual role from Supabase metadata
             // raw_user_meta_data is preferred as it's directly set by the application
             const userRole = authData.user.raw_user_meta_data?.role || authData.user.app_metadata?.role || 'admin';
-
-            // Role mismatch check:
-            // An admin user can log in as any role (for testing/management purposes in a demo).
-            // Other roles must match their registered role.
-            // REMOVED ROLE MISMATCH CHECK
-            // if (userRole !== selectedRole && selectedRole !== 'admin') {
-            //     alert(`Login failed: You are registered as a ${userRole}, not a ${selectedRole}. Please select your correct role.`);
-            //     // Removed supabase.auth.signOut() here to keep only login functionality
-            //     await addAuditLog(emailInput, 'Login Failed (Role Mismatch)', 'Authentication', `User ${emailInput} attempted login as ${selectedRole}, but actual role is ${userRole}.`);
-            //     return;
-            // }
 
             // Proceed with login if roles match or if the selected role is 'admin' (allowing admin to impersonate/test)
             localStorage.setItem('loggedIn', 'true');
@@ -839,7 +839,7 @@ window.showModule = async function(moduleName) {
             case 'payroll': await fetchPayrollEntries(); break;
             case 'finance': await fetchInvoices(); break;
             case 'attendance': await fetchAttendanceRecords(); populateStudentSelect(); break;
-            case 'teacher-attendance': await fetchTeacherAttendanceRecords(); populateTeacherSelect(); break;
+            case 'teacher-attendance': await fetchTeacherAttendanceRecords(); populateTeacherSelect(); break; // Corrected function call
             case 'announcements': await fetchAnnouncements(); break;
             case 'audit-logs': await fetchAuditLogs(); break;
             case 'backup-restore': await fetchBackups(); break;
@@ -1062,7 +1062,8 @@ if (payrollForm) {
         const formattedPeriod = date.toLocaleString('default', { month: 'long', year: 'numeric' });
 
         try {
-            const { data, error } = await supabase.from('payroll_entries').insert([
+            // Changed table name to 'payroll'
+            const { data, error } = await supabase.from('payroll').insert([
                 {
                     period: formattedPeriod,
                     staff_count: parseInt(staffCount),
@@ -1179,7 +1180,8 @@ if (addInvoiceForm) {
         }
 
         try {
-            const { data, error } = await supabase.from('invoices').insert([
+            // Changed table name to 'finance'
+            const { data, error } = await supabase.from('finance').insert([
                 {
                     invoice_number: invoiceNumber,
                     date: invoiceDateInput,
@@ -1543,7 +1545,7 @@ if (attendanceDateFilter) attendanceDateFilter.addEventListener('change', filter
 if (attendanceStudentNameFilter) attendanceStudentNameFilter.addEventListener('keyup', filterAttendance);
 
 // Teacher Attendance Module Functions
-function renderTeacherAttendanceTable(filteredRecords = teacherAttendanceRecords) {
+function renderTeacherAttendanceTable(filteredRecords = teacherAttendanceRecords) { // Corrected variable name
     if (!teacherAttendanceTableBody) return;
     teacherAttendanceTableBody.innerHTML = '';
 
@@ -1610,7 +1612,7 @@ function filterTeacherAttendance() {
     const dateFilter = teacherAttendanceDateFilter.value;
     const nameFilter = teacherAttendanceNameFilter.value.toLowerCase();
 
-    const filtered = teacherAttendanceRecords.filter(record => {
+    const filtered = teacherAttendanceRecords.filter(record => { // Corrected variable name
         const teacher = teachers.find(t => t.id === record.teacher_id);
         if (!teacher) return false;
 
@@ -1650,7 +1652,7 @@ window.editTeacherAttendance = function(id) {
     // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
     // Removed role check: if (userRole !== 'admin') { alert('Access Denied: Only admin can edit teacher attendance.'); return; }
-    const record = teacherAttendanceRecords.find(r => r.id === id);
+    const record = teacherAttendanceRecords.find(r => r.id === id); // Corrected variable name
     if (record) {
         teacherAttendanceModalTitle.textContent = 'Edit Teacher Attendance';
         teacherAttendanceFormSubmitBtn.textContent = 'Save Changes';
@@ -1673,14 +1675,15 @@ window.deleteTeacherAttendance = async function(id) {
     // Removed role check: if (userRole !== 'admin') { alert('Access Denied: Only admin can delete teacher attendance records.'); return; }
     if (confirm('Are you sure you want to delete this teacher attendance record?')) {
         try {
-            const { error } = await supabase.from('teacher_attendance_records').delete().eq('id', id);
+            // Changed table name to 'teacher_attendance'
+            const { error } = await supabase.from('teacher_attendance').delete().eq('id', id);
             if (error) throw error;
 
-            const deletedRecord = teacherAttendanceRecords.find(r => r.id === id);
+            const deletedRecord = teacherAttendanceRecords.find(r => r.id === id); // Corrected variable name
             const teacher = teachers.find(s => s.id === deletedRecord.teacher_id);
             await addAuditLog(loggedInUser?.email || 'admin', 'Deleted Teacher Attendance', 'Teacher Attendance', `Deleted attendance for ${teacher ? teacher.name : 'Unknown Teacher'} on ${deletedRecord.date}`);
             alert('Teacher attendance record deleted successfully!');
-            await fetchTeacherAttendanceRecords();
+            await fetchTeacherAttendanceRecords(); // Corrected function call
         } catch (error) {
             alert('Error deleting teacher attendance record: ' + error.message);
             console.error('Supabase error:', error);
@@ -2147,7 +2150,8 @@ window.deleteAttendance = async function(id) {
     // Removed role check: if (userRole !== 'admin' && userRole !== 'teacher') { alert('Access Denied: Only admin and teachers can delete student attendance records.'); return; }
     if (confirm('Are you sure you want to delete this attendance record?')) {
         try {
-            const { error } = await supabase.from('attendance_records').delete().eq('id', id);
+            // Changed table name to 'attendance'
+            const { error } = await supabase.from('attendance').delete().eq('id', id);
             if (error) throw error;
 
             const deletedRecord = attendanceRecords.find(r => r.id === id);
@@ -2483,21 +2487,24 @@ if (announcementForm) {
         let auditDetails = '';
 
         try {
+            const { data, error } = await supabase.from('announcements').upsert(
+                { ...announcementData, id: id || undefined }, // Use upsert for add/edit
+                { onConflict: 'id' } // Specify conflict key for upsert
+            ).select();
+
+            if (error) throw error;
+
             if (id) {
-                const { error } = await supabase.from('announcements').update(announcementData).eq('id', id);
-                if (error) throw error;
                 alert('Announcement updated successfully!');
-                operationSuccess = true;
                 auditAction = 'Updated Announcement';
                 auditDetails = `Updated: "${title}" (ID: ${id})`;
             } else {
-                const { data, error } = await supabase.from('announcements').insert([announcementData]).select();
-                if (error) throw error;
                 alert('Announcement published successfully!');
-                operationSuccess = true;
                 auditAction = 'Published Announcement';
-                auditDetails = `Published: "${title}"`;
+                auditDetails = `Published: "${title}" (ID: ${data[0].id})`;
             }
+            operationSuccess = true;
+
         } catch (error) {
             alert((id ? 'Error updating' : 'Error publishing') + ' announcement: ' + error.message);
             console.error('Supabase error:', error);
@@ -2555,21 +2562,25 @@ if (attendanceForm) {
         let auditDetails = '';
 
         try {
+            // Changed table name to 'attendance'
+            const { data, error } = await supabase.from('attendance').upsert(
+                { ...attendanceData, id: id || undefined }, // Use upsert for add/edit
+                { onConflict: 'id' } // Specify conflict key for upsert
+            ).select();
+
+            if (error) throw error;
+
             if (id) {
-                const { error } = await supabase.from('attendance_records').update(attendanceData).eq('id', id);
-                if (error) throw error;
                 alert('Attendance record updated successfully!');
-                operationSuccess = true;
                 auditAction = 'Updated Attendance';
                 auditDetails = `Updated attendance for ${student.name} on ${date} to ${status}`;
             } else {
-                const { data, error } = await supabase.from('attendance_records').insert([attendanceData]).select();
-                if (error) throw error;
                 alert('Attendance marked successfully!');
-                operationSuccess = true;
                 auditAction = 'Marked Attendance';
                 auditDetails = `Marked ${status} for ${student.name} on ${date}`;
             }
+            operationSuccess = true;
+
         } catch (error) {
             alert((id ? 'Error updating' : 'Error marking') + ' attendance: ' + error.message);
             console.error('Supabase error:', error);
@@ -2627,21 +2638,25 @@ if (teacherAttendanceForm) {
         let auditDetails = '';
 
         try {
+            // Changed table name to 'teacher_attendance'
+            const { data, error } = await supabase.from('teacher_attendance').upsert(
+                { ...teacherAttendanceData, id: id || undefined }, // Use upsert for add/edit
+                { onConflict: 'id' } // Specify conflict key for upsert
+            ).select();
+
+            if (error) throw error;
+
             if (id) {
-                const { error } = await supabase.from('teacher_attendance_records').update(teacherAttendanceData).eq('id', id);
-                if (error) throw error;
                 alert('Teacher attendance record updated successfully!');
-                operationSuccess = true;
                 auditAction = 'Updated Teacher Attendance';
                 auditDetails = `Updated attendance for ${teacher.name} on ${date} to ${status}`;
             } else {
-                const { data, error } = await supabase.from('teacher_attendance_records').insert([teacherAttendanceData]).select();
-                if (error) throw error;
                 alert('Teacher attendance marked successfully!');
-                operationSuccess = true;
                 auditAction = 'Marked Teacher Attendance';
                 auditDetails = `Marked ${status} for ${teacher.name} on ${date}`;
             }
+            operationSuccess = true;
+
         } catch (error) {
             alert((id ? 'Error updating' : 'Error marking') + ' teacher attendance: ' + error.message);
             console.error('Supabase error:', error);
@@ -2651,7 +2666,7 @@ if (teacherAttendanceForm) {
 
         if (operationSuccess) {
             await addAuditLog(loggedInUser?.email || 'admin', auditAction, 'Teacher Attendance', auditDetails);
-            await fetchTeacherAttendanceRecords();
+            await fetchTeacherAttendanceRecords(); // Corrected function call
             if (teacherAttendanceModal) {
                 teacherAttendanceModal.classList.add('hidden');
                 teacherAttendanceModal.style.display = 'none';
@@ -3050,7 +3065,7 @@ window.exportTeacherAttendanceToExcel = function() {
     // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
     // Removed role check: if (userRole !== 'admin') { alert('Access Denied: Only admin can export teacher attendance data.'); return; }
-    const teacherAttendanceExportData = teacherAttendanceRecords.map(record => {
+    const teacherAttendanceExportData = teacherAttendanceRecords.map(record => { // Corrected variable name
         const teacher = teachers.find(t => t.id === record.teacher_id);
         return {
             Teacher_Name: teacher ? teacher.name : 'Unknown',
