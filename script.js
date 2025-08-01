@@ -326,19 +326,26 @@ const payrollModal = document.getElementById('payrollModal');
 const closePayrollModalBtn = document.getElementById('closePayrollModalBtn');
 const payrollForm = document.getElementById('payrollForm');
 const payrollTableBody = document.getElementById('payrollTableBody');
+const searchPayrollPeriodInput = document.getElementById('searchPayrollPeriod');
+const applyPayrollSearchButton = document.getElementById('applyPayrollSearch');
+
 
 const openAddInvoiceModalBtn = document.getElementById('openAddInvoiceModalBtn');
 const addInvoiceModal = document.getElementById('addInvoiceModal');
 const closeAddInvoiceModalBtn = document.getElementById('closeAddInvoiceModalBtn');
 const addInvoiceForm = document.getElementById('addInvoiceForm');
 const financeTableBody = document.getElementById('financeTableBody');
+const searchInvoiceNumberInput = document.getElementById('searchInvoiceNumber');
+const applyInvoiceSearchButton = document.getElementById('applyInvoiceSearch');
+
 
 const userProfileToggle = document.getElementById('userProfileToggle');
 const userDropdown = document.getElementById('userDropdown');
 
+const searchStudentNameInput = document.getElementById('searchStudentName');
 const searchRollInput = document.getElementById('searchRoll');
 const searchClassSelect = document.getElementById('searchClass');
-const applySearchButton = document.getElementById('applySearch');
+const applyStudentSearchButton = document.getElementById('applyStudentSearch');
 const studentTableBody = document.getElementById('studentTableBody');
 
 const studentModal = document.getElementById('studentModal');
@@ -347,6 +354,9 @@ const studentForm = document.getElementById('studentForm');
 const studentModalTitle = document.getElementById('studentModalTitle');
 const studentFormSubmitBtn = document.getElementById('studentFormSubmitBtn');
 
+const searchTeacherNameInput = document.getElementById('searchTeacherName');
+const searchTeacherSubjectSelect = document.getElementById('searchTeacherSubject');
+const applyTeacherSearchButton = document.getElementById('applyTeacherSearch');
 const teacherModal = document.getElementById('teacherModal');
 const closeTeacherModal = document.getElementById('closeTeacherModal');
 const teacherForm = document.getElementById('teacherForm');
@@ -970,10 +980,10 @@ if (modalMarkAllReadBtn) {
 }
 
 // Payroll Module Specific JavaScript
-function renderPayrollTable() {
+function renderPayrollTable(filteredPayroll = payrollEntries) {
     if (!payrollTableBody) return;
     payrollTableBody.innerHTML = '';
-    if (payrollEntries.length === 0) {
+    if (filteredPayroll.length === 0) {
         payrollTableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">No payroll entries found.</td></tr>';
         return;
     }
@@ -981,7 +991,7 @@ function renderPayrollTable() {
     // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
 
-    payrollEntries.forEach(entry => {
+    filteredPayroll.forEach(entry => {
         const newRow = document.createElement('tr');
         newRow.className = 'border-b hover:bg-gray-50';
         let statusBgClass = '';
@@ -1010,6 +1020,18 @@ function renderPayrollTable() {
         payrollTableBody.prepend(newRow);
     });
 }
+
+function filterPayroll() {
+    const periodQuery = searchPayrollPeriodInput.value.toLowerCase();
+    const filtered = payrollEntries.filter(entry => {
+        return entry.period.toLowerCase().includes(periodQuery);
+    });
+    renderPayrollTable(filtered);
+}
+
+if (applyPayrollSearchButton) applyPayrollSearchButton.addEventListener('click', filterPayroll);
+if (searchPayrollPeriodInput) searchPayrollPeriodInput.addEventListener('keyup', filterPayroll);
+
 
 if (openPayrollModalBtn) {
     openPayrollModalBtn.addEventListener('click', () => {
@@ -1091,10 +1113,10 @@ if (payrollForm) {
 }
 
 // Finance Module Specific JavaScript
-function renderFinanceTable() {
+function renderFinanceTable(filteredInvoices = invoices) {
     if (!financeTableBody) return;
     financeTableBody.innerHTML = '';
-    if (invoices.length === 0) {
+    if (filteredInvoices.length === 0) {
         financeTableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">No invoices found.</td></tr>';
         return;
     }
@@ -1102,7 +1124,7 @@ function renderFinanceTable() {
     // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
 
-    invoices.forEach(invoice => {
+    filteredInvoices.forEach(invoice => {
         const newRow = document.createElement('tr');
         newRow.className = 'border-b hover:bg-gray-50';
         let statusBgClass = '';
@@ -1131,6 +1153,18 @@ function renderFinanceTable() {
         financeTableBody.prepend(newRow);
     });
 }
+
+function filterInvoices() {
+    const invoiceNumberQuery = searchInvoiceNumberInput.value.toLowerCase();
+    const filtered = invoices.filter(invoice => {
+        return invoice.invoice_number.toLowerCase().includes(invoiceNumberQuery);
+    });
+    renderFinanceTable(filtered);
+}
+
+if (applyInvoiceSearchButton) applyInvoiceSearchButton.addEventListener('click', filterInvoices);
+if (searchInvoiceNumberInput) searchInvoiceNumberInput.addEventListener('keyup', filterInvoices);
+
 
 if (openAddInvoiceModalBtn) {
     openAddInvoiceModalBtn.addEventListener('click', () => {
@@ -1236,7 +1270,7 @@ function renderStudentTable(filteredStudents = students) {
     if (!studentTableBody) return;
     studentTableBody.innerHTML = '';
     if (filteredStudents.length === 0) {
-        studentTableBody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-gray-500">No students found matching your criteria.</td></tr>';
+        studentTableBody.innerHTML = '<tr><td colspan="14" class="text-center py-4 text-gray-500">No students found matching your criteria.</td></tr>';
         return;
     }
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
@@ -1260,6 +1294,11 @@ function renderStudentTable(filteredStudents = students) {
             <td class="py-3 px-4">${student.class}</td>
             <td class="py-3 px-4">${student.roll_no}</td>
             <td class="py-3 px-4">${student.aadhar_no}</td>
+            <td class="py-3 px-4">${student.blood_group || 'N/A'}</td>
+            <td class="py-3 px-4">${student.admission_no || 'N/A'}</td>
+            <td class="py-3 px-4">${student.admission_date || 'N/A'}</td>
+            <td class="py-3 px-4">${student.father_aadhar || 'N/A'}</td>
+            <td class="py-3 px-4">${student.mother_aadhar || 'N/A'}</td>
             <td class="py-3 px-4">
                 <span class="px-2 py-1 ${statusBgClass} ${statusTextColorClass} text-xs rounded-full">${student.status}</span>
             </td>
@@ -1277,26 +1316,29 @@ function renderStudentTable(filteredStudents = students) {
 }
 
 function filterStudents() {
+    const nameQuery = searchStudentNameInput.value.toLowerCase();
     const rollQuery = searchRollInput.value.toLowerCase();
     const classQuery = searchClassSelect.value.toLowerCase();
 
     const filtered = students.filter(student => {
+        const nameMatch = student.name.toLowerCase().includes(nameQuery);
         const rollMatch = student.roll_no.toLowerCase().includes(rollQuery);
         const classMatch = classQuery === '' || student.class.toLowerCase() === classQuery;
-        return rollMatch && classMatch;
+        return nameMatch && rollMatch && classMatch;
     });
     renderStudentTable(filtered);
 }
 
-if (applySearchButton) applySearchButton.addEventListener('click', filterStudents);
+if (applyStudentSearchButton) applyStudentSearchButton.addEventListener('click', filterStudents);
+if (searchStudentNameInput) searchStudentNameInput.addEventListener('keyup', filterStudents);
 if (searchRollInput) searchRollInput.addEventListener('keyup', filterStudents);
 if (searchClassSelect) searchClassSelect.addEventListener('change', filterStudents);
 
 // Teacher Render Functionality
-function renderTeacherTable() {
+function renderTeacherTable(filteredTeachers = teachers) {
     if (!teacherTableBody) return;
     teacherTableBody.innerHTML = '';
-    if (teachers.length === 0) {
+    if (filteredTeachers.length === 0) {
         teacherTableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">No teachers found.</td></tr>';
         return;
     }
@@ -1304,7 +1346,7 @@ function renderTeacherTable() {
     // Role retrieval is kept for audit logging, but not for access control
     const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
 
-    teachers.forEach(teacher => {
+    filteredTeachers.forEach(teacher => {
         const newRow = document.createElement('tr');
         newRow.className = 'border-b hover:bg-gray-50';
         newRow.innerHTML = `
@@ -1324,6 +1366,23 @@ function renderTeacherTable() {
         teacherTableBody.appendChild(newRow);
     });
 }
+
+function filterTeachers() {
+    const nameQuery = searchTeacherNameInput.value.toLowerCase();
+    const subjectQuery = searchTeacherSubjectSelect.value.toLowerCase();
+
+    const filtered = teachers.filter(teacher => {
+        const nameMatch = teacher.name.toLowerCase().includes(nameQuery);
+        const subjectMatch = subjectQuery === '' || teacher.subject.toLowerCase() === subjectQuery;
+        return nameMatch && subjectMatch;
+    });
+    renderTeacherTable(filtered);
+}
+
+if (applyTeacherSearchButton) applyTeacherSearchButton.addEventListener('click', filterTeachers);
+if (searchTeacherNameInput) searchTeacherNameInput.addEventListener('keyup', filterTeachers);
+if (searchTeacherSubjectSelect) searchTeacherSubjectSelect.addEventListener('change', filterTeachers);
+
 
 // User Render Functionality (Now uses profiles data)
 function renderUserTable() {
@@ -1867,6 +1926,11 @@ window.editStudent = function(id) {
         document.getElementById('studentClass').value = student.class;
         document.getElementById('studentRollNo').value = student.roll_no;
         document.getElementById('studentAadharNo').value = student.aadhar_no;
+        document.getElementById('studentBloodGroup').value = student.blood_group || '';
+        document.getElementById('studentAdmissionNo').value = student.admission_no || '';
+        document.getElementById('studentAdmissionDate').value = student.admission_date || '';
+        document.getElementById('studentFatherAadhar').value = student.father_aadhar || '';
+        document.getElementById('studentMotherAadhar').value = student.mother_aadhar || '';
         document.getElementById('studentEmail').value = student.email;
         document.getElementById('studentPhone').value = student.phone;
         document.getElementById('studentStatus').value = student.status;
@@ -2213,6 +2277,11 @@ if (studentForm) {
         const studentClass = document.getElementById('studentClass').value;
         const rollNo = document.getElementById('studentRollNo').value;
         const aadharNo = document.getElementById('studentAadharNo').value;
+        const bloodGroup = document.getElementById('studentBloodGroup').value;
+        const admissionNo = document.getElementById('studentAdmissionNo').value;
+        const admissionDate = document.getElementById('studentAdmissionDate').value;
+        const fatherAadhar = document.getElementById('studentFatherAadhar').value;
+        const motherAadhar = document.getElementById('studentMotherAadhar').value;
         const email = document.getElementById('studentEmail').value;
         const phone = document.getElementById('studentPhone').value;
         const status = document.getElementById('studentStatus').value;
@@ -2224,6 +2293,11 @@ if (studentForm) {
             class: studentClass,
             roll_no: rollNo,
             aadhar_no: aadharNo,
+            blood_group: bloodGroup,
+            admission_no: admissionNo,
+            admission_date: admissionDate,
+            father_aadhar: fatherAadhar,
+            mother_aadhar: motherAadhar,
             email: email,
             phone: phone,
             status: status,
@@ -2949,6 +3023,11 @@ window.exportStudentsToExcel = function() {
         Class: student.class,
         Roll_No: student.roll_no,
         Aadhar_No: student.aadhar_no,
+        Blood_Group: student.blood_group || 'N/A',
+        Admission_No: student.admission_no || 'N/A',
+        Admission_Date: student.admission_date || 'N/A',
+        Father_Aadhar: student.father_aadhar || 'N/A',
+        Mother_Aadhar: student.mother_aadhar || 'N/A',
         Email: student.email,
         Phone: student.phone,
         Status: student.status
@@ -3055,93 +3134,6 @@ window.exportStudentAttendanceToExcel = function() {
             Remarks: record.remarks
         };
     });
-    exportToExcel(attendanceExportData, 'student_attendance_data.xlsx');
+     exportToExcel(attendanceExportData, 'student_attendance_data.xlsx');
     addAuditLog(loggedInUser?.email || 'admin', 'Exported Data', 'Attendance', 'Exported student attendance data to Excel.');
-}
-
-// Export Teacher Attendance to Excel
-window.exportTeacherAttendanceToExcel = function() {
-    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    // Role retrieval is kept for audit logging, but not for access control
-    const userRole = loggedInUser ? loggedInUser.raw_user_meta_data?.role || loggedInUser.app_metadata?.role : null;
-    // Removed role check: if (userRole !== 'admin') { alert('Access Denied: Only admin can export teacher attendance data.'); return; }
-    const teacherAttendanceExportData = teacherAttendanceRecords.map(record => { // Corrected variable name
-        const teacher = teachers.find(t => t.id === record.teacher_id);
-        return {
-            Teacher_Name: teacher ? teacher.name : 'Unknown',
-            Subject: teacher ? teacher.subject : 'N/A',
-            Date: record.date,
-            Status: record.status,
-            Remarks: record.remarks
-        };
-    });
-    exportToExcel(teacherAttendanceExportData, 'teacher_attendance_data.xlsx');
-    addAuditLog(loggedInUser?.email || 'admin', 'Exported Data', 'Teacher Attendance', 'Exported teacher attendance data to Excel.');
-}
-
-// Dark Mode Toggle
-if (darkModeToggle) {
-    darkModeToggle.addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode');
-        if (document.body.classList.contains('dark-mode')) {
-            localStorage.setItem('theme', 'dark');
-            darkModeIcon.classList.remove('fa-moon');
-            darkModeIcon.classList.add('fa-sun');
-        } else {
-            localStorage.setItem('theme', 'light');
-            darkModeIcon.classList.remove('fa-sun');
-            darkModeIcon.classList.add('fa-moon');
-        }
-    });
-}
-
-// Apply saved theme on load
-document.addEventListener('DOMContentLoaded', () => {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-        document.body.classList.add('dark-mode');
-        if (darkModeIcon) {
-            darkModeIcon.classList.remove('fa-moon');
-            darkModeIcon.classList.add('fa-sun');
-        }
-    } else {
-        document.body.classList.remove('dark-mode');
-        if (darkModeIcon) {
-            darkModeIcon.classList.remove('fa-sun');
-            darkModeIcon.classList.add('fa-moon');
-        }
-    }
-});
-
-// FIX: Added placeholder for startVoiceAssistant to resolve ReferenceError from index.html
-function startVoiceAssistant() {
-    alert('Voice assistant functionality is not yet implemented. This function is a placeholder.');
-    console.log('Voice assistant button clicked!');
-    // You can add actual voice assistant logic here, e.g., using Web Speech API
-    // Example:
-    /*
-    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'en-US';
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
-
-        recognition.start();
-
-        recognition.onresult = (event) => {
-            const speechResult = event.results[0][0].transcript;
-            console.log('Speech Result:', speechResult);
-            alert('You said: ' + speechResult);
-            // Process speechResult here
-        };
-
-        recognition.onerror = (event) => {
-            console.error('Speech recognition error:', event.error);
-            alert('Speech recognition error: ' + event.error);
-        };
-    } else {
-        alert('Your browser does not support Web Speech API.');
-    }
-    */
-}
+} // Added the missing closing curly brace here
