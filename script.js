@@ -4437,6 +4437,16 @@ async function onScanSuccessTeacher(decodedText, decodedResult, type) {
                                 qrScanFeedbackTeacher.classList.add('text-green-600');
                             }
                             console.log(`Arrival marked for ${teacher.name}.`);
+
+                            // Speak welcome message
+                            const welcomeMessage = `Welcome to TPS, ${teacher.name}`;
+                            window.speechSynthesis.cancel(); // Stop any ongoing speech
+                            const utterance = new SpeechSynthesisUtterance(welcomeMessage);
+                            utterance.lang = 'en-US';
+                            utterance.pitch = 1;
+                            utterance.rate = 1;
+                            window.speechSynthesis.speak(utterance);
+
                             await addAuditLog(userEmail, 'Teacher QR Attendance Arrival', 'Teacher Attendance', `Marked Arrival for ${teacher.name} (ID: ${teacherId}) via QR scan`);
                         }
                     } else if (type === 'departure') {
@@ -4455,6 +4465,16 @@ async function onScanSuccessTeacher(decodedText, decodedResult, type) {
                                 qrScanFeedbackTeacher.classList.add('text-green-600');
                             }
                             console.log(`Departure marked for ${teacher.name}.`);
+
+                            // Speak goodbye message
+                            const welcomeMessage = `Goodbye from TPS, ${teacher.name}`;
+                            window.speechSynthesis.cancel(); // Stop any ongoing speech
+                            const utterance = new SpeechSynthesisUtterance(welcomeMessage);
+                            utterance.lang = 'en-US';
+                            utterance.pitch = 1;
+                            utterance.rate = 1;
+                            window.speechSynthesis.speak(utterance);
+
                             await addAuditLog(userEmail, 'Teacher QR Attendance Departure', 'Teacher Attendance', `Marked Departure for ${teacher.name} (ID: ${teacherId}) via QR scan`);
                         }
                     }
@@ -4476,6 +4496,16 @@ async function onScanSuccessTeacher(decodedText, decodedResult, type) {
                             qrScanFeedbackTeacher.classList.add('text-green-600');
                         }
                         console.log(`Arrival marked for ${teacher.name}.`);
+
+                        // Speak welcome message
+                        const welcomeMessage = `Welcome to TPS, ${teacher.name}`;
+                        window.speechSynthesis.cancel();
+                        const utterance = new SpeechSynthesisUtterance(welcomeMessage);
+                        utterance.lang = 'en-US';
+                        utterance.pitch = 1;
+                        utterance.rate = 1;
+                        window.speechSynthesis.speak(utterance);
+
                         await addAuditLog(userEmail, 'Teacher QR Attendance Marked', 'Teacher Attendance', `Marked Arrival for ${teacher.name} (ID: ${teacherId}) via QR scan`);
                     } else {
                         if (qrScanFeedbackTeacher) {
@@ -4511,9 +4541,11 @@ async function onScanSuccessTeacher(decodedText, decodedResult, type) {
         console.warn(`Invalid QR code format: ${decodedText}`);
         await addAuditLog('QR Scanner', 'QR Scan Failed', 'Teacher Attendance', `Invalid QR code format: ${decodedText}`);
     }
+}
+
+
     // Optionally stop scanner after successful scan
     // await stopTeacherQrAttendance(); // Keep scanner running for continuous scanning
-}
 
 function onScanErrorTeacher(errorMessage) {
     // console.warn(`Teacher QR Code scan error: ${errorMessage}`); // Too verbose for console
