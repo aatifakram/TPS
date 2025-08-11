@@ -4438,14 +4438,17 @@ async function onScanSuccessTeacher(decodedText, decodedResult, type) {
                             }
                             console.log(`Arrival marked for ${teacher.name}.`);
 
-                            // Speak welcome message
-                            const welcomeMessage = `Welcome to TPS, ${teacher.name}`;
-                            window.speechSynthesis.cancel(); // Stop any ongoing speech
+                           // Speak welcome/goodbye message
+                            const welcomeMessage = type === 'arrival'
+                            ? `Welcome to TPS, ${teacher.name}`
+                            : `Goodbye from TPS, ${teacher.name}`;
+                            window.speechSynthesis.cancel();
                             const utterance = new SpeechSynthesisUtterance(welcomeMessage);
                             utterance.lang = 'en-US';
                             utterance.pitch = 1;
                             utterance.rate = 1;
                             window.speechSynthesis.speak(utterance);
+
 
                             await addAuditLog(userEmail, 'Teacher QR Attendance Arrival', 'Teacher Attendance', `Marked Arrival for ${teacher.name} (ID: ${teacherId}) via QR scan`);
                         }
@@ -4466,14 +4469,17 @@ async function onScanSuccessTeacher(decodedText, decodedResult, type) {
                             }
                             console.log(`Departure marked for ${teacher.name}.`);
 
-                            // Speak goodbye message
-                            const welcomeMessage = `Goodbye from TPS, ${teacher.name}`;
-                            window.speechSynthesis.cancel(); // Stop any ongoing speech
+                            // Speak welcome/goodbye message
+                            const welcomeMessage = type === 'arrival'
+                                ? `Welcome to TPS, ${teacher.name}`
+                                : `Goodbye from TPS, ${teacher.name}`;
+                            window.speechSynthesis.cancel();
                             const utterance = new SpeechSynthesisUtterance(welcomeMessage);
                             utterance.lang = 'en-US';
                             utterance.pitch = 1;
                             utterance.rate = 1;
                             window.speechSynthesis.speak(utterance);
+
 
                             await addAuditLog(userEmail, 'Teacher QR Attendance Departure', 'Teacher Attendance', `Marked Departure for ${teacher.name} (ID: ${teacherId}) via QR scan`);
                         }
@@ -4497,14 +4503,17 @@ async function onScanSuccessTeacher(decodedText, decodedResult, type) {
                         }
                         console.log(`Arrival marked for ${teacher.name}.`);
 
-                        // Speak welcome message
-                        const welcomeMessage = `Welcome to TPS, ${teacher.name}`;
-                        window.speechSynthesis.cancel();
-                        const utterance = new SpeechSynthesisUtterance(welcomeMessage);
-                        utterance.lang = 'en-US';
-                        utterance.pitch = 1;
-                        utterance.rate = 1;
-                        window.speechSynthesis.speak(utterance);
+                        // Speak welcome/goodbye message
+                            const welcomeMessage = type === 'arrival'
+                                ? `Welcome to TPS, ${teacher.name}`
+                                : `Goodbye from TPS, ${teacher.name}`;
+                            window.speechSynthesis.cancel();
+                            const utterance = new SpeechSynthesisUtterance(welcomeMessage);
+                            utterance.lang = 'en-US';
+                            utterance.pitch = 1;
+                            utterance.rate = 1;
+                            window.speechSynthesis.speak(utterance);
+
 
                         await addAuditLog(userEmail, 'Teacher QR Attendance Marked', 'Teacher Attendance', `Marked Arrival for ${teacher.name} (ID: ${teacherId}) via QR scan`);
                     } else {
@@ -6141,7 +6150,104 @@ window.stopTeacherQrAttendance = async function() {
     }
 };
 
+// Function to handle successful QR scan for teachers
+async function onScanSuccessTeacher(decodedText, decodedResult) {
+    console.log(`Teacher QR Code scanned: ${decodedText}`);
+    playBeep(); // Play beep sound on successful scan
 
+    if (qrScanFeedbackTeacher) {
+        qrScanFeedbackTeacher.classList.remove('text-green-600', 'text-red-600'); // Reset color
+        qrScanFeedbackTeacher.textContent = 'Processing...'; // Initial feedback
+    }
+
+    if (decodedText.startsWith('teacher_attendance:')) {
+        const teacherId = decodedText.split(':')[1];
+        const teacher = teachers.find(t => t.id === teacherId);
+        if (teacher) {
+            const today = new Date().toISOString().split('T')[0];
+            const currentTime = new Date().toTimeString().split(' ')[0];
+            const loggedInUser  = JSON.parse(localStorage.getItem('loggedInUser '));
+            const userEmail = loggedInUser ?.email || 'QR Scanner';
+
+            try {
+                // Check if an attendance record already exists for today
+                const { data: existingRecords, error: fetchError } = await supabase
+                    .from('teacher_attendance')
+                    .select('*')
+                    .eq('teacher_id', teacherId)
+                    .eq('date', today);
+
+                if (fetchError) throw fetchError;
+
+                if (existingRecords && existingRecords.length > 0) {
+                    const existingRecord = existingRecords[0];
+                    if (existingRecord.status === 'Present') {
+                        if (qrScanFeedbackTeacher) {
+                            qrScanFeedbackTeacher.textContent = `${teacher.name} (Subject: ${teacher.subject}) - Arrival Already Marked`;
+                            qrScanFeedbackTeacher.classList.add('text-red-600');
+                        }
+                        console.log(`Arrival already marked for ${teacher.name} today.`);
+                        await addAuditLog(userEmail, 'Teacher QR Attendance Duplicate Arrival', 'Teacher Attendance', `Duplicate QR scan for ${teacher.name} (ID: ${teacherId}) - Arrival`);
+                    } else {
+                        const { error: updateError } = await supabase.from('teacher_attendance').update({ arrival_time: currentTime, status: 'Present' }).eq('id', existingRecord.id);
+                        if (updateError) throw updateError;
+                        if (qrScanFeedbackTeacher) {
+                            qrScanFeedbackTeacher.textContent = `${teacher.name} (Subject: ${teacher.subject}) - Arrival Marked`;
+                            qrScanFeedbackTeacher.classList.add('text-green-600');
+                        }
+                        console.log(`Arrival marked for ${teacher.name}.`);
+                        await addAuditLog(userEmail, 'Teacher QR Attendance Arrival', 'Teacher Attendance', `Marked Arrival for ${teacher.name} (ID: ${teacherId}) via QR scan`);
+                    }
+                } else {
+                    // Create new attendance record for arrival
+                    const { error: insertError } = await supabase.from('teacher_attendance').insert([
+                        {
+                            teacher_id: teacherId,
+                            date: today,
+                            status: 'Present',
+                            arrival_time: currentTime,
+                            remarks: 'QR Scan'
+                        }
+                    ]);
+                    if (insertError) throw insertError;
+                    if (qrScanFeedbackTeacher) {
+                        qrScanFeedbackTeacher.textContent = `${teacher.name} (Subject: ${teacher.subject}) - Arrival Marked`;
+                        qrScanFeedbackTeacher.classList.add('text-green-600');
+                    }
+                    console.log(`Arrival marked for ${teacher.name}.`);
+                    await addAuditLog(userEmail, 'Teacher QR Attendance Marked', 'Teacher Attendance', `Marked Arrival for ${teacher.name} (ID: ${teacherId}) via QR scan`);
+                }
+                await fetchTeacherAttendanceRecords(); // Refresh attendance data
+            } catch (error) {
+                if (qrScanFeedbackTeacher) {
+                    qrScanFeedbackTeacher.textContent = `Error for ${teacher.name}: ${error.message}`;
+                    qrScanFeedbackTeacher.classList.add('text-red-600');
+                }
+                console.error('Supabase error marking teacher attendance via QR:', error);
+                await addAuditLog(userEmail, 'Teacher QR Attendance Failed', 'Teacher Attendance', `Error marking attendance for ${teacher.name} (ID: ${teacherId}): ${error.message}`);
+            }
+        } else {
+            if (qrScanFeedbackTeacher) {
+                qrScanFeedbackTeacher.textContent = `Teacher not found for this QR code: ${teacherId}`;
+                qrScanFeedbackTeacher.classList.add('text-red-600');
+            }
+            console.warn(`Teacher not found for QR code: ${teacherId}`);
+            await addAuditLog('QR Scanner', 'QR Scan Failed', 'Teacher Attendance', `Teacher not found for QR code: ${teacherId}`);
+        }
+    } else {
+        if (qrScanFeedbackTeacher) {
+            qrScanFeedbackTeacher.textContent = `Invalid QR code format: ${decodedText}`;
+            qrScanFeedbackTeacher.classList.add('text-red-600');
+        }
+        console.warn(`Invalid QR code format: ${decodedText}`);
+        await addAuditLog('QR Scanner', 'QR Scan Failed', 'Teacher Attendance', `Invalid QR code format: ${decodedText}`);
+    }
+}
+
+// Function to handle errors during QR scanning for teachers
+function onScanErrorTeacher(errorMessage) {
+    // console.warn(`Teacher QR Code scan error: ${errorMessage}`); // Too verbose for console
+}
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', async () => {
