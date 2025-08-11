@@ -5937,8 +5937,7 @@ function onScanErrorStudent(errorMessage) {
 }
 
 // QR Code Scanning for Teacher Attendance
-// QR Code Scanning for Teacher Attendance
-window.startTeacherQrAttendance = function() {
+window.startTeacherQrAttendance = function(type) {
     if (!checkHtml5QrCodeAvailability()) return;
 
     if (teacherQrScannerSection) {
@@ -5958,7 +5957,6 @@ window.startTeacherQrAttendance = function() {
         /* verbose= */ false
     );
 
-    // --- MODIFIED CODE START ---
     html5QrCodeScannerTeacher.render(
         async (decodedText, decodedResult) => {
             console.log(`Teacher QR Code scanned: ${decodedText}`);
@@ -5990,54 +5988,69 @@ window.startTeacherQrAttendance = function() {
 
                         if (existingRecords && existingRecords.length > 0) {
                             const existingRecord = existingRecords[0];
-                            // Logic for arrival/departure based on existing record
-                            if (!existingRecord.arrival_time) {
-                                // If no arrival time, mark as arrival
-                                const { error: updateError } = await supabase.from('teacher_attendance').update({ arrival_time: currentTime, status: 'Present' }).eq('id', existingRecord.id);
-                                if (updateError) throw updateError;
+                            if (type === 'arrival') {
+                                if (existingRecord.arrival_time) {
+                                    if (qrScanFeedbackTeacher) {
+                                        qrScanFeedbackTeacher.textContent = `${teacher.name} (Subject: ${teacher.subject}) - Already Marked Arrival`;
+                                        qrScanFeedbackTeacher.classList.add('text-red-600');
+                                    }
+                                    console.log(`Arrival already marked for ${teacher.name} today.`);
+                                    await addAuditLog(userEmail, 'Teacher QR Attendance Duplicate Arrival', 'Teacher Attendance', `Duplicate QR scan for ${teacher.name} (ID: ${teacherId}) - Arrival`);
+                                } else {
+                                    const { error: updateError } = await supabase.from('teacher_attendance').update({ arrival_time: currentTime, status: 'Present' }).eq('id', existingRecord.id);
+                                    if (updateError) throw updateError;
+                                    if (qrScanFeedbackTeacher) {
+                                        qrScanFeedbackTeacher.textContent = `${teacher.name} (Subject: ${teacher.subject}) - Arrival Marked`;
+                                        qrScanFeedbackTeacher.classList.add('text-green-600');
+                                    }
+                                    console.log(`Arrival marked for ${teacher.name}.`);
+                                    await addAuditLog(userEmail, 'Teacher QR Attendance Arrival', 'Teacher Attendance', `Marked Arrival for ${teacher.name} (ID: ${teacherId}) via QR scan`);
+                                }
+                            } else if (type === 'departure') {
+                                if (existingRecord.departure_time) {
+                                    if (qrScanFeedbackTeacher) {
+                                        qrScanFeedbackTeacher.textContent = `${teacher.name} (Subject: ${teacher.subject}) - Already Marked Departure`;
+                                        qrScanFeedbackTeacher.classList.add('text-red-600');
+                                    }
+                                    console.log(`Departure already marked for ${teacher.name} today.`);
+                                    await addAuditLog(userEmail, 'Teacher QR Attendance Duplicate Departure', 'Teacher Attendance', `Duplicate QR scan for ${teacher.name} (ID: ${teacherId}) - Departure`);
+                                } else {
+                                    const { error: updateError } = await supabase.from('teacher_attendance').update({ departure_time: currentTime }).eq('id', existingRecord.id);
+                                    if (updateError) throw updateError;
+                                    if (qrScanFeedbackTeacher) {
+                                        qrScanFeedbackTeacher.textContent = `${teacher.name} (Subject: ${teacher.subject}) - Departure Marked`;
+                                        qrScanFeedbackTeacher.classList.add('text-green-600');
+                                    }
+                                    console.log(`Departure marked for ${teacher.name}.`);
+                                    await addAuditLog(userEmail, 'Teacher QR Attendance Departure', 'Teacher Attendance', `Marked Departure for ${teacher.name} (ID: ${teacherId}) via QR scan`);
+                                }
+                            }
+                        } else {
+                            if (type === 'arrival') {
+                                const { error: insertError } = await supabase.from('teacher_attendance').insert([
+                                    {
+                                        teacher_id: teacherId,
+                                        date: today,
+                                        status: 'Present',
+                                        arrival_time: currentTime,
+                                        remarks: 'QR Scan'
+                                    }
+                                ]);
+                                if (insertError) throw insertError;
                                 if (qrScanFeedbackTeacher) {
                                     qrScanFeedbackTeacher.textContent = `${teacher.name} (Subject: ${teacher.subject}) - Arrival Marked`;
                                     qrScanFeedbackTeacher.classList.add('text-green-600');
                                 }
                                 console.log(`Arrival marked for ${teacher.name}.`);
-                                await addAuditLog(userEmail, 'Teacher QR Attendance Arrival', 'Teacher Attendance', `Marked Arrival for ${teacher.name} (ID: ${teacherId}) via QR scan`);
-                            } else if (!existingRecord.departure_time) {
-                                // If arrival time exists but no departure, mark as departure
-                                const { error: updateError } = await supabase.from('teacher_attendance').update({ departure_time: currentTime }).eq('id', existingRecord.id);
-                                if (updateError) throw updateError;
-                                if (qrScanFeedbackTeacher) {
-                                    qrScanFeedbackTeacher.textContent = `${teacher.name} (Subject: ${teacher.subject}) - Departure Marked`;
-                                    qrScanFeedbackTeacher.classList.add('text-green-600');
-                                }
-                                console.log(`Departure marked for ${teacher.name}.`);
-                                await addAuditLog(userEmail, 'Teacher QR Attendance Departure', 'Teacher Attendance', `Marked Departure for ${teacher.name} (ID: ${teacherId}) via QR scan`);
+                                await addAuditLog(userEmail, 'Teacher QR Attendance Marked', 'Teacher Attendance', `Marked Arrival for ${teacher.name} (ID: ${teacherId}) via QR scan`);
                             } else {
-                                // Both arrival and departure already marked
                                 if (qrScanFeedbackTeacher) {
-                                    qrScanFeedbackTeacher.textContent = `${teacher.name} (Subject: ${teacher.subject}) - Already Marked In and Out`;
+                                    qrScanFeedbackTeacher.textContent = `${teacher.name} (Subject: ${teacher.subject}) - Please mark arrival first.`;
                                     qrScanFeedbackTeacher.classList.add('text-red-600');
                                 }
-                                console.log(`Teacher ${teacher.name} already marked in and out today.`);
-                                await addAuditLog(userEmail, 'Teacher QR Attendance Duplicate', 'Teacher Attendance', `Duplicate QR scan for ${teacher.name} (ID: ${teacherId})`);
+                                console.warn(`Attempted to mark departure before arrival for ${teacher.name}.`);
+                                await addAuditLog(userEmail, 'Teacher QR Scan Error', 'Teacher Attendance', `Attempted to mark departure before arrival for ${teacher.name} (ID: ${teacherId})`);
                             }
-                        } else {
-                            // Create new attendance record (first scan of the day, assume arrival)
-                            const { error: insertError } = await supabase.from('teacher_attendance').insert([
-                                {
-                                    teacher_id: teacherId,
-                                    date: today,
-                                    status: 'Present',
-                                    arrival_time: currentTime,
-                                    remarks: 'QR Scan'
-                                }
-                            ]);
-                            if (insertError) throw insertError;
-                            if (qrScanFeedbackTeacher) {
-                                qrScanFeedbackTeacher.textContent = `${teacher.name} (Subject: ${teacher.subject}) - Arrival Marked`;
-                                qrScanFeedbackTeacher.classList.add('text-green-600');
-                            }
-                            console.log(`Arrival marked for ${teacher.name}.`);
-                            await addAuditLog(userEmail, 'Teacher QR Attendance Marked', 'Teacher Attendance', `Marked Arrival for ${teacher.name} (ID: ${teacherId}) via QR scan`);
                         }
                         await fetchTeacherAttendanceRecords(); // Refresh attendance data
                     } catch (error) {
@@ -6069,8 +6082,7 @@ window.startTeacherQrAttendance = function() {
             // console.warn(`Teacher QR Code scan error: ${errorMessage}`); // Too verbose for console
         }
     );
-    // --- MODIFIED CODE END ---
-    console.log('Teacher QR attendance scanner started.');
+    console.log(`Teacher QR attendance scanner started for ${type}.`);
 };
 
 // Stop Teacher QR Attendance Scanning
