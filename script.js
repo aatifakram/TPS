@@ -6045,6 +6045,19 @@ window.startTeacherQrAttendance = function(type) {
                                         qrScanFeedbackTeacher.classList.add('text-green-600');
                                     }
                                     console.log(`Arrival marked for ${teacher.name}.`);
+
+                                    // Speak welcome/goodbye message
+                                    const welcomeMessage = type === 'arrival'
+                                        ? `Welcome to TPS, ${teacher.name}`
+                                        : `Goodbye from TPS, ${teacher.name}`;
+                                    window.speechSynthesis.cancel();
+                                    const utterance = new SpeechSynthesisUtterance(welcomeMessage);
+                                    utterance.lang = 'en-US';
+                                    utterance.pitch = 1;
+                                    utterance.rate = 1;
+                                    window.speechSynthesis.speak(utterance);
+
+
                                     await addAuditLog(userEmail, 'Teacher QR Attendance Arrival', 'Teacher Attendance', `Marked Arrival for ${teacher.name} (ID: ${teacherId}) via QR scan`);
                                 }
                             } else if (type === 'departure') {
@@ -6063,6 +6076,17 @@ window.startTeacherQrAttendance = function(type) {
                                         qrScanFeedbackTeacher.classList.add('text-green-600');
                                     }
                                     console.log(`Departure marked for ${teacher.name}.`);
+                                     // Speak welcome/goodbye message
+                            const welcomeMessage = type === 'arrival'
+                                ? `Welcome to TPS, ${teacher.name}`
+                                : `Goodbye from TPS, ${teacher.name}`;
+                            window.speechSynthesis.cancel();
+                            const utterance = new SpeechSynthesisUtterance(welcomeMessage);
+                            utterance.lang = 'en-US';
+                            utterance.pitch = 1;
+                            utterance.rate = 1;
+                            window.speechSynthesis.speak(utterance);
+
                                     await addAuditLog(userEmail, 'Teacher QR Attendance Departure', 'Teacher Attendance', `Marked Departure for ${teacher.name} (ID: ${teacherId}) via QR scan`);
                                 }
                             }
@@ -6083,6 +6107,18 @@ window.startTeacherQrAttendance = function(type) {
                                     qrScanFeedbackTeacher.classList.add('text-green-600');
                                 }
                                 console.log(`Arrival marked for ${teacher.name}.`);
+
+                                // Speak welcome/goodbye message
+                                const welcomeMessage = type === 'arrival'
+                                    ? `Welcome to TPS, ${teacher.name}`
+                                    : `Goodbye from TPS, ${teacher.name}`;
+                                window.speechSynthesis.cancel();
+                                const utterance = new SpeechSynthesisUtterance(welcomeMessage);
+                                utterance.lang = 'en-US';
+                                utterance.pitch = 1;
+                                utterance.rate = 1;
+                                window.speechSynthesis.speak(utterance);
+
                                 await addAuditLog(userEmail, 'Teacher QR Attendance Marked', 'Teacher Attendance', `Marked Arrival for ${teacher.name} (ID: ${teacherId}) via QR scan`);
                             } else {
                                 if (qrScanFeedbackTeacher) {
@@ -6196,6 +6232,17 @@ async function onScanSuccessTeacher(decodedText, decodedResult) {
                             qrScanFeedbackTeacher.classList.add('text-green-600');
                         }
                         console.log(`Arrival marked for ${teacher.name}.`);
+                        // Speak welcome/goodbye message
+                        const welcomeMessage = type === 'arrival'
+                            ? `Welcome to TPS, ${teacher.name}`
+                            : `Goodbye from TPS, ${teacher.name}`;
+                        window.speechSynthesis.cancel();
+                        const utterance = new SpeechSynthesisUtterance(welcomeMessage);
+                        utterance.lang = 'en-US';
+                        utterance.pitch = 1;
+                        utterance.rate = 1;
+                        window.speechSynthesis.speak(utterance);
+
                         await addAuditLog(userEmail, 'Teacher QR Attendance Arrival', 'Teacher Attendance', `Marked Arrival for ${teacher.name} (ID: ${teacherId}) via QR scan`);
                     }
                 } else {
@@ -6215,6 +6262,17 @@ async function onScanSuccessTeacher(decodedText, decodedResult) {
                         qrScanFeedbackTeacher.classList.add('text-green-600');
                     }
                     console.log(`Arrival marked for ${teacher.name}.`);
+                    // Speak welcome/goodbye message
+                    const welcomeMessage = type === 'arrival'
+                        ? `Welcome to TPS, ${teacher.name}`
+                        : `Goodbye from TPS, ${teacher.name}`;
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(welcomeMessage);
+                    utterance.lang = 'en-US';
+                    utterance.pitch = 1;
+                    utterance.rate = 1;
+                    window.speechSynthesis.speak(utterance);
+
                     await addAuditLog(userEmail, 'Teacher QR Attendance Marked', 'Teacher Attendance', `Marked Arrival for ${teacher.name} (ID: ${teacherId}) via QR scan`);
                 }
                 await fetchTeacherAttendanceRecords(); // Refresh attendance data
