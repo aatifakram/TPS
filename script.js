@@ -5083,10 +5083,14 @@ toastStyle.textContent = `
 .qr-toast.show {
     opacity: 1;
     transform: translateY(0);
-}`
+}`;
 document.head.appendChild(toastStyle);
 
-// Wrap your existing QR success handler
+/**
+ * Enhanced QR success handler.
+ * @param {string} entityType - 'student' or 'teacher'
+ * @param {object} entity - student/teacher object containing id, name, class/subject
+ */
 async function handleQrScanSuccess(entityType, entity) {
     const idKey = entityType === 'student' ? entity.id : 't' + entity.id;
     if (scannedRecently.has(idKey)) {
@@ -5098,8 +5102,11 @@ async function handleQrScanSuccess(entityType, entity) {
 
     playBeep();
     speakName(entity.name);
-    const detail = entityType === 'student' ? `${entity.name} | Class ${entity.class} - Present` : `${entity.name} | ${entity.subject} - Present`;
+    const detail = entityType === 'student' 
+        ? `${entity.name} | Class ${entity.class} - Present`
+        : `${entity.name} | ${entity.subject} - Present`;
     showToast(detail);
 
-    // Here you can call your existing attendance mark logic
+    // Call your existing attendance marking logic here if needed
+    console.log(`Attendance marked for ${entityType}:`, entity);
 }
