@@ -13,7 +13,6 @@ let profiles = []; // New global variable for profiles
 let exams = []; // Global variable for exams
 let homeworkAssignments = []; // Global variable for homework
 let holidays = []; // Global variable for holidays
-let currentInvoiceId = null; // New global variable for tracking the invoice being edited
 
 // Supabase Client Initialization (Replace with your actual keys)
 const SUPABASE_URL = 'https://zyvwttzwjweeslvjbatg.supabase.co'; // Replace with your Supabase URL
@@ -189,7 +188,7 @@ function exportTeacherAttendanceToExcel() {
     const ws = XLSX.utils.json_to_sheet(dataToExport);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "TeacherAttendance");
-    XLSX.writeFile(wb, "teachers_attendance_data.xlsx");
+    XLSX.writeFile(wb, "teacher_attendance_data.xlsx");
     console.log('Teacher attendance data exported to Excel.');
 }
 
@@ -339,19 +338,19 @@ function startVoiceAssistant() {
     console.log('Voice assistant started.');
 }
 
-// FIX: Corrected typing effect function
+// Placeholder for typing effect
 function initTypedWelcome() {
     const typedWelcomeElement = document.getElementById('typed-welcome');
     if (typedWelcomeElement) {
+        // Simple typing effect simulation
         const text = "Welcome to Tapowan Public School Management System";
         let i = 0;
         typedWelcomeElement.textContent = ''; // Clear content initially
-
         function typeWriter() {
             if (i < text.length) {
                 typedWelcomeElement.textContent += text.charAt(i);
                 i++;
-                setTimeout(typeWriter, 50); // Typing speed (50ms per character)
+                setTimeout(typeWriter, 50); // Typing speed
             }
         }
         typeWriter();
@@ -923,13 +922,6 @@ const teacherQrCodeCanvas = document.getElementById('teacherQrCodeCanvas');
 const qrCodeTeacherIdDisplay = document.getElementById('qrCodeTeacherIdDisplay');
 const downloadTeacherQrCodeLink = document.getElementById('downloadTeacherQrCodeLink');
 
-// Reports Module Elements
-const reportTypeSelect = document.getElementById('reportType');
-const reportClassFilterSelect = document.getElementById('reportClassFilter');
-const reportStartDateInput = document.getElementById('reportStartDate');
-const reportEndDateInput = document.getElementById('reportEndDate');
-const reportDisplayArea = document.getElementById('reportDisplayArea');
-
 
 // --- Initial UI State Management ---
 
@@ -1090,54 +1082,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     */
-
-    // In script.js, after DOMContentLoaded listener
-    const menuToggle = document.getElementById('menuToggle');
-    const sidebar = document.querySelector('.sidebar');
-    const mainContent = document.querySelector('.flex-1.overflow-auto'); // Your main content area
-
-    if (menuToggle && sidebar && mainContent) {
-        menuToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('active');
-            // Optional: Add an overlay or disable scrolling on main content when sidebar is open
-            if (sidebar.classList.contains('active')) {
-                document.body.style.overflow = 'hidden'; // Prevent scrolling on body
-                mainContent.style.pointerEvents = 'none'; // Disable interaction with main content
-            } else {
-                document.body.style.overflow = 'auto';
-                mainContent.style.pointerEvents = 'auto';
-            }
-        });
-
-        // Close sidebar if clicking outside on mobile
-        mainContent.addEventListener('click', () => {
-            if (sidebar.classList.contains('active') && window.innerWidth <= 768) {
-                sidebar.classList.remove('active');
-                document.body.style.overflow = 'auto';
-                mainContent.style.pointerEvents = 'auto';
-            }
-        });
-
-        // Close sidebar when a navigation item is clicked on mobile
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', () => {
-                if (window.innerWidth <= 768) {
-                    sidebar.classList.remove('active');
-                    document.body.style.overflow = 'auto';
-                    mainContent.style.pointerEvents = 'auto';
-                }
-            });
-        });
-
-        // Adjust sidebar visibility on window resize
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 768) {
-                sidebar.classList.remove('active'); // Ensure it's visible on larger screens
-                document.body.style.overflow = 'auto';
-                mainContent.style.pointerEvents = 'auto';
-            }
-        });
-    }
 });
 
 // --- Login UI Logic ---
@@ -1290,7 +1234,6 @@ if (forgotPasswordForm) {
         } catch (err) {
             console.error('Unexpected error during password reset:', err);
             alert('An unexpected error occurred: ' + err.message);
-            await addAuditLog(email, 'Forgot Password (Unexpected)', 'Authentication', `Unexpected error: ${err.message}`);
         } finally {
             if (forgotPasswordModal) {
                 forgotPasswordModal.classList.remove('active');
@@ -1554,9 +1497,6 @@ if (addHolidayModal) {
         if (e.target === addHolidayModal) {
             addHolidayModal.classList.add('hidden');
             addHolidayModal.style.display = 'none';
-            if (addHolidayForm) {
-                addHolidayForm.reset();
-            }
             console.log('Add Holiday modal closed by outside click.');
         }
     });
@@ -1696,7 +1636,7 @@ window.showModule = async function(moduleName) {
             case 'backup-restore': await fetchBackups(); break;
             case 'user-management': await fetchProfiles(); break;
             case 'exams': await fetchExams(); break;
-            case 'reports': initReportsCharts(); break; // Initialize reports charts when reports module is opened
+            case 'reports': initReportsCharts(); break;
             case 'homework': await fetchHomework(); break;
             case 'calendar': await fetchHolidays(); if(calendar) calendar.render(); break;
             default: console.warn(`No specific data fetch defined for module: ${moduleName}`);
@@ -1711,7 +1651,7 @@ document.querySelectorAll('.open-module, .tab, .nav-item').forEach(el => {
         e.preventDefault();
         const moduleName = el.dataset.module || el.dataset.tab;
         if (moduleName) {
-            await showModule(moduleName); // Ensure showModule is awaited
+            showModule(moduleName);
         }
     });
 });
@@ -2045,12 +1985,6 @@ function renderFinanceTable(filteredInvoices = invoices) {
                 <span class="px-2 py-1 ${statusBgClass} ${statusTextColorClass} text-xs rounded-full">${invoice.status}</span>
             </td>
             <td class="py-3 px-4 table-actions">
-                <button class="text-blue-600 mr-3" title="Edit Invoice" onclick="editInvoice('${invoice.id}')">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="text-red-600 mr-3" title="Delete Invoice" onclick="deleteInvoice('${invoice.id}')">
-                    <i class="fas fa-trash"></i>
-                </button>
                 <button class="text-blue-600 hover:text-blue-800 mr-3" title="View Details" onclick="showInvoiceDetailsModal('${invoice.id}')">
                     <i class="fas fa-eye"></i>
                 </button>
@@ -2091,14 +2025,6 @@ if (openAddInvoiceModalBtn) {
             addInvoiceModal.classList.remove('hidden');
             addInvoiceModal.style.display = 'flex';
         }
-        currentInvoiceId = null; // Reset for new invoice
-        if (document.getElementById('addInvoiceModalTitle')) {
-            document.getElementById('addInvoiceModalTitle').textContent = 'Add New Invoice';
-        }
-        if (document.getElementById('invoiceFormSubmitBtn')) {
-            document.getElementById('invoiceFormSubmitBtn').textContent = 'Add Invoice';
-        }
-        if (addInvoiceForm) addInvoiceForm.reset();
         populateInvoiceStudentSelect();
         console.log('Add Invoice modal opened.');
     });
@@ -2127,7 +2053,7 @@ if (addInvoiceModal) {
 }
 
 // Function to populate the student select dropdown in the Add Invoice modal
-async function populateInvoiceStudentSelect(selectedStudentId = '') {
+async function populateInvoiceStudentSelect() {
     if (!invoiceStudentSelect) return;
 
     if (students.length === 0) {
@@ -2139,69 +2065,10 @@ async function populateInvoiceStudentSelect(selectedStudentId = '') {
         const option = document.createElement('option');
         option.value = student.id;
         option.textContent = `${student.name} (Class: ${student.class})`;
-        if (student.id === selectedStudentId) {
-            option.selected = true;
-        }
         invoiceStudentSelect.appendChild(option);
     });
     console.log('Invoice student select populated.');
 }
-
-// New function to edit an invoice
-window.editInvoice = async function(id) {
-    console.log(`Editing invoice ID: ${id}`);
-    const invoice = invoices.find(inv => inv.id === id);
-    if (invoice) {
-        currentInvoiceId = invoice.id;
-        if (document.getElementById('addInvoiceModalTitle')) {
-            document.getElementById('addInvoiceModalTitle').textContent = 'Edit Invoice';
-        }
-        if (document.getElementById('invoiceFormSubmitBtn')) {
-            document.getElementById('invoiceFormSubmitBtn').textContent = 'Save Changes';
-        }
-
-        document.getElementById('invoiceNumber').value = invoice.invoice_number;
-        document.getElementById('invoiceTotalAmount').value = invoice.amount;
-        document.getElementById('invoicePaidAmount').value = invoice.paid_amount || 0;
-        document.getElementById('invoiceIssueDate').value = invoice.date;
-        document.getElementById('invoiceDueDate').value = invoice.due_date || '';
-        document.getElementById('invoiceStatus').value = invoice.status;
-
-        await populateInvoiceStudentSelect(invoice.student_id); // Pre-select student, ensure awaited
-
-        if (addInvoiceModal) {
-            addInvoiceModal.classList.remove('hidden');
-            addInvoiceModal.style.display = 'flex';
-        }
-        console.log(`Invoice ${id} data loaded for editing.`);
-    } else {
-        alert('Invoice not found.');
-        console.error(`Invoice with ID ${id} not found for editing.`);
-    }
-};
-
-// New function to delete an invoice
-window.deleteInvoice = async function(id) {
-    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    const userEmail = loggedInUser?.email || 'admin';
-    if (confirm('Are you sure you want to delete this invoice?')) {
-        console.log(`Deleting invoice ID: ${id}`);
-        try {
-            const { error } = await supabase.from('finance').delete().eq('id', id);
-            if (error) throw error;
-
-            const deletedInvoice = invoices.find(inv => inv.id === id);
-            await addAuditLog(userEmail, 'Deleted Invoice', 'Finance', `Deleted invoice ${deletedInvoice?.invoice_number || id}`);
-            alert('Invoice deleted successfully!');
-            await fetchInvoices(); // Re-fetch to update the table
-            console.log(`Invoice ${id} deleted successfully.`);
-        } catch (error) {
-            alert('Error deleting invoice: ' + error.message);
-            console.error('Supabase error deleting invoice:', error);
-            await addAuditLog(userEmail, 'Delete Invoice Failed', 'Finance', `Error: ${error.message}`);
-        }
-    }
-};
 
 
 if (addInvoiceForm) {
@@ -2228,39 +2095,29 @@ if (addInvoiceForm) {
 
         if (!studentId || !invoiceNumber || isNaN(invoiceTotalAmount) || isNaN(invoicePaidAmount) || !invoiceIssueDate || !invoiceDueDate || !invoiceStatus) {
             alert('Please fill in all fields correctly.');
-            console.warn('Add/Edit Invoice form submission failed: Missing or invalid fields.');
+            console.warn('Add Invoice form submission failed: Missing or invalid fields.');
             return;
         }
 
-        const invoiceData = {
-            student_id: studentId,
-            invoice_number: invoiceNumber,
-            amount: invoiceTotalAmount,
-            paid_amount: invoicePaidAmount,
-            date: invoiceIssueDate,
-            due_date: invoiceDueDate,
-            status: invoiceStatus
-        };
-
+        console.log(`Submitting invoice ${invoiceNumber}...`);
         try {
-            let result;
-            if (currentInvoiceId) {
-                // Update existing invoice
-                console.log(`Updating invoice ${currentInvoiceId}...`);
-                result = await supabase.from('finance').update(invoiceData).eq('id', currentInvoiceId).select();
-                await addAuditLog(userEmail, 'Updated Invoice', 'Finance', `Updated invoice ${invoiceNumber}`);
-                alert('Invoice updated successfully!');
-            } else {
-                // Add new invoice
-                console.log(`Adding new invoice ${invoiceNumber}...`);
-                result = await supabase.from('finance').insert([invoiceData]).select();
-                await addAuditLog(userEmail, 'Added Invoice', 'Finance', `Added invoice ${invoiceNumber}`);
-                alert('Invoice added successfully!');
-            }
+            const { data, error } = await supabase.from('finance').insert([
+                {
+                    student_id: studentId,
+                    invoice_number: invoiceNumber,
+                    amount: invoiceTotalAmount,
+                    paid_amount: invoicePaidAmount,
+                    date: invoiceIssueDate,
+                    due_date: invoiceDueDate,
+                    status: invoiceStatus
+                }
+            ]).select();
 
-            if (result.error) throw result.error;
+            if (error) throw error;
 
-            await fetchInvoices(); // Re-fetch to update the table
+            alert('Invoice added successfully!');
+            await addAuditLog(userEmail, 'Added Invoice', 'Finance', `Added invoice ${invoiceNumber} for ₹${invoiceTotalAmount}`);
+            await fetchInvoices();
             if (addInvoiceModal) {
                 addInvoiceModal.classList.add('hidden');
                 addInvoiceModal.style.display = 'none';
@@ -2268,11 +2125,11 @@ if (addInvoiceForm) {
             if (addInvoiceForm) {
                 addInvoiceForm.reset();
             }
-            console.log('Invoice operation completed successfully.');
+            console.log('Invoice added successfully.');
         } catch (error) {
-            alert('Error saving invoice: ' + error.message);
-            console.error('Supabase error saving invoice:', error);
-            await addAuditLog(userEmail, 'Save Invoice Failed', 'Finance', `Error: ${error.message}`);
+            alert('Error adding invoice: ' + error.message);
+            console.error('Supabase error adding invoice:', error);
+            await addAuditLog(userEmail, 'Add Invoice Failed', 'Finance', `Error: ${error.message}`);
         }
     });
 }
@@ -2891,8 +2748,6 @@ async function markIndividualAttendance(studentId, date, status, remarks) {
         student_id: studentId,
         date: date,
         status: status,
-        arrival_time: new Date().toTimeString().split(' ')[0].substring(0, 5), // Capture current time
-        departure_time: null, // Clear departure time if marking present
         remarks: remarks
     };
 
@@ -2971,6 +2826,9 @@ function renderTeacherAttendanceTable(filteredRecords = teacherAttendanceRecords
                     <button class="text-red-600" title="Delete Attendance" onclick="deleteTeacherAttendance('${record.id}')">
                         <i class="fas fa-trash"></i>
                     </button>
+                    <button class="text-green-600" title="View Teacher Details" onclick="showTeacherDetailsModal('${teacher.id}')">
+                        <i class="fas fa-info-circle"></i>
+                    </button>
                 </td>
             `;
             teacherAttendanceRecordsTableBody.appendChild(newRow);
@@ -2985,121 +2843,706 @@ function renderTeacherAttendanceTable(filteredRecords = teacherAttendanceRecords
 }
 
 function filterTeacherAttendance() {
-    const nameFilter = teacherAttendanceNameFilter ? teacherAttendanceNameFilter.value.toLowerCase() : '';
     const subjectFilter = teacherAttendanceSubjectFilter ? teacherAttendanceSubjectFilter.value.toLowerCase() : '';
     const dateFilter = teacherAttendanceDateFilter ? teacherAttendanceDateFilter.value : '';
+    const nameFilter = teacherAttendanceNameFilter ? teacherAttendanceNameFilter.value.toLowerCase() : '';
 
     const filtered = teacherAttendanceRecords.filter(record => {
+        // Access teacher details directly from the joined 'teachers' object
         const teacher = record.teachers;
-        if (!teacher) return false;
+        if (!teacher) return false; // Skip if teacher data is missing
 
-        const nameMatch = nameFilter === '' || teacher.name.toLowerCase().includes(nameFilter);
-        const subjectMatch = subjectFilter === '' || teacher.subject.toLowerCase().includes(subjectFilter);
+        const subjectMatch = subjectFilter === '' || teacher.subject.toLowerCase() === subjectFilter;
         const dateMatch = dateFilter === '' || record.date === dateFilter;
+        const nameMatch = nameFilter === '' || teacher.name.toLowerCase().includes(nameFilter);
 
-        return nameMatch && subjectMatch && dateMatch;
+        return subjectMatch && dateMatch && nameMatch;
     });
     renderTeacherAttendanceTable(filtered);
     console.log('Teacher attendance filtered.');
 }
 
 if (applyTeacherAttendanceFilter) applyTeacherAttendanceFilter.addEventListener('click', filterTeacherAttendance);
-if (teacherAttendanceNameFilter) teacherAttendanceNameFilter.addEventListener('keyup', filterTeacherAttendance);
 if (teacherAttendanceSubjectFilter) teacherAttendanceSubjectFilter.addEventListener('change', filterTeacherAttendance);
 if (teacherAttendanceDateFilter) teacherAttendanceDateFilter.addEventListener('change', filterTeacherAttendance);
+if (teacherAttendanceNameFilter) teacherAttendanceNameFilter.addEventListener('keyup', filterTeacherAttendance);
 
-// Populate Teacher Select for Attendance Modal
-async function populateTeacherSelect(selectedTeacherId = '') {
-    if (!teacherAttendanceTeacherSelect) return;
-
-    if (teachers.length === 0) {
-        await fetchTeachers(); // Ensure teachers data is available
-    }
-
-    teacherAttendanceTeacherSelect.innerHTML = '<option value="">Select Teacher</option>';
-    teachers.forEach(teacher => {
-        const option = document.createElement('option');
-        option.value = teacher.id;
-        option.textContent = `${teacher.name} (${teacher.subject})`;
-        if (teacher.id === selectedTeacherId) {
-            option.selected = true;
-        }
-        teacherAttendanceTeacherSelect.appendChild(option);
-    });
-    console.log('Teacher select populated for attendance.');
-}
-
-// Add/Edit Teacher Attendance Modal Functions
 window.showAddTeacherAttendanceModal = function() {
-    if (teacherAttendanceModal) {
-        teacherAttendanceModal.classList.remove('hidden');
-        teacherAttendanceModal.style.display = 'flex';
-    }
-    if (teacherAttendanceForm) {
-        teacherAttendanceForm.reset();
-        document.getElementById('teacherAttendanceId').value = ''; // Clear ID for new entry
-    }
+    // const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser')); // Not used for modal display logic
+    // const userRole = loggedInUser ? loggedInUser.user_metadata?.role || loggedInUser.app_metadata?.role : null;
     if (teacherAttendanceModalTitle) {
         teacherAttendanceModalTitle.textContent = 'Mark Teacher Attendance';
     }
     if (teacherAttendanceFormSubmitBtn) {
         teacherAttendanceFormSubmitBtn.textContent = 'Mark Attendance';
     }
+    document.getElementById('teacherAttendanceId').value = '';
+    if (teacherAttendanceForm) {
+        teacherAttendanceForm.reset();
+    }
     populateTeacherSelect();
-    console.log('Add Teacher Attendance modal opened.');
-};
+    const teacherAttendanceDateInput = document.getElementById('teacherAttendanceDate');
+    if (teacherAttendanceDateInput) {
+        teacherAttendanceDateInput.valueAsDate = new Date();
+    }
+    if (teacherAttendanceModal) {
+        teacherAttendanceModal.classList.remove('hidden');
+        teacherAttendanceModal.style.display = 'flex';
+        console.log('Add Teacher Attendance modal opened.');
+    }
+}
 
-window.editTeacherAttendance = async function(id) {
-    console.log(`Editing teacher attendance ID: ${id}`);
-    const record = teacherAttendanceRecords.find(rec => rec.id === id);
+window.editTeacherAttendance = function(id) {
+    // const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser')); // Not used for modal display logic
+    // const userRole = loggedInUser ? loggedInUser.user_metadata?.role || loggedInUser.app_metadata?.role : null;
+    const record = teacherAttendanceRecords.find(r => r.id === id);
     if (record) {
-        document.getElementById('teacherAttendanceId').value = record.id;
-        document.getElementById('teacherAttendanceDate').value = record.date;
-        document.getElementById('teacherAttendanceStatus').value = record.status;
-        document.getElementById('teacherArrivalTime').value = record.arrival_time || '';
-        document.getElementById('teacherDepartureTime').value = record.departure_time || '';
-        document.getElementById('teacherAttendanceRemarks').value = record.remarks || '';
-
-        await populateTeacherSelect(record.teacher_id); // Pre-select teacher
-
         if (teacherAttendanceModalTitle) {
             teacherAttendanceModalTitle.textContent = 'Edit Teacher Attendance';
         }
         if (teacherAttendanceFormSubmitBtn) {
             teacherAttendanceFormSubmitBtn.textContent = 'Save Changes';
         }
+        document.getElementById('teacherAttendanceId').value = record.id;
+        populateTeacherSelect(record.teacher_id);
+        document.getElementById('teacherAttendanceDate').value = record.date;
+        document.getElementById('teacherAttendanceStatus').value = record.status;
+        document.getElementById('teacherArrivalTime').value = record.arrival_time || '';
+        document.getElementById('teacherDepartureTime').value = record.departure_time || '';
+        document.getElementById('teacherAttendanceRemarks').value = record.remarks || '';
         if (teacherAttendanceModal) {
             teacherAttendanceModal.classList.remove('hidden');
             teacherAttendanceModal.style.display = 'flex';
+            console.log(`Edit Teacher Attendance modal opened for ID: ${id}`);
         }
-        console.log(`Teacher attendance ${id} data loaded for editing.`);
-    } else {
-        alert('Teacher attendance record not found.');
-        console.error(`Teacher attendance record with ID ${id} not found for editing.`);
     }
-};
+}
 
 window.deleteTeacherAttendance = async function(id) {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
     const userEmail = loggedInUser?.email || 'admin';
     if (confirm('Are you sure you want to delete this teacher attendance record?')) {
-        console.log(`Deleting teacher attendance ID: ${id}`);
+        console.log(`Deleting teacher attendance record ID: ${id}`);
         try {
             const { error } = await supabase.from('teacher_attendance').delete().eq('id', id);
             if (error) throw error;
 
-            const deletedRecord = teacherAttendanceRecords.find(rec => rec.id === id);
-            await addAuditLog(userEmail, 'Deleted Teacher Attendance', 'Teacher Attendance', `Deleted attendance for teacher ID ${deletedRecord?.teacher_id || id} on ${deletedRecord?.date || 'N/A'}`);
+            const deletedRecord = teacherAttendanceRecords.find(r => r.id === id);
+            const teacher = deletedRecord?.teachers; // Access teacher details from the joined object
+            await addAuditLog(userEmail, 'Deleted Teacher Attendance', 'Teacher Attendance', `Deleted attendance for ${teacher ? teacher.name : 'Unknown Teacher'} on ${deletedRecord?.date || 'N/A'}`);
             alert('Teacher attendance record deleted successfully!');
-            await fetchTeacherAttendanceRecords(); // Re-fetch to update the table
-            console.log(`Teacher attendance record ${id} deleted successfully.`);
+            await fetchTeacherAttendanceRecords();
+            console.log(`Teacher attendance record ID ${id} deleted successfully.`);
         } catch (error) {
             alert('Error deleting teacher attendance record: ' + error.message);
             console.error('Supabase error deleting teacher attendance record:', error);
             await addAuditLog(userEmail, 'Delete Teacher Attendance Failed', 'Teacher Attendance', `Error: ${error.message}`);
         }
     }
-};
+}
+
+function populateTeacherSelect(selectedTeacherId = '') {
+    if (!teacherAttendanceTeacherSelect) return;
+    teacherAttendanceTeacherSelect.innerHTML = '<option value="">Select Teacher</option>';
+    teachers.forEach(teacher => {
+        const option = document.createElement('option');
+        option.value = teacher.id;
+        option.textContent = `${teacher.name} (Subject: ${teacher.subject})`;
+        if (teacher.id === selectedTeacherId) {
+            option.selected = true;
+        }
+        teacherAttendanceTeacherSelect.appendChild(option);
+    });
+    console.log('Teacher select populated.');
+}
+
+// Update Dashboard Stats
+function updateDashboardStats() {
+    if (totalStudentsCount) totalStudentsCount.textContent = students.length.toLocaleString();
+    if (totalTeachersCount) totalTeachersCount.textContent = teachers.length.toLocaleString();
+
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    const currentMonthRevenue = invoices.filter(inv => {
+        const invDate = new Date(inv.date);
+        return inv.status === 'Paid' && invDate.getMonth() === currentMonth && invDate.getFullYear() === currentYear;
+    }).reduce((sum, inv) => sum + parseFloat(inv.amount), 0);
+    if (monthlyRevenue) monthlyRevenue.textContent = `₹${currentMonthRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+    // Calculate students present today
+    const today = new Date().toISOString().split('T')[0];
+    // Use unique students for today's count
+    const studentsPresentTodayCount = new Set(attendanceRecords.filter(record => record.date === today && record.status === 'Present').map(rec => rec.student_id)).size;
+    if (studentsPresentToday) {
+        studentsPresentToday.textContent = studentsPresentTodayCount.toLocaleString();
+    }
+
+    // Calculate teachers present today
+    // Use unique teachers for today's count
+    const teachersPresentTodayCount = new Set(teacherAttendanceRecords.filter(record => record.date === today && record.status === 'Present').map(rec => rec.teacher_id)).size;
+    if (teachersPresentToday) {
+        teachersPresentToday.textContent = teachersPresentTodayCount.toLocaleString();
+    }
+
+
+    if (upcomingEventsCount && calendar) {
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        const upcomingEvents = calendar.getEvents().filter(event => {
+            if (event.classNames.includes('holiday')) {
+                return new Date(event.start) >= today;
+            }
+            return event.end ? new Date(event.end) >= today : new Date(event.start) >= today;
+        });
+        upcomingEventsCount.textContent = upcomingEvents.length.toLocaleString();
+    } else if (upcomingEventsCount) {
+        upcomingEventsCount.textContent = 'N/A';
+    }
+    console.log('Dashboard stats updated.');
+    initCharts(); // Ensure charts are updated with new data
+}
+
+// Render Recent Activity
+function renderRecentActivity() {
+    if (!recentActivityList) return;
+    recentActivityList.innerHTML = '';
+    auditLogs.slice(0, 3).forEach(log => {
+        const div = document.createElement('div');
+        div.className = 'flex items-start space-x-3 animate-slideInFromLeft';
+        let iconClass = 'fas fa-info-circle';
+        let iconBgClass = 'bg-gray-50';
+        let iconTextColorClass = 'text-gray-600';
+
+        if (log.action.includes('Added Student')) { iconClass = 'fas fa-user-plus'; iconBgClass = 'bg-blue-50'; iconTextColorClass = 'text-blue-600'; }
+        else if (log.action.includes('Processed Payroll')) { iconClass = 'fas fa-money-bill-wave'; iconBgClass = 'bg-green-50'; iconTextColorClass = 'text-green-600'; }
+        else if (log.action.includes('Added Invoice')) { iconClass = 'fas fa-file-invoice-dollar'; iconBgClass = 'bg-purple-50'; iconTextColorClass = 'text-purple-600'; }
+        else if (log.action.includes('Logged In')) { iconClass = 'fas fa-sign-in-alt'; iconBgClass = 'bg-indigo-50'; iconTextColorClass = 'text-indigo-600'; }
+        else if (log.action.includes('Notification')) { iconClass = 'fas fa-bell'; iconBgClass = 'bg-orange-50'; iconTextColorClass = 'text-orange-600'; }
+        else if (log.action.includes('Added Teacher')) { iconClass = 'fas fa-chalkboard-teacher'; iconBgClass = 'bg-green-50'; iconTextColorClass = 'text-green-600'; }
+        else if (log.action.includes('Added User')) { iconClass = 'fas fa-user-plus'; iconBgClass = 'bg-red-50'; iconTextColorClass = 'text-red-600'; }
+        else if (log.action.includes('Published Announcement')) { iconClass = 'fas fa-bullhorn'; iconBgClass = 'bg-pink-50'; iconTextColorClass = 'text-pink-600'; }
+        else if (log.action.includes('Marked Attendance') || log.action.includes('Updated Attendance')) { iconClass = 'fas fa-check-circle'; iconBgClass = 'bg-indigo-50'; iconTextColorClass = 'text-indigo-600'; }
+
+        div.innerHTML = `
+            <div class="icon-wrapper ${iconBgClass} ${iconTextColorClass}">
+                <i class="${iconClass}"></i>
+            </div>
+            <div>
+                <p class="font-medium">${log.action}</p>
+                <p class="text-sm text-gray-500">${log.details}</p>
+                <p class="text-xs text-gray-400">${new Date(log.timestamp).toLocaleString()}</p>
+            </div>
+        `;
+        recentActivityList.appendChild(div);
+    });
+    console.log('Recent activity list rendered.');
+}
+
+// Modals for Add/Edit Student, Teacher, User, Announcement, Attendance
+window.showAddStudentForm = function() {
+    // const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser')); // Not used for modal display logic
+    // const userRole = loggedInUser ? loggedInUser.user_metadata?.role || loggedInUser.app_metadata?.role : null;
+    if (studentModalTitle) {
+        studentModalTitle.textContent = 'Add New Student';
+    }
+    if (studentFormSubmitBtn) {
+        studentFormSubmitBtn.textContent = 'Add Student';
+    }
+    document.getElementById('studentId').value = '';
+    if (studentForm) {
+        studentForm.reset();
+    }
+    if (studentModal) {
+        studentModal.classList.remove('hidden');
+        studentModal.style.display = 'flex';
+        console.log('Add Student form opened.');
+    }
+}
+window.editStudent = function(id) {
+    // const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser')); // Not used for modal display logic
+    // const userRole = loggedInUser ? loggedInUser.user_metadata?.role || loggedInUser.app_metadata?.role : null;
+    const student = students.find(s => s.id === id);
+    if (student) {
+        if (studentModalTitle) {
+            studentModalTitle.textContent = 'Edit Student';
+        }
+        if (studentFormSubmitBtn) {
+            studentFormSubmitBtn.textContent = 'Save Changes';
+        }
+        document.getElementById('studentId').value = student.id;
+        document.getElementById('studentFullName').value = student.name;
+        document.getElementById('studentFatherName').value = student.father_name;
+        document.getElementById('studentMotherName').value = student.mother_name;
+        document.getElementById('studentClass').value = student.class;
+        document.getElementById('studentRollNo').value = student.roll_no;
+        document.getElementById('studentAadharNo').value = student.aadhar_no;
+        document.getElementById('studentBloodGroup').value = student.blood_group || '';
+        document.getElementById('studentAdmissionNo').value = student.admission_no || '';
+        document.getElementById('studentAdmissionDate').value = student.admission_date || '';
+        document.getElementById('studentFatherAadhar').value = student.father_aadhar || '';
+        document.getElementById('studentMotherAadhar').value = student.mother_aadhar || '';
+        document.getElementById('studentEmail').value = student.email || '';
+        document.getElementById('studentPhone').value = student.phone || '';
+        document.getElementById('studentStatus').value = student.status;
+        if (studentModal) {
+            studentModal.classList.remove('hidden');
+            studentModal.style.display = 'flex';
+            console.log(`Edit Student form opened for ID: ${id}`);
+        }
+    }
+}
+window.deleteStudent = async function(id) {
+    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+    const userEmail = loggedInUser?.email || 'admin';
+    if (confirm('Are you sure you want to delete this student?')) {
+        console.log(`Deleting student ID: ${id}`);
+        try {
+            const { error } = await supabase.from('students').delete().eq('id', id);
+            if (error) throw error;
+
+            const deletedStudent = students.find(s => s.id === id);
+            await addAuditLog(userEmail, 'Deleted Student', 'Students', `Deleted student: ${deletedStudent?.name || 'Unknown'} (ID: ${deletedStudent?.id || id})`);
+            alert('Student deleted successfully!');
+            await fetchStudents();
+            console.log(`Student ID ${id} deleted successfully.`);
+        } catch (error) {
+            alert('Error deleting student: ' + error.message);
+            console.error('Supabase error deleting student:', error);
+            await addAuditLog(userEmail, 'Delete Student Failed', 'Students', `Error: ${error.message}`);
+        }
+    }
+}
+
+window.showStudentDetailsModal = function(id) {
+    const student = students.find(s => s.id === id);
+    if (student) {
+        if (studentDetailsModalTitle) {
+            studentDetailsModalTitle.textContent = `Details for ${student.name}`;
+        }
+        if (studentDetailsContent) {
+            studentDetailsContent.innerHTML = `
+                <p><strong>ID:</strong> ${student.id}</p>
+                <p><strong>Full Name:</strong> ${student.name}</p>
+                <p><strong>Father's Name:</strong> ${student.father_name}</p>
+                <p><strong>Mother's Name:</strong> ${student.mother_name}</p>
+                <p><strong>Class:</strong> ${student.class}</p>
+                <p><strong>Roll No.:</strong> ${student.roll_no}</p>
+                <p><strong>Aadhar No.:</strong> ${student.aadhar_no}</p>
+                <p><strong>Blood Group:</strong> ${student.blood_group || 'N/A'}</p>
+                <p><strong>Admission No.:</strong> ${student.admission_no || 'N/A'}</p>
+                <p><strong>Admission Date:</strong> ${student.admission_date || 'N/A'}</p>
+                <p><strong>Father's Aadhar:</strong> ${student.father_aadhar || 'N/A'}</p>
+                <p><strong>Mother's Aadhar:</strong> ${student.mother_aadhar || 'N/A'}</p>
+                <p><strong>Email:</strong> ${student.email || 'N/A'}</p>
+                <p><strong>Phone:</strong> ${student.phone || 'N/A'}</p>
+                <p><strong>Status:</strong> ${student.status}</p>
+            `;
+        }
+        if (studentDetailsModal) {
+            studentDetailsModal.classList.remove('hidden');
+            studentDetailsModal.style.display = 'flex';
+            console.log(`Student details modal opened for ID: ${id}`);
+        }
+    } else {
+        alert('Student not found.');
+        console.warn(`Student with ID ${id} not found for details.`);
+    }
+}
+
+window.showAddTeacherForm = function() {
+    // const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser')); // Not used for modal display logic
+    // const userRole = loggedInUser ? loggedInUser.user_metadata?.role || loggedInUser.app_metadata?.role : null;
+    if (teacherModalTitle) {
+        teacherModalTitle.textContent = 'Add New Teacher';
+    }
+    if (teacherFormSubmitBtn) {
+        teacherFormSubmitBtn.textContent = 'Add Teacher';
+    }
+    document.getElementById('teacherId').value = '';
+    if (teacherForm) {
+        teacherForm.reset();
+    }
+    if (teacherModal) {
+        teacherModal.classList.remove('hidden');
+        teacherModal.style.display = 'flex';
+        console.log('Add Teacher form opened.');
+    }
+}
+
+window.editTeacher = function(id) {
+    // const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser')); // Not used for modal display logic
+    // const userRole = loggedInUser ? loggedInUser.user_metadata?.role || loggedInUser.app_metadata?.role : null;
+    const teacher = teachers.find(t => t.id === id);
+    if (teacher) {
+        if (teacherModalTitle) {
+            teacherModalTitle.textContent = 'Edit Teacher';
+        }
+        if (teacherFormSubmitBtn) {
+            teacherFormSubmitBtn.textContent = 'Save Changes';
+        }
+        document.getElementById('teacherId').value = teacher.id;
+        document.getElementById('teacherFullName').value = teacher.name;
+        document.getElementById('teacherSubject').value = teacher.subject;
+        document.getElementById('teacherEmail').value = teacher.email || '';
+        document.getElementById('teacherClasses').value = teacher.classes || '';
+        if (teacherModal) {
+            teacherModal.classList.remove('hidden');
+            teacherModal.style.display = 'flex';
+            console.log(`Edit Teacher form opened for ID: ${id}`);
+        }
+    }
+}
+
+window.deleteTeacher = async function(id) {
+    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+    const userEmail = loggedInUser?.email || 'admin';
+    if (confirm('Are you sure you want to delete this teacher?')) {
+        console.log(`Deleting teacher ID: ${id}`);
+        try {
+            const { error } = await supabase.from('teachers').delete().eq('id', id);
+            if (error) throw error;
+
+            const deletedTeacher = teachers.find(t => t.id === id);
+            await addAuditLog(userEmail, 'Deleted Teacher', 'Teachers', `Deleted teacher: ${deletedTeacher?.name || 'Unknown'} (ID: ${deletedTeacher?.id || id})`);
+            alert('Teacher deleted successfully!');
+            await fetchTeachers();
+            console.log(`Teacher ID ${id} deleted successfully.`);
+        } catch (error) {
+            alert('Error deleting teacher: ' + error.message);
+            console.error('Supabase error deleting teacher:', error);
+            await addAuditLog(userEmail, 'Delete Teacher Failed', 'Teachers', `Error: ${error.message}`);
+        }
+    }
+}
+
+window.showTeacherDetailsModal = function(id) {
+    const teacher = teachers.find(t => t.id === id);
+    if (teacher) {
+        if (teacherDetailsModalTitle) {
+            teacherDetailsModalTitle.textContent = `Details for ${teacher.name}`;
+        }
+        if (teacherDetailsContent) {
+            teacherDetailsContent.innerHTML = `
+                <p><strong>ID:</strong> ${teacher.id}</p>
+                <p><strong>Full Name:</strong> ${teacher.name}</p>
+                <p><strong>Subject:</strong> ${teacher.subject}</p>
+                <p><strong>Email:</strong> ${teacher.email || 'N/A'}</p>
+                <p><strong>Classes:</strong> ${teacher.classes || 'N/A'}</p>
+            `;
+        }
+        if (teacherDetailsModal) {
+            teacherDetailsModal.classList.remove('hidden');
+            teacherDetailsModal.style.display = 'flex';
+            console.log(`Teacher details modal opened for ID: ${id}`);
+        }
+    } else {
+        alert('Teacher not found.');
+        console.warn(`Teacher with ID ${id} not found for details.`);
+    }
+}
+
+window.showAddUserForm = function() {
+    // const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser')); // Not used for modal display logic
+    // const userRole = loggedInUser ? loggedInUser.user_metadata?.role || loggedInUser.app_metadata?.role : null;
+    if (userModalTitle) {
+        userModalTitle.textContent = 'Add New User';
+    }
+    if (userFormSubmitBtn) {
+        userFormSubmitBtn.textContent = 'Add User';
+    }
+    document.getElementById('userId').value = '';
+    if (userForm) {
+        userForm.reset();
+    }
+    if (userModal) {
+        userModal.classList.remove('hidden');
+        userModal.style.display = 'flex';
+        console.log('Add User form opened.');
+    }
+}
+
+window.editUser = function(id) {
+    // const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser')); // Not used for modal display logic
+    // const userRole = loggedInUser ? loggedInUser.user_metadata?.role || loggedInUser.app_metadata?.role : null;
+    const profile = profiles.find(p => p.id === id);
+    if (profile) {
+        if (userModalTitle) {
+            userModalTitle.textContent = 'Edit User';
+        }
+        if (userFormSubmitBtn) {
+            userFormSubmitBtn.textContent = 'Save Changes';
+        }
+        document.getElementById('userId').value = profile.id;
+        document.getElementById('userFullName').value = profile.full_name || '';
+        document.getElementById('userEmail').value = profile.email || '';
+        document.getElementById('userRole').value = profile.role || '';
+        document.getElementById('userStatus').value = profile.status || '';
+        // Password field is intentionally left blank for editing
+        if (userModal) {
+            userModal.classList.remove('hidden');
+            userModal.style.display = 'flex';
+            console.log(`Edit User form opened for ID: ${id}`);
+        }
+    }
+}
+
+window.deleteUser = async function(id) {
+    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+    const userEmail = loggedInUser?.email || 'admin';
+    if (confirm('Are you sure you want to delete this user? This will also delete their authentication record.')) {
+        console.log(`Deleting user ID: ${id}`);
+        try {
+            // First, delete from profiles table
+            const { error: profileError } = await supabase.from('profiles').delete().eq('id', id);
+            if (profileError) throw profileError;
+
+            // Then, delete the user from Supabase Auth (requires service role key for backend, or admin context)
+            // This part might fail if not called from a secure backend function with admin privileges.
+            // For frontend, you can only delete the currently authenticated user.
+            // If this is an admin deleting another user, it needs a backend function.
+            // For simplicity, we'll simulate success for frontend.
+            // const { error: authError } = await supabase.auth.admin.deleteUser(id);
+            // if (authError) throw authError;
+
+            const deletedProfile = profiles.find(p => p.id === id);
+            await addAuditLog(userEmail, 'Deleted User', 'User Management', `Deleted user: ${deletedProfile?.full_name || 'Unknown'} (ID: ${deletedProfile?.id || id})`);
+            alert('User deleted successfully!');
+            await fetchProfiles();
+            console.log(`User ID ${id} deleted successfully.`);
+        } catch (error) {
+            alert('Error deleting user: ' + error.message);
+            console.error('Supabase error deleting user:', error);
+            await addAuditLog(userEmail, 'Delete User Failed', 'User Management', `Error: ${error.message}`);
+        }
+    }
+}
+
+window.showAddAnnouncementModal = function() {
+    // const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser')); // Not used for modal display logic
+    // const userRole = loggedInUser ? loggedInUser.user_metadata?.role || loggedInUser.app_metadata?.role : null;
+    if (announcementModalTitle) {
+        announcementModalTitle.textContent = 'Add New Announcement';
+    }
+    if (announcementFormSubmitBtn) {
+        announcementFormSubmitBtn.textContent = 'Publish Announcement';
+    }
+    document.getElementById('announcementId').value = '';
+    if (announcementForm) {
+        announcementForm.reset();
+    }
+    if (announcementModal) {
+        announcementModal.classList.remove('hidden');
+        announcementModal.style.display = 'flex';
+        console.log('Add Announcement modal opened.');
+    }
+}
+
+window.editAnnouncement = function(id) {
+    // const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser')); // Not used for modal display logic
+    // const userRole = loggedInUser ? loggedInUser.user_metadata?.role || loggedInUser.app_metadata?.role : null;
+    const announcement = announcements.find(a => a.id === id);
+    if (announcement) {
+        if (announcementModalTitle) {
+            announcementModalTitle.textContent = 'Edit Announcement';
+        }
+        if (announcementFormSubmitBtn) {
+            announcementFormSubmitBtn.textContent = 'Save Changes';
+        }
+        document.getElementById('announcementId').value = announcement.id;
+        document.getElementById('announcementTitle').value = announcement.title;
+        document.getElementById('announcementContent').value = announcement.content;
+        document.getElementById('announcementStatus').value = announcement.status;
+        if (announcementModal) {
+            announcementModal.classList.remove('hidden');
+            announcementModal.style.display = 'flex';
+            console.log(`Edit Announcement modal opened for ID: ${id}`);
+        }
+    }
+}
+
+window.deleteAnnouncement = async function(id) {
+    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+    const userEmail = loggedInUser?.email || 'admin';
+    if (confirm('Are you sure you want to delete this announcement?')) {
+        console.log(`Deleting announcement ID: ${id}`);
+        try {
+            const { error } = await supabase.from('announcements').delete().eq('id', id);
+            if (error) throw error;
+
+            const deletedAnnouncement = announcements.find(a => a.id === id);
+            await addAuditLog(userEmail, 'Deleted Announcement', 'Announcements', `Deleted announcement: "${deletedAnnouncement?.title || 'Unknown'}" (ID: ${deletedAnnouncement?.id || id})`);
+            alert('Announcement deleted successfully!');
+            await fetchAnnouncements();
+            console.log(`Announcement ID ${id} deleted successfully.`);
+        } catch (error) {
+            alert('Error deleting announcement: ' + error.message);
+            console.error('Supabase error deleting announcement:', error);
+            await addAuditLog(userEmail, 'Delete Announcement Failed', 'Announcements', `Error: ${error.message}`);
+        }
+    }
+}
+
+// Event Listeners for Modals
+if (closeStudentModal) {
+    closeStudentModal.addEventListener('click', () => {
+        if (studentModal) {
+            studentModal.classList.add('hidden');
+            studentModal.style.display = 'none';
+        }
+        if (studentForm) {
+            studentForm.reset();
+        }
+        console.log('Student modal closed.');
+    });
+}
+if (studentModal) {
+    studentModal.addEventListener('click', (e) => {
+        if (e.target === studentModal) {
+            studentModal.classList.add('hidden');
+            studentModal.style.display = 'none';
+            if (studentForm) {
+                studentForm.reset();
+            }
+            console.log('Student modal closed by outside click.');
+        }
+    });
+}
+if (closeStudentDetailsModal) {
+    closeStudentDetailsModal.addEventListener('click', () => {
+        if (studentDetailsModal) {
+            studentDetailsModal.classList.add('hidden');
+            studentDetailsModal.style.display = 'none';
+        }
+        console.log('Student details modal closed.');
+    });
+}
+if (studentDetailsModal) {
+    studentDetailsModal.addEventListener('click', (e) => {
+        if (e.target === studentDetailsModal) {
+            studentDetailsModal.classList.add('hidden');
+            studentDetailsModal.style.display = 'none';
+            console.log('Student details modal closed by outside click.');
+        }
+    });
+}
+
+if (closeTeacherModal) {
+    closeTeacherModal.addEventListener('click', () => {
+        if (teacherModal) {
+            teacherModal.classList.add('hidden');
+            teacherModal.style.display = 'none';
+        }
+        if (teacherForm) {
+            teacherForm.reset();
+        }
+        console.log('Teacher modal closed.');
+    });
+}
+if (teacherModal) {
+    teacherModal.addEventListener('click', (e) => {
+        if (e.target === teacherModal) {
+            teacherModal.classList.add('hidden');
+            teacherModal.style.display = 'none';
+            if (teacherForm) {
+                teacherForm.reset();
+            }
+            console.log('Teacher modal closed by outside click.');
+        }
+    });
+}
+if (closeTeacherDetailsModal) {
+    closeTeacherDetailsModal.addEventListener('click', () => {
+        if (teacherDetailsModal) {
+            teacherDetailsModal.classList.add('hidden');
+            teacherDetailsModal.style.display = 'none';
+        }
+        console.log('Teacher details modal closed.');
+    });
+}
+if (teacherDetailsModal) {
+    teacherDetailsModal.addEventListener('click', (e) => {
+        if (e.target === teacherDetailsModal) {
+            teacherDetailsModal.classList.add('hidden');
+            teacherDetailsModal.style.display = 'none';
+            console.log('Teacher details modal closed by outside click.');
+        }
+    });
+}
+
+if (closeUserModal) {
+    closeUserModal.addEventListener('click', () => {
+        if (userModal) {
+            userModal.classList.add('hidden');
+            userModal.style.display = 'none';
+        }
+        if (userForm) {
+            userForm.reset();
+        }
+        console.log('User modal closed.');
+    });
+}
+if (userModal) {
+    userModal.addEventListener('click', (e) => {
+        if (e.target === userModal) {
+            userModal.classList.add('hidden');
+            userModal.style.display = 'none';
+            if (userForm) {
+                userForm.reset();
+            }
+            console.log('User modal closed by outside click.');
+        }
+    });
+}
+
+if (closeAnnouncementModal) {
+    closeAnnouncementModal.addEventListener('click', () => {
+        if (announcementModal) {
+            announcementModal.classList.add('hidden');
+            announcementModal.style.display = 'none';
+        }
+        if (announcementForm) {
+            announcementForm.reset();
+        }
+        console.log('Announcement modal closed.');
+    });
+}
+if (announcementModal) {
+    announcementModal.addEventListener('click', (e) => {
+        if (e.target === announcementModal) {
+            announcementModal.classList.add('hidden');
+            announcementModal.style.display = 'none';
+            if (announcementForm) {
+                announcementForm.reset();
+            }
+            console.log('Announcement modal closed by outside click.');
+        }
+    });
+}
+
+if (closeAttendanceModal) {
+    closeAttendanceModal.addEventListener('click', () => {
+        if (attendanceModal) {
+            attendanceModal.classList.add('hidden');
+            attendanceModal.style.display = 'none';
+        }
+        if (attendanceForm) {
+            attendanceForm.reset();
+        }
+        console.log('Attendance modal closed.');
+    });
+}
+if (attendanceModal) {
+    attendanceModal.addEventListener('click', (e) => {
+        if (e.target === attendanceModal) {
+            attendanceModal.classList.add('hidden');
+            attendanceModal.style.display = 'none';
+            if (attendanceForm) {
+                attendanceForm.reset();
+            }
+            console.log('Attendance modal closed by outside click.');
+        }
+    });
+}
 
 if (closeTeacherAttendanceModal) {
     closeTeacherAttendanceModal.addEventListener('click', () => {
@@ -3107,18 +3550,275 @@ if (closeTeacherAttendanceModal) {
             teacherAttendanceModal.classList.add('hidden');
             teacherAttendanceModal.style.display = 'none';
         }
-        if (teacherAttendanceForm) teacherAttendanceForm.reset();
+        if (teacherAttendanceForm) {
+            teacherAttendanceForm.reset();
+        }
         console.log('Teacher Attendance modal closed.');
     });
 }
-
 if (teacherAttendanceModal) {
     teacherAttendanceModal.addEventListener('click', (e) => {
         if (e.target === teacherAttendanceModal) {
             teacherAttendanceModal.classList.add('hidden');
             teacherAttendanceModal.style.display = 'none';
-            if (teacherAttendanceForm) teacherAttendanceForm.reset();
+            if (teacherAttendanceForm) {
+                teacherAttendanceForm.reset();
+            }
             console.log('Teacher Attendance modal closed by outside click.');
+        }
+    });
+}
+
+// Form Submissions
+if (studentForm) {
+    studentForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+        const userEmail = loggedInUser?.email || 'admin';
+
+        const studentId = document.getElementById('studentId').value;
+        const studentData = {
+            name: document.getElementById('studentFullName').value,
+            father_name: document.getElementById('studentFatherName').value,
+            mother_name: document.getElementById('studentMotherName').value,
+            class: document.getElementById('studentClass').value,
+            roll_no: document.getElementById('studentRollNo').value,
+            aadhar_no: document.getElementById('studentAadharNo').value,
+            blood_group: document.getElementById('studentBloodGroup').value || null,
+            admission_no: document.getElementById('studentAdmissionNo').value || null,
+            admission_date: document.getElementById('studentAdmissionDate').value || null,
+            father_aadhar: document.getElementById('studentFatherAadhar').value || null,
+            mother_aadhar: document.getElementById('studentMotherAadhar').value || null,
+            email: document.getElementById('studentEmail').value || null,
+            phone: document.getElementById('studentPhone').value || null,
+            status: document.getElementById('studentStatus').value,
+        };
+
+        try {
+            let result;
+            if (studentId) {
+                result = await supabase.from('students').update(studentData).eq('id', studentId).select();
+                alert('Student updated successfully!');
+                await addAuditLog(userEmail, 'Updated Student', 'Students', `Updated student: ${studentData.name} (ID: ${studentId})`);
+            } else {
+                result = await supabase.from('students').insert(studentData).select();
+                alert('Student added successfully!');
+                await addAuditLog(userEmail, 'Added Student', 'Students', `Added new student: ${studentData.name}`);
+            }
+            if (result.error) throw result.error;
+            await fetchStudents();
+            if (studentModal) {
+                studentModal.classList.add('hidden');
+                studentModal.style.display = 'none';
+            }
+            studentForm.reset();
+            console.log('Student form submitted successfully.');
+        } catch (error) {
+            alert('Error saving student: ' + error.message);
+            console.error('Supabase error saving student:', error);
+            await addAuditLog(userEmail, 'Save Student Failed', 'Students', `Error: ${error.message}`);
+        }
+    });
+}
+
+if (teacherForm) {
+    teacherForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+        const userEmail = loggedInUser?.email || 'admin';
+
+        const teacherId = document.getElementById('teacherId').value;
+        const teacherData = {
+            name: document.getElementById('teacherFullName').value,
+            subject: document.getElementById('teacherSubject').value,
+            email: document.getElementById('teacherEmail').value || null,
+            classes: document.getElementById('teacherClasses').value || null,
+        };
+
+        try {
+            let result;
+            if (teacherId) {
+                result = await supabase.from('teachers').update(teacherData).eq('id', teacherId).select();
+                alert('Teacher updated successfully!');
+                await addAuditLog(userEmail, 'Updated Teacher', 'Teachers', `Updated teacher: ${teacherData.name} (ID: ${teacherId})`);
+            } else {
+                result = await supabase.from('teachers').insert(teacherData).select();
+                alert('Teacher added successfully!');
+                await addAuditLog(userEmail, 'Added Teacher', 'Teachers', `Added new teacher: ${teacherData.name}`);
+            }
+            if (result.error) throw result.error;
+            await fetchTeachers();
+            if (teacherModal) {
+                teacherModal.classList.add('hidden');
+                teacherModal.style.display = 'none';
+            }
+            teacherForm.reset();
+            console.log('Teacher form submitted successfully.');
+        } catch (error) {
+            alert('Error saving teacher: ' + error.message);
+            console.error('Supabase error saving teacher:', error);
+            await addAuditLog(userEmail, 'Save Teacher Failed', 'Teachers', `Error: ${error.message}`);
+        }
+    });
+}
+
+if (userForm) {
+    userForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+        const userEmail = loggedInUser?.email || 'admin';
+
+        const userId = document.getElementById('userId').value;
+        const userFullName = document.getElementById('userFullName').value;
+        const userEmailValue = document.getElementById('userEmail').value;
+        const userRoleValue = document.getElementById('userRole').value;
+        const userPassword = document.getElementById('userPassword').value;
+        const userStatus = document.getElementById('userStatus').value;
+
+        try {
+            if (userId) {
+                // Update existing user profile
+                const updateData = {
+                    full_name: userFullName,
+                    email: userEmailValue,
+                    role: userRoleValue,
+                    status: userStatus
+                };
+                const { error: profileError } = await supabase.from('profiles').update(updateData).eq('id', userId);
+                if (profileError) throw profileError;
+
+                // If password is provided, update auth user password (requires admin context or self-update)
+                if (userPassword) {
+                    // This part typically requires a backend function with service_role key
+                    // For frontend, only the current user can update their own password.
+                    // alert('Password update for other users is not supported from frontend. Please use backend API.');
+                    console.warn('Password update for other users is not supported from frontend. This would require a backend function with service_role key.');
+                }
+                alert('User profile updated successfully!');
+                await addAuditLog(userEmail, 'Updated User', 'User Management', `Updated user: ${userFullName} (ID: ${userId})`);
+            } else {
+                // Add new user (auth.signUp and profiles insert)
+                const { data: authData, error: authError } = await supabase.auth.signUp({
+                    email: userEmailValue,
+                    password: userPassword,
+                    options: {
+                        data: {
+                            full_name: userFullName,
+                            role: userRoleValue
+                        }
+                    }
+                });
+                if (authError) throw authError;
+
+                const { error: profileError } = await supabase.from('profiles').insert([
+                    {
+                        id: authData.user.id,
+                        full_name: userFullName,
+                        email: userEmailValue,
+                        role: userRoleValue,
+                        status: userStatus
+                    }
+                ]);
+                if (profileError) throw profileError;
+                alert('User added successfully! Confirmation email sent.');
+                await addAuditLog(userEmail, 'Added User', 'User Management', `Added new user: ${userFullName}`);
+            }
+            await fetchProfiles();
+            if (userModal) {
+                userModal.classList.add('hidden');
+                userModal.style.display = 'none';
+            }
+            userForm.reset();
+            console.log('User form submitted successfully.');
+        } catch (error) {
+            alert('Error saving user: ' + error.message);
+            console.error('Supabase error saving user:', error);
+            await addAuditLog(userEmail, 'Save User Failed', 'User Management', `Error: ${error.message}`);
+        }
+    });
+}
+
+if (announcementForm) {
+    announcementForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+        const userEmail = loggedInUser?.email || 'admin';
+
+        const announcementId = document.getElementById('announcementId').value;
+        const announcementData = {
+            title: document.getElementById('announcementTitle').value,
+            content: document.getElementById('announcementContent').value,
+            status: document.getElementById('announcementStatus').value,
+            date_posted: new Date().toISOString().split('T')[0] // Set current date
+        };
+
+        try {
+            let result;
+            if (announcementId) {
+                result = await supabase.from('announcements').update(announcementData).eq('id', announcementId).select();
+                alert('Announcement updated successfully!');
+                await addAuditLog(userEmail, 'Updated Announcement', 'Announcements', `Updated announcement: "${announcementData.title}" (ID: ${announcementId})`);
+            } else {
+                result = await supabase.from('announcements').insert(announcementData).select();
+                alert('Announcement published successfully!');
+                await addAuditLog(userEmail, 'Published Announcement', 'Announcements', `Published new announcement: "${announcementData.title}"`);
+            }
+            if (result.error) throw result.error;
+            await fetchAnnouncements();
+            if (announcementModal) {
+                announcementModal.classList.add('hidden');
+                announcementModal.style.display = 'none';
+            }
+            announcementForm.reset();
+            console.log('Announcement form submitted successfully.');
+        } catch (error) {
+            alert('Error saving announcement: ' + error.message);
+            console.error('Supabase error saving announcement:', error);
+            await addAuditLog(userEmail, 'Save Announcement Failed', 'Announcements', `Error: ${error.message}`);
+        }
+    });
+}
+
+if (attendanceForm) {
+    attendanceForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+        const userEmail = loggedInUser?.email || 'admin';
+
+        const attendanceId = document.getElementById('attendanceId').value;
+        const attendanceData = {
+            student_id: document.getElementById('attendanceStudentSelect').value,
+            date: document.getElementById('attendanceDate').value,
+            status: document.getElementById('attendanceStatus').value,
+            arrival_time: document.getElementById('arrivalTime').value || null,
+            departure_time: document.getElementById('departureTime').value || null,
+            remarks: document.getElementById('attendanceRemarks').value || null,
+        };
+
+        try {
+            let result;
+            if (attendanceId) {
+                result = await supabase.from('attendance').update(attendanceData).eq('id', attendanceId).select();
+                alert('Student attendance updated successfully!');
+                await addAuditLog(userEmail, 'Updated Student Attendance', 'Attendance', `Updated attendance for student ${attendanceData.student_id} on ${attendanceData.date}`);
+            } else {
+                // Use upsert to prevent duplicate entries for the same student on the same day
+                result = await supabase.from('attendance').upsert(attendanceData, { onConflict: ['student_id', 'date'] }).select();
+                alert('Student attendance marked successfully!');
+                await addAuditLog(userEmail, 'Marked Student Attendance', 'Attendance', `Marked attendance for student ${attendanceData.student_id} on ${attendanceData.date}`);
+            }
+            if (result.error) throw result.error;
+            await fetchAttendanceRecords();
+            if (attendanceModal) {
+                attendanceModal.classList.add('hidden');
+                attendanceModal.style.display = 'none';
+            }
+            attendanceForm.reset();
+            console.log('Student attendance form submitted successfully.');
+        } catch (error) {
+            alert('Error saving student attendance: ' + error.message);
+            console.error('Supabase error saving student attendance:', error);
+            await addAuditLog(userEmail, 'Save Student Attendance Failed', 'Attendance', `Error: ${error.message}`);
         }
     });
 }
@@ -3129,308 +3829,343 @@ if (teacherAttendanceForm) {
         const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
         const userEmail = loggedInUser?.email || 'admin';
 
-        const id = document.getElementById('teacherAttendanceId').value;
-        const teacherId = document.getElementById('teacherAttendanceTeacherSelect').value;
-        const date = document.getElementById('teacherAttendanceDate').value;
-        const status = document.getElementById('teacherAttendanceStatus').value;
-        const arrivalTime = document.getElementById('teacherArrivalTime').value;
-        const departureTime = document.getElementById('teacherDepartureTime').value;
-        const remarks = document.getElementById('teacherAttendanceRemarks').value;
-
-        if (!teacherId || !date || !status) {
-            alert('Please fill in all required fields.');
-            console.warn('Teacher attendance form submission failed: Missing required fields.');
-            return;
-        }
-
-        const attendanceData = {
-            teacher_id: teacherId,
-            date: date,
-            status: status,
-            arrival_time: arrivalTime || null,
-            departure_time: departureTime || null,
-            remarks: remarks || null
+        const teacherAttendanceId = document.getElementById('teacherAttendanceId').value;
+        const teacherAttendanceData = {
+            teacher_id: document.getElementById('teacherAttendanceTeacherSelect').value,
+            date: document.getElementById('teacherAttendanceDate').value,
+            status: document.getElementById('teacherAttendanceStatus').value,
+            arrival_time: document.getElementById('teacherArrivalTime').value || null,
+            departure_time: document.getElementById('teacherDepartureTime').value || null,
+            remarks: document.getElementById('teacherAttendanceRemarks').value || null,
         };
 
         try {
             let result;
-            if (id) {
-                // Update existing record
-                console.log(`Updating teacher attendance record ${id}...`);
-                result = await supabase.from('teacher_attendance').update(attendanceData).eq('id', id).select();
-                await addAuditLog(userEmail, 'Updated Teacher Attendance', 'Teacher Attendance', `Updated attendance for teacher ID ${teacherId} on ${date}`);
-                alert('Teacher attendance record updated successfully!');
+            if (teacherAttendanceId) {
+                result = await supabase.from('teacher_attendance').update(teacherAttendanceData).eq('id', teacherAttendanceId).select();
+                alert('Teacher attendance updated successfully!');
+                await addAuditLog(userEmail, 'Updated Teacher Attendance', 'Teacher Attendance', `Updated attendance for teacher ${teacherAttendanceData.teacher_id} on ${teacherAttendanceData.date}`);
             } else {
-                // Add new record
-                console.log(`Adding new teacher attendance record for teacher ID ${teacherId}...`);
-                result = await supabase.from('teacher_attendance').insert([attendanceData]).select();
-                await addAuditLog(userEmail, 'Added Teacher Attendance', 'Teacher Attendance', `Added attendance for teacher ID ${teacherId} on ${date}`);
-                alert('Teacher attendance record added successfully!');
+                // Use upsert to prevent duplicate entries for the same teacher on the same day
+                result = await supabase.from('teacher_attendance').upsert(teacherAttendanceData, { onConflict: ['teacher_id', 'date'] }).select();
+                alert('Teacher attendance marked successfully!');
+                await addAuditLog(userEmail, 'Marked Teacher Attendance', 'Teacher Attendance', `Marked attendance for teacher ${teacherAttendanceData.teacher_id} on ${teacherAttendanceData.date}`);
             }
-
             if (result.error) throw result.error;
-
-            await fetchTeacherAttendanceRecords(); // Re-fetch to update the table
+            await fetchTeacherAttendanceRecords();
             if (teacherAttendanceModal) {
                 teacherAttendanceModal.classList.add('hidden');
                 teacherAttendanceModal.style.display = 'none';
             }
-            if (teacherAttendanceForm) {
-                teacherAttendanceForm.reset();
-            }
-            console.log('Teacher attendance operation completed successfully.');
+            teacherAttendanceForm.reset();
+            console.log('Teacher attendance form submitted successfully.');
         } catch (error) {
-            alert('Error saving teacher attendance record: ' + error.message);
-            console.error('Supabase error saving teacher attendance record:', error);
+            alert('Error saving teacher attendance: ' + error.message);
+            console.error('Supabase error saving teacher attendance:', error);
             await addAuditLog(userEmail, 'Save Teacher Attendance Failed', 'Teacher Attendance', `Error: ${error.message}`);
         }
     });
 }
 
-// Fingerprint Integration (Placeholders)
-if (registerStudentFingerprintBtn) {
-    registerStudentFingerprintBtn.addEventListener('click', () => {
-        alert('Fingerprint registration for students is not yet implemented.');
-        console.log('Student fingerprint registration initiated.');
-    });
+// Student Attendance Modals and QR
+window.showAddAttendanceModal = function() {
+    // const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser')); // Not used for modal display logic
+    // const userRole = loggedInUser ? loggedInUser.user_metadata?.role || loggedInUser.app_metadata?.role : null;
+    if (attendanceModalTitle) {
+        attendanceModalTitle.textContent = 'Mark Attendance';
+    }
+    if (attendanceFormSubmitBtn) {
+        attendanceFormSubmitBtn.textContent = 'Mark Attendance';
+    }
+    document.getElementById('attendanceId').value = '';
+    if (attendanceForm) {
+        attendanceForm.reset();
+    }
+    populateStudentSelect();
+    const attendanceDateInput = document.getElementById('attendanceDate');
+    if (attendanceDateInput) {
+        attendanceDateInput.valueAsDate = new Date();
+    }
+    if (attendanceModal) {
+        attendanceModal.classList.remove('hidden');
+        attendanceModal.style.display = 'flex';
+        console.log('Add Attendance modal opened.');
+    }
 }
 
-if (verifyStudentFingerprintBtn) {
-    verifyStudentFingerprintBtn.addEventListener('click', () => {
-        alert('Fingerprint verification for students is not yet implemented.');
-        console.log('Student fingerprint verification initiated.');
-    });
+window.editAttendance = function(id) {
+    // const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser')); // Not used for modal display logic
+    // const userRole = loggedInUser ? loggedInUser.user_metadata?.role || loggedInUser.app_metadata?.role : null;
+    const record = attendanceRecords.find(r => r.id === id);
+    if (record) {
+        if (attendanceModalTitle) {
+            attendanceModalTitle.textContent = 'Edit Attendance';
+        }
+        if (attendanceFormSubmitBtn) {
+            attendanceFormSubmitBtn.textContent = 'Save Changes';
+        }
+        document.getElementById('attendanceId').value = record.id;
+        populateStudentSelect(record.student_id);
+        document.getElementById('attendanceDate').value = record.date;
+        document.getElementById('attendanceStatus').value = record.status;
+        document.getElementById('arrivalTime').value = record.arrival_time || '';
+        document.getElementById('departureTime').value = record.departure_time || '';
+        document.getElementById('attendanceRemarks').value = record.remarks || '';
+        if (attendanceModal) {
+            attendanceModal.classList.remove('hidden');
+            attendanceModal.style.display = 'flex';
+            console.log(`Edit Attendance modal opened for ID: ${id}`);
+        }
+    }
 }
 
-if (registerTeacherFingerprintBtn) {
-    registerTeacherFingerprintBtn.addEventListener('click', () => {
-        alert('Fingerprint registration for teachers is not yet implemented.');
-        console.log('Teacher fingerprint registration initiated.');
-    });
+window.deleteAttendance = async function(id) {
+    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+    const userEmail = loggedInUser?.email || 'admin';
+    if (confirm('Are you sure you want to delete this attendance record?')) {
+        console.log(`Deleting attendance record ID: ${id}`);
+        try {
+            const { error } = await supabase.from('attendance').delete().eq('id', id);
+            if (error) throw error;
+
+            const deletedRecord = attendanceRecords.find(r => r.id === id);
+            const student = deletedRecord?.students; // Access student details from the joined object
+            await addAuditLog(userEmail, 'Deleted Student Attendance', 'Attendance', `Deleted attendance for ${student ? student.name : 'Unknown Student'} on ${deletedRecord?.date || 'N/A'}`);
+            alert('Attendance record deleted successfully!');
+            await fetchAttendanceRecords();
+            console.log(`Attendance record ID ${id} deleted successfully.`);
+        } catch (error) {
+            alert('Error deleting attendance record: ' + error.message);
+            console.error('Supabase error deleting attendance record:', error);
+            await addAuditLog(userEmail, 'Delete Student Attendance Failed', 'Attendance', `Error: ${error.message}`);
+        }
+    }
 }
 
-if (verifyTeacherFingerprintBtn) {
-    verifyTeacherFingerprintBtn.addEventListener('click', () => {
-        alert('Fingerprint verification for teachers is not yet implemented.');
-        console.log('Teacher fingerprint verification initiated.');
+function populateStudentSelect(selectedStudentId = '') {
+    if (!attendanceStudentSelect) return;
+    attendanceStudentSelect.innerHTML = '<option value="">Select Student</option>';
+    students.forEach(student => {
+        const option = document.createElement('option');
+        option.value = student.id;
+        option.textContent = `${student.name} (Roll No: ${student.roll_no}, Class: ${student.class})`;
+        if (student.id === selectedStudentId) {
+            option.selected = true;
+        }
+        attendanceStudentSelect.appendChild(option);
     });
+    console.log('Student select populated.');
 }
 
-// QR Code Scanning for Student Attendance
-window.startQrAttendance = function() {
-    if (!checkHtml5QrCodeAvailability()) return;
+// QR Code Scanning for Students
+window.startQrAttendance = async function() {
+    if (!checkHtml5QrCodeAvailability()) {
+        return;
+    }
+    if (qrScannerSection) {
+        qrScannerSection.classList.remove('hidden');
+    }
+    if (qrVideo) {
+        qrVideo.innerHTML = ''; // Clear previous content
+    }
 
-    if (qrScannerSection) qrScannerSection.classList.remove('hidden');
-    if (qrVideo) qrVideo.innerHTML = ''; // Clear previous content
+    const qrCodeSuccessCallback = async (decodedText, decodedResult) => {
+        console.log(`QR Code detected: ${decodedText}`);
+        alert(`QR Code Scanned: ${decodedText}`);
+        // Assuming decodedText is student_id
+        const studentId = decodedText;
+        const student = students.find(s => s.id === studentId);
+        if (student) {
+            const today = new Date().toISOString().split('T')[0];
+            const currentTime = new Date().toTimeString().split(' ')[0].substring(0, 5); // HH:MM
+            await markIndividualAttendance(studentId, today, 'Present', `QR Scan - Arrival: ${currentTime}`);
+            alert(`Attendance marked for ${student.name} (Present).`);
+        } else {
+            alert('Student not found for this QR code.');
+        }
+        await stopQrAttendance(); // Stop scanning after successful scan
+    };
+
+    const qrCodeErrorCallback = (errorMessage) => {
+        // console.warn(`QR Code Scan Error: ${errorMessage}`); // Too verbose, only log if needed for debugging
+    };
+
+    const config = { fps: 10, qrbox: { width: 250, height: 250 } };
 
     html5QrCodeScanner = new Html5QrcodeScanner(
         "qrVideo",
-        { fps: 10, qrbox: { width: 250, height: 250 } },
+        config,
         /* verbose= */ false
     );
-
-    html5QrCodeScanner.render(onScanSuccess, onScanError);
+    html5QrCodeScanner.render(qrCodeSuccessCallback, qrCodeErrorCallback);
     console.log('Student QR attendance scanner started.');
 };
-
-async function onScanSuccess(decodedText, decodedResult) {
-    console.log(`QR Code scanned: ${decodedText}`);
-    alert(`QR Code scanned: ${decodedText}`);
-    // Assuming decodedText is a student ID
-    const studentId = decodedText;
-    const student = students.find(s => s.id === studentId);
-    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    const userEmail = loggedInUser?.email || 'System';
-
-    if (student) {
-        const today = new Date().toISOString().split('T')[0];
-        const currentTime = new Date().toTimeString().split(' ')[0].substring(0, 5);
-
-        const attendanceData = {
-            student_id: student.id,
-            date: today,
-            status: 'Present',
-            arrival_time: currentTime,
-            remarks: 'Marked via QR Scan'
-        };
-
-        try {
-            // Use upsert to either insert a new record or update an existing one for the same student and date
-            const { data, error } = await supabase.from('attendance').upsert(
-                { ...attendanceData },
-                { onConflict: ['student_id', 'date'] } // Define conflict keys
-            );
-
-            if (error) throw error;
-
-            alert(`Attendance marked for ${student.name} (ID: ${student.id}) as Present.`);
-            await addAuditLog(userEmail, 'QR Attendance Marked', 'Attendance', `Marked Present for ${student.name} (ID: ${student.id}) via QR scan.`);
-            await fetchAttendanceRecords(); // Refresh attendance table
-        } catch (error) {
-            alert('Error marking attendance: ' + error.message);
-            console.error('Supabase error marking attendance via QR:', error);
-            await addAuditLog(userEmail, 'QR Attendance Failed', 'Attendance', `Failed to mark attendance for ${student.id} via QR: ${error.message}`);
-        }
-    } else {
-        alert('Student not found for scanned QR code.');
-        await addAuditLog(userEmail, 'QR Attendance Failed', 'Attendance', `Student not found for scanned QR: ${studentId}`);
-    }
-
-    // Optionally stop the scanner after a successful scan
-    await stopQrAttendance();
-}
-
-function onScanError(errorMessage) {
-    // console.warn(`QR Scan Error: ${errorMessage}`); // Too verbose, only log if needed for debugging
-}
 
 window.stopQrAttendance = async function() {
     if (html5QrCodeScanner && html5QrCodeScanner.isScanning) {
         try {
             await html5QrCodeScanner.stop();
+            html5QrCodeScanner.clear(); // Clear the UI
+            html5QrCodeScanner = null;
+            if (qrScannerSection) {
+                qrScannerSection.classList.add('hidden');
+            }
             console.log('Student QR attendance scanner stopped.');
         } catch (err) {
             console.error('Error stopping student QR scanner:', err);
         }
     }
-    if (qrScannerSection) qrScannerSection.classList.add('hidden');
-    if (qrVideo) qrVideo.innerHTML = ''; // Clear video element
 };
 
-// QR Code Scanning for Teacher Attendance
-window.startTeacherQrAttendance = function(type) {
-    if (!checkHtml5QrCodeAvailability()) return;
-
-    if (teacherQrScannerSection) teacherQrScannerSection.classList.remove('hidden');
-    if (teacherQrVideo) teacherQrVideo.innerHTML = ''; // Clear previous content
-
-    const titleElement = document.getElementById('teacherQrScannerTitle');
-    if (titleElement) {
-        titleElement.textContent = `Scan QR Code for Teacher ${type === 'arrival' ? 'Arrival' : 'Departure'} Attendance`;
+// QR Code Scanning for Teachers
+window.startTeacherQrAttendance = async function(type) { // type can be 'arrival' or 'departure'
+    if (!checkHtml5QrCodeAvailability()) {
+        return;
     }
+    if (teacherQrScannerSection) {
+        teacherQrScannerSection.classList.remove('hidden');
+    }
+    if (teacherQrVideo) {
+        teacherQrVideo.innerHTML = ''; // Clear previous content
+    }
+    const teacherQrScannerTitle = document.getElementById('teacherQrScannerTitle');
+    if (teacherQrScannerTitle) {
+        teacherQrScannerTitle.textContent = `Scan QR Code for Teacher ${type === 'arrival' ? 'Arrival' : 'Departure'}`;
+    }
+
+    const qrCodeSuccessCallback = async (decodedText, decodedResult) => {
+        console.log(`Teacher QR Code detected: ${decodedText}`);
+        alert(`Teacher QR Code Scanned: ${decodedText}`);
+        // Assuming decodedText is teacher_id
+        const teacherId = decodedText;
+        const teacher = teachers.find(t => t.id === teacherId);
+        if (teacher) {
+            const today = new Date().toISOString().split('T')[0];
+            const currentTime = new Date().toTimeString().split(' ')[0].substring(0, 5); // HH:MM
+
+            // Fetch existing record for today
+            const { data: existingRecords, error: fetchError } = await supabase
+                .from('teacher_attendance')
+                .select('*')
+                .eq('teacher_id', teacherId)
+                .eq('date', today);
+
+            if (fetchError) {
+                console.error('Error fetching existing teacher attendance record:', fetchError);
+                alert('Error processing attendance. Please try again.');
+                await stopTeacherQrAttendance();
+                return;
+            }
+
+            const existingRecord = existingRecords && existingRecords.length > 0 ? existingRecords[0] : null;
+            let attendanceData = {
+                teacher_id: teacherId,
+                date: today,
+                status: 'Present', // Default to present on scan
+                remarks: ''
+            };
+
+            if (type === 'arrival') {
+                attendanceData.arrival_time = currentTime;
+                attendanceData.remarks = `QR Scan - Arrival: ${currentTime}`;
+            } else if (type === 'departure') {
+                attendanceData.departure_time = currentTime;
+                attendanceData.remarks = `QR Scan - Departure: ${currentTime}`;
+                // If marking departure, ensure status is still present unless explicitly changed
+                if (existingRecord && existingRecord.status !== 'Absent') {
+                    attendanceData.status = existingRecord.status;
+                }
+            }
+
+            // Merge with existing record if it exists
+            if (existingRecord) {
+                attendanceData = { ...existingRecord, ...attendanceData };
+            }
+
+            try {
+                const { error } = await supabase.from('teacher_attendance').upsert(
+                    { ...attendanceData },
+                    { onConflict: ['teacher_id', 'date'] }
+                );
+                if (error) throw error;
+
+                alert(`Attendance marked for ${teacher.name} (${type === 'arrival' ? 'Arrival' : 'Departure'}).`);
+                const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+                await addAuditLog(loggedInUser?.email || 'System', `Marked Teacher ${type === 'arrival' ? 'Arrival' : 'Departure'}`, 'Teacher Attendance', `Marked ${type} for teacher ${teacher.name} on ${today}`);
+                await fetchTeacherAttendanceRecords(); // Refresh data
+            } catch (error) {
+                alert('Error marking teacher attendance: ' + error.message);
+                console.error('Supabase error marking teacher attendance:', error);
+                const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+                await addAuditLog(loggedInUser?.email || 'System', `Teacher ${type === 'arrival' ? 'Arrival' : 'Departure'} Failed`, 'Teacher Attendance', `Failed to mark ${type} for teacher ${teacher.name} on ${today}: ${error.message}`);
+            }
+        } else {
+            alert('Teacher not found for this QR code.');
+        }
+        await stopTeacherQrAttendance(); // Stop scanning after successful scan
+    };
+
+    const qrCodeErrorCallback = (errorMessage) => {
+        // console.warn(`Teacher QR Code Scan Error: ${errorMessage}`); // Too verbose
+    };
+
+    const config = { fps: 10, qrbox: { width: 250, height: 250 } };
 
     html5QrCodeScannerTeacher = new Html5QrcodeScanner(
         "teacherQrVideo",
-        { fps: 10, qrbox: { width: 250, height: 250 } },
+        config,
         /* verbose= */ false
     );
-
-    html5QrCodeScannerTeacher.render(
-        (decodedText, decodedResult) => onTeacherScanSuccess(decodedText, decodedResult, type),
-        onScanError // Use the same error handler
-    );
-    console.log(`Teacher QR attendance scanner started for ${type}.`);
+    html5QrCodeScannerTeacher.render(qrCodeSuccessCallback, qrCodeErrorCallback);
+    console.log('Teacher QR attendance scanner started.');
 };
-
-async function onTeacherScanSuccess(decodedText, decodedResult, type) {
-    console.log(`Teacher QR Code scanned for ${type}: ${decodedText}`);
-    alert(`Teacher QR Code scanned for ${type}: ${decodedText}`);
-    // Assuming decodedText is a teacher ID
-    const teacherId = decodedText;
-    const teacher = teachers.find(t => t.id === teacherId);
-    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    const userEmail = loggedInUser?.email || 'System';
-
-    if (teacher) {
-        const today = new Date().toISOString().split('T')[0];
-        const currentTime = new Date().toTimeString().split(' ')[0].substring(0, 5);
-
-        let attendanceData = {
-            teacher_id: teacher.id,
-            date: today,
-            status: 'Present', // Default to present on scan
-            remarks: `Marked via QR Scan (${type})`
-        };
-
-        if (type === 'arrival') {
-            attendanceData.arrival_time = currentTime;
-            attendanceData.departure_time = null; // Clear departure time on arrival scan
-        } else if (type === 'departure') {
-            attendanceData.departure_time = currentTime;
-            // Fetch existing record to preserve arrival_time if it exists
-            const { data: existingRecord, error: fetchError } = await supabase
-                .from('teacher_attendance')
-                .select('arrival_time')
-                .eq('teacher_id', teacher.id)
-                .eq('date', today)
-                .single();
-
-            if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 means no rows found
-                console.error('Error fetching existing teacher attendance for departure:', fetchError);
-            }
-            if (existingRecord) {
-                attendanceData.arrival_time = existingRecord.arrival_time;
-            }
-        }
-
-        try {
-            const { data, error } = await supabase.from('teacher_attendance').upsert(
-                { ...attendanceData },
-                { onConflict: ['teacher_id', 'date'] }
-            );
-
-            if (error) throw error;
-
-            alert(`Teacher attendance marked for ${teacher.name} (ID: ${teacher.id}) for ${type}.`);
-            await addAuditLog(userEmail, `QR Teacher Attendance Marked (${type})`, 'Teacher Attendance', `Marked ${type} for ${teacher.name} (ID: ${teacher.id}) via QR scan.`);
-            await fetchTeacherAttendanceRecords(); // Refresh teacher attendance table
-        } catch (error) {
-            alert('Error marking teacher attendance: ' + error.message);
-            console.error('Supabase error marking teacher attendance via QR:', error);
-            await addAuditLog(userEmail, `QR Teacher Attendance Failed (${type})`, 'Teacher Attendance', `Failed to mark ${type} for ${teacher.id} via QR: ${error.message}`);
-        }
-    } else {
-        alert('Teacher not found for scanned QR code.');
-        await addAuditLog(userEmail, `QR Teacher Attendance Failed (${type})`, 'Teacher Attendance', `Teacher not found for scanned QR: ${teacherId}`);
-    }
-
-    await stopTeacherQrAttendance();
-}
 
 window.stopTeacherQrAttendance = async function() {
     if (html5QrCodeScannerTeacher && html5QrCodeScannerTeacher.isScanning) {
         try {
             await html5QrCodeScannerTeacher.stop();
+            html5QrCodeScannerTeacher.clear(); // Clear the UI
+            html5QrCodeScannerTeacher = null;
+            if (teacherQrScannerSection) {
+                teacherQrScannerSection.classList.add('hidden');
+            }
             console.log('Teacher QR attendance scanner stopped.');
         } catch (err) {
             console.error('Error stopping teacher QR scanner:', err);
         }
     }
-    if (teacherQrScannerSection) teacherQrScannerSection.classList.add('hidden');
-    if (teacherQrVideo) teacherQrVideo.innerHTML = '';
 };
 
-// QR Code Generation for Students
+// Student QR Code Generation
 window.showStudentQrCodeModal = function(studentId) {
     const student = students.find(s => s.id === studentId);
     if (!student) {
         alert('Student not found.');
-        console.error(`Student with ID ${studentId} not found for QR code generation.`);
         return;
     }
 
-    if (studentQrCodeModal) {
-        studentQrCodeModal.classList.remove('hidden');
-        studentQrCodeModal.style.display = 'flex';
+    if (qrCodeStudentIdDisplay) {
+        qrCodeStudentIdDisplay.textContent = `Student ID: ${student.id}`;
     }
 
     if (studentQrCodeCanvas) {
         const qr = new QRious({
             element: studentQrCodeCanvas,
-            value: student.id, // The data to encode in the QR code (student ID)
+            value: student.id, // The data to encode in the QR code
             size: 200,
-            padding: 10
+            level: 'H' // Error correction level
         });
-        console.log(`QR code generated for student ID: ${student.id}`);
-
-        // Update download link
+        // Set download link
         if (downloadQrCodeLink) {
             downloadQrCodeLink.href = studentQrCodeCanvas.toDataURL('image/png');
             downloadQrCodeLink.download = `student_${student.id}_qr_code.png`;
         }
-        if (qrCodeStudentIdDisplay) {
-            qrCodeStudentIdDisplay.textContent = `Student ID: ${student.id}`;
-        }
+    }
+
+    if (studentQrCodeModal) {
+        studentQrCodeModal.classList.remove('hidden');
+        studentQrCodeModal.style.display = 'flex';
+        console.log(`Student QR code modal opened for ID: ${studentId}`);
     }
 };
 
@@ -3455,11 +4190,13 @@ if (studentQrCodeModal) {
 }
 
 window.printStudentQrCode = function() {
-    console.log('Printing student QR code...');
-    const printContents = studentQrCodeCanvas.toDataURL('image/png');
+    const printContents = studentQrCodeCanvas?.toDataURL('image/png');
+    if (!printContents) {
+        alert('QR code not generated yet.');
+        return;
+    }
     const printWindow = window.open('', '_blank');
-    printWindow.document.write('<html><head><title>Print Student QR Code</title>');
-    printWindow.document.write('</head><body>');
+    printWindow.document.write('<html><head><title>Print Student QR Code</title></head><body>');
     printWindow.document.write(`<img src="${printContents}" style="max-width: 100%; height: auto;">`);
     printWindow.document.write('</body></html>');
     printWindow.document.close();
@@ -3469,37 +4206,36 @@ window.printStudentQrCode = function() {
     console.log('Student QR code print initiated.');
 };
 
-// QR Code Generation for Teachers
+// Teacher QR Code Generation
 window.showTeacherQrCodeModal = function(teacherId) {
     const teacher = teachers.find(t => t.id === teacherId);
     if (!teacher) {
         alert('Teacher not found.');
-        console.error(`Teacher with ID ${teacherId} not found for QR code generation.`);
         return;
     }
 
-    if (teacherQrCodeModal) {
-        teacherQrCodeModal.classList.remove('hidden');
-        teacherQrCodeModal.style.display = 'flex';
+    if (qrCodeTeacherIdDisplay) {
+        qrCodeTeacherIdDisplay.textContent = `Teacher ID: ${teacher.id}`;
     }
 
     if (teacherQrCodeCanvas) {
         const qr = new QRious({
             element: teacherQrCodeCanvas,
-            value: teacher.id, // The data to encode in the QR code (teacher ID)
+            value: teacher.id, // The data to encode in the QR code
             size: 200,
-            padding: 10
+            level: 'H' // Error correction level
         });
-        console.log(`QR code generated for teacher ID: ${teacher.id}`);
-
-        // Update download link
+        // Set download link
         if (downloadTeacherQrCodeLink) {
             downloadTeacherQrCodeLink.href = teacherQrCodeCanvas.toDataURL('image/png');
             downloadTeacherQrCodeLink.download = `teacher_${teacher.id}_qr_code.png`;
         }
-        if (qrCodeTeacherIdDisplay) {
-            qrCodeTeacherIdDisplay.textContent = `Teacher ID: ${teacher.id}`;
-        }
+    }
+
+    if (teacherQrCodeModal) {
+        teacherQrCodeModal.classList.remove('hidden');
+        teacherQrCodeModal.style.display = 'flex';
+        console.log(`Teacher QR code modal opened for ID: ${teacherId}`);
     }
 };
 
@@ -3524,11 +4260,13 @@ if (teacherQrCodeModal) {
 }
 
 window.printTeacherQrCode = function() {
-    console.log('Printing teacher QR code...');
-    const printContents = teacherQrCodeCanvas.toDataURL('image/png');
+    const printContents = teacherQrCodeCanvas?.toDataURL('image/png');
+    if (!printContents) {
+        alert('QR code not generated yet.');
+        return;
+    }
     const printWindow = window.open('', '_blank');
-    printWindow.document.write('<html><head><title>Print Teacher QR Code</title>');
-    printWindow.document.write('</head><body>');
+    printWindow.document.write('<html><head><title>Print Teacher QR Code</title></head><body>');
     printWindow.document.write(`<img src="${printContents}" style="max-width: 100%; height: auto;">`);
     printWindow.document.write('</body></html>');
     printWindow.document.close();
@@ -3539,324 +4277,6 @@ window.printTeacherQrCode = function() {
 };
 
 
-// Dashboard Stats Update
-function updateDashboardStats() {
-    if (totalStudentsCount) totalStudentsCount.textContent = students.length;
-    if (totalTeachersCount) totalTeachersCount.textContent = teachers.length;
-
-    // Calculate monthly revenue (sum of paid amounts from invoices)
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
-    const monthlyRevenueAmount = invoices.reduce((sum, invoice) => {
-        const invoiceDate = new Date(invoice.date);
-        if (invoiceDate.getMonth() === currentMonth && invoiceDate.getFullYear() === currentYear) {
-            return sum + (parseFloat(invoice.paid_amount) || 0);
-        }
-        return sum;
-    }, 0);
-    if (monthlyRevenue) monthlyRevenue.textContent = `₹${monthlyRevenueAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-
-    // Calculate upcoming events (from calendar events, excluding holidays already handled)
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const upcomingEvents = (calendar?.getEvents() || []).filter(event => {
-        const eventStart = event.start;
-        return eventStart && eventStart >= today && !event.classNames.includes('holiday');
-    }).length;
-    if (upcomingEventsCount) upcomingEventsCount.textContent = upcomingEvents;
-
-    // Calculate students present today
-    const todayDate = new Date().toISOString().split('T')[0];
-    const studentsPresent = attendanceRecords.filter(rec => rec.date === todayDate && rec.status === 'Present').length;
-    if (studentsPresentToday) studentsPresentToday.textContent = studentsPresent;
-
-    // Check if today is a holiday
-    const isHolidayToday = holidays.some(holiday => holiday.date === todayDate);
-    const holidayIndicator = document.getElementById('holidayIndicator');
-    const studentsPresentLabel = document.getElementById('studentsPresentLabel');
-
-    if (isHolidayToday) {
-        if (holidayIndicator) holidayIndicator.classList.remove('hidden');
-        if (studentsPresentLabel) studentsPresentLabel.textContent = 'Students Present Today (Holiday)';
-    } else {
-        if (holidayIndicator) holidayIndicator.classList.add('hidden');
-        if (studentsPresentLabel) studentsPresentLabel.textContent = 'Students Present Today';
-    }
-
-    // Calculate teachers present today
-    const teachersPresent = teacherAttendanceRecords.filter(rec => rec.date === todayDate && rec.status === 'Present').length;
-    if (teachersPresentToday) teachersPresentToday.textContent = teachersPresent;
-
-    console.log('Dashboard stats updated.');
-}
-
-// Dashboard Charts (Chart.js)
-function initCharts() {
-    console.log('Initializing dashboard charts...');
-
-    // Destroy existing chart instances to prevent duplicates
-    safeDestroy(financeOverviewChartInstance);
-    safeDestroy(studentAttendanceChartInstance);
-    safeDestroy(teacherAttendanceChartInstance);
-    safeDestroy(monthlyAttendanceTrendChartInstance);
-
-    // Finance Overview Chart
-    const financeCtx = document.getElementById('financeOverviewChart')?.getContext('2d');
-    if (financeCtx) {
-        const totalRevenue = invoices.reduce((sum, inv) => sum + (parseFloat(inv.amount) || 0), 0);
-        const totalPaid = invoices.reduce((sum, inv) => sum + (parseFloat(inv.paid_amount) || 0), 0);
-        const totalDue = totalRevenue - totalPaid;
-
-        financeOverviewChartInstance = new Chart(financeCtx, {
-            type: 'pie',
-            data: {
-                labels: ['Total Paid', 'Total Due'],
-                datasets: [{
-                    data: [totalPaid, totalDue],
-                    backgroundColor: ['#4CAF50', '#FFC107'],
-                    hoverOffset: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Finance Overview',
-                        font: { size: 16 }
-                    },
-                    legend: {
-                        position: 'bottom',
-                    }
-                }
-            }
-        });
-    }
-
-    // Student Attendance Chart (Last 7 days)
-    const studentAttendanceCtx = document.getElementById('studentAttendanceChart')?.getContext('2d');
-    if (studentAttendanceCtx) {
-        const attendanceData = {};
-        for (let i = 6; i >= 0; i--) {
-            const d = new Date();
-            d.setDate(d.getDate() - i);
-            const dateStr = d.toISOString().split('T')[0];
-            attendanceData[dateStr] = { present: 0, absent: 0 };
-        }
-
-        attendanceRecords.forEach(record => {
-            if (attendanceData[record.date]) {
-                if (record.status === 'Present') attendanceData[record.date].present++;
-                else if (record.status === 'Absent') attendanceData[record.date].absent++;
-            }
-        });
-
-        const labels = Object.keys(attendanceData).map(date => moment(date).format('MMM D'));
-        const presentData = Object.values(attendanceData).map(data => data.present);
-        const absentData = Object.values(attendanceData).map(data => data.absent);
-
-        studentAttendanceChartInstance = new Chart(studentAttendanceCtx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Present',
-                        data: presentData,
-                        backgroundColor: '#4CAF50'
-                    },
-                    {
-                        label: 'Absent',
-                        data: absentData,
-                        backgroundColor: '#F44336'
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Student Attendance (Last 7 Days)',
-                        font: { size: 16 }
-                    },
-                    legend: {
-                        position: 'top',
-                    }
-                },
-                scales: {
-                    x: { stacked: true },
-                    y: { stacked: true, beginAtZero: true }
-                }
-            }
-        });
-    }
-
-    // Teacher Attendance Chart (Last 7 days)
-    const teacherAttendanceCtx = document.getElementById('teacherAttendanceChart')?.getContext('2d');
-    if (teacherAttendanceCtx) {
-        const attendanceData = {};
-        for (let i = 6; i >= 0; i--) {
-            const d = new Date();
-            d.setDate(d.getDate() - i);
-            const dateStr = d.toISOString().split('T')[0];
-            attendanceData[dateStr] = { present: 0, absent: 0 };
-        }
-
-        teacherAttendanceRecords.forEach(record => {
-            if (attendanceData[record.date]) {
-                if (record.status === 'Present') attendanceData[record.date].present++;
-                else if (record.status === 'Absent') attendanceData[record.date].absent++;
-            }
-        });
-
-        const labels = Object.keys(attendanceData).map(date => moment(date).format('MMM D'));
-        const presentData = Object.values(attendanceData).map(data => data.present);
-        const absentData = Object.values(attendanceData).map(data => data.absent);
-
-        teacherAttendanceChartInstance = new Chart(teacherAttendanceCtx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Present',
-                        data: presentData,
-                        backgroundColor: '#2196F3'
-                    },
-                    {
-                        label: 'Absent',
-                        data: absentData,
-                        backgroundColor: '#FF9800'
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Teacher Attendance (Last 7 Days)',
-                        font: { size: 16 }
-                    },
-                    legend: {
-                        position: 'top',
-                    }
-                },
-                scales: {
-                    x: { stacked: true },
-                    y: { stacked: true, beginAtZero: true }
-                }
-            }
-        });
-    }
-
-    // Monthly Attendance Trend (Students)
-    const monthlyAttendanceCtx = document.getElementById('monthlyAttendanceTrendChart')?.getContext('2d');
-    if (monthlyAttendanceCtx) {
-        const monthlyData = {};
-        const currentYear = new Date().getFullYear();
-        for (let i = 0; i < 12; i++) {
-            const monthName = moment().month(i).format('MMM');
-            monthlyData[monthName] = { totalDays: 0, presentDays: 0 };
-        }
-
-        // Populate total days for each month (simplified, assumes 30 days for all months for trend)
-        // For more accuracy, you'd calculate actual school days per month
-        Object.keys(monthlyData).forEach(month => {
-            monthlyData[month].totalDays = 20; // Example: 20 school days per month
-        });
-
-        attendanceRecords.forEach(record => {
-            const recordDate = new Date(record.date);
-            if (recordDate.getFullYear() === currentYear) {
-                const monthName = moment(recordDate).format('MMM');
-                if (monthlyData[monthName]) {
-                    if (record.status === 'Present') {
-                        monthlyData[monthName].presentDays++;
-                    }
-                }
-            }
-        });
-
-        const labels = Object.keys(monthlyData);
-        const attendancePercentage = labels.map(month => {
-            const total = monthlyData[month].totalDays * students.length; // Total possible attendance days for all students
-            const present = monthlyData[month].presentDays;
-            return total > 0 ? (present / total * 100).toFixed(2) : 0;
-        });
-
-        monthlyAttendanceTrendChartInstance = new Chart(monthlyAttendanceCtx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Student Attendance (%)',
-                    data: attendancePercentage,
-                    borderColor: '#03A9F4',
-                    tension: 0.1,
-                    fill: false
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: `Student Attendance Trend (${currentYear})`,
-                        font: { size: 16 }
-                    },
-                    legend: {
-                        position: 'top',
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        title: {
-                            display: true,
-                            text: 'Attendance Percentage'
-                        }
-                    }
-                }
-            }
-        });
-    }
-    console.log('Dashboard charts initialized.');
-}
-
-// Recent Activity
-function renderRecentActivity() {
-    if (!recentActivityList) return;
-    recentActivityList.innerHTML = '';
-    const recentLogs = auditLogs.slice(0, 5); // Show last 5 activities
-    if (recentLogs.length === 0) {
-        recentActivityList.innerHTML = '<p class="text-gray-500 text-center py-4">No recent activity.</p>';
-        return;
-    }
-    recentLogs.forEach(log => {
-        const div = document.createElement('div');
-        div.className = 'flex items-center space-x-3 p-3 rounded-lg bg-gray-50';
-        div.innerHTML = `
-            <div class="icon-wrapper bg-blue-100 text-blue-600">
-                <i class="fas fa-info-circle"></i>
-            </div>
-            <div>
-                <p class="font-medium">${log.action} in ${log.module}</p>
-                <p class="text-sm text-gray-600">${log.details}</p>
-                <p class="text-xs text-gray-500">${moment(log.timestamp).fromNow()}</p>
-            </div>
-        `;
-        recentActivityList.appendChild(div);
-    });
-    console.log('Recent activity rendered.');
-}
-
 // Exams Module Functions
 function renderExams(filteredExams = exams) {
     if (!examTableBody) return;
@@ -3865,9 +4285,6 @@ function renderExams(filteredExams = exams) {
         examTableBody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-gray-500">No exams found.</td></tr>';
         return;
     }
-    // const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser')); // Not used for rendering
-    // const userRole = loggedInUser ? loggedInUser.user_metadata?.role || loggedInUser.app_metadata?.role : null;
-
     filteredExams.forEach(exam => {
         const newRow = document.createElement('tr');
         newRow.className = 'border-b hover:bg-gray-50';
@@ -3892,50 +4309,45 @@ function renderExams(filteredExams = exams) {
 }
 
 window.showAddExamModal = function() {
-    if (examModal) {
-        examModal.classList.remove('hidden');
-        examModal.style.display = 'flex';
-    }
-    if (examForm) {
-        examForm.reset();
-        document.getElementById('examId').value = ''; // Clear ID for new entry
-    }
     if (examModalTitle) {
         examModalTitle.textContent = 'Add New Exam';
     }
     if (examFormSubmitBtn) {
         examFormSubmitBtn.textContent = 'Save Exam';
     }
-    console.log('Add Exam modal opened.');
-};
+    document.getElementById('examId').value = '';
+    if (examForm) {
+        examForm.reset();
+    }
+    if (examModal) {
+        examModal.classList.remove('hidden');
+        examModal.style.display = 'flex';
+        console.log('Add Exam modal opened.');
+    }
+}
 
-window.editExam = async function(id) {
-    console.log(`Editing exam ID: ${id}`);
-    const exam = exams.find(ex => ex.id === id);
+window.editExam = function(id) {
+    const exam = exams.find(e => e.id === id);
     if (exam) {
-        document.getElementById('examId').value = exam.id;
-        document.getElementById('examName').value = exam.name;
-        document.getElementById('examClass').value = exam.class;
-        document.getElementById('examSubject').value = exam.subject;
-        document.getElementById('examDate').value = exam.date;
-        document.getElementById('examMaxMarks').value = exam.max_marks;
-
         if (examModalTitle) {
             examModalTitle.textContent = 'Edit Exam';
         }
         if (examFormSubmitBtn) {
             examFormSubmitBtn.textContent = 'Save Changes';
         }
+        document.getElementById('examId').value = exam.id;
+        document.getElementById('examName').value = exam.name;
+        document.getElementById('examClass').value = exam.class;
+        document.getElementById('examSubject').value = exam.subject;
+        document.getElementById('examDate').value = exam.date;
+        document.getElementById('examMaxMarks').value = exam.max_marks;
         if (examModal) {
             examModal.classList.remove('hidden');
             examModal.style.display = 'flex';
+            console.log(`Edit Exam modal opened for ID: ${id}`);
         }
-        console.log(`Exam ${id} data loaded for editing.`);
-    } else {
-        alert('Exam not found.');
-        console.error(`Exam with ID ${id} not found for editing.`);
     }
-};
+}
 
 window.deleteExam = async function(id) {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
@@ -3946,39 +4358,17 @@ window.deleteExam = async function(id) {
             const { error } = await supabase.from('exams').delete().eq('id', id);
             if (error) throw error;
 
-            const deletedExam = exams.find(ex => ex.id === id);
-            await addAuditLog(userEmail, 'Deleted Exam', 'Exams', `Deleted exam: ${deletedExam?.name || id}`);
+            const deletedExam = exams.find(e => e.id === id);
+            await addAuditLog(userEmail, 'Deleted Exam', 'Exams', `Deleted exam: "${deletedExam?.name || 'Unknown'}" (ID: ${deletedExam?.id || id})`);
             alert('Exam deleted successfully!');
-            await fetchExams(); // Re-fetch to update the table
-            console.log(`Exam ${id} deleted successfully.`);
+            await fetchExams();
+            console.log(`Exam ID ${id} deleted successfully.`);
         } catch (error) {
             alert('Error deleting exam: ' + error.message);
             console.error('Supabase error deleting exam:', error);
             await addAuditLog(userEmail, 'Delete Exam Failed', 'Exams', `Error: ${error.message}`);
         }
     }
-};
-
-if (closeExamModal) {
-    closeExamModal.addEventListener('click', () => {
-        if (examModal) {
-            examModal.classList.add('hidden');
-            examModal.style.display = 'none';
-        }
-        if (examForm) examForm.reset();
-        console.log('Exam modal closed.');
-    });
-}
-
-if (examModal) {
-    examModal.addEventListener('click', (e) => {
-        if (e.target === examModal) {
-            examModal.classList.add('hidden');
-            examModal.style.display = 'none';
-            if (examForm) examForm.reset();
-            console.log('Exam modal closed by outside click.');
-        }
-    });
 }
 
 if (examForm) {
@@ -3987,54 +4377,34 @@ if (examForm) {
         const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
         const userEmail = loggedInUser?.email || 'admin';
 
-        const id = document.getElementById('examId').value;
-        const name = document.getElementById('examName').value;
-        const examClass = document.getElementById('examClass').value;
-        const subject = document.getElementById('examSubject').value;
-        const date = document.getElementById('examDate').value;
-        const maxMarks = document.getElementById('examMaxMarks').value;
-
-        if (!name || !examClass || !subject || !date || !maxMarks) {
-            alert('Please fill in all required fields.');
-            console.warn('Exam form submission failed: Missing required fields.');
-            return;
-        }
-
+        const examId = document.getElementById('examId').value;
         const examData = {
-            name: name,
-            class: examClass,
-            subject: subject,
-            date: date,
-            max_marks: parseInt(maxMarks)
+            name: document.getElementById('examName').value,
+            class: document.getElementById('examClass').value,
+            subject: document.getElementById('examSubject').value,
+            date: document.getElementById('examDate').value,
+            max_marks: document.getElementById('examMaxMarks').value,
         };
 
         try {
             let result;
-            if (id) {
-                // Update existing record
-                console.log(`Updating exam record ${id}...`);
-                result = await supabase.from('exams').update(examData).eq('id', id).select();
-                await addAuditLog(userEmail, 'Updated Exam', 'Exams', `Updated exam: ${name}`);
+            if (examId) {
+                result = await supabase.from('exams').update(examData).eq('id', examId).select();
                 alert('Exam updated successfully!');
+                await addAuditLog(userEmail, 'Updated Exam', 'Exams', `Updated exam: "${examData.name}" (ID: ${examId})`);
             } else {
-                // Add new record
-                console.log(`Adding new exam: ${name}...`);
-                result = await supabase.from('exams').insert([examData]).select();
-                await addAuditLog(userEmail, 'Added Exam', 'Exams', `Added exam: ${name}`);
+                result = await supabase.from('exams').insert(examData).select();
                 alert('Exam added successfully!');
+                await addAuditLog(userEmail, 'Added Exam', 'Exams', `Added new exam: "${examData.name}"`);
             }
-
             if (result.error) throw result.error;
-
-            await fetchExams(); // Re-fetch to update the table
+            await fetchExams();
             if (examModal) {
                 examModal.classList.add('hidden');
                 examModal.style.display = 'none';
             }
-            if (examForm) {
-                examForm.reset();
-            }
-            console.log('Exam operation completed successfully.');
+            examForm.reset();
+            console.log('Exam form submitted successfully.');
         } catch (error) {
             alert('Error saving exam: ' + error.message);
             console.error('Supabase error saving exam:', error);
@@ -4043,7 +4413,31 @@ if (examForm) {
     });
 }
 
-// Generate Exam Results Modal
+if (closeExamModal) {
+    closeExamModal.addEventListener('click', () => {
+        if (examModal) {
+            examModal.classList.add('hidden');
+            examModal.style.display = 'none';
+        }
+        if (examForm) {
+            examForm.reset();
+        }
+        console.log('Exam modal closed.');
+    });
+}
+if (examModal) {
+    examModal.addEventListener('click', (e) => {
+        if (e.target === examModal) {
+            examModal.classList.add('hidden');
+            examModal.style.display = 'none';
+            if (examForm) {
+                examForm.reset();
+            }
+            console.log('Exam modal closed by outside click.');
+        }
+    });
+}
+
 window.showGenerateResultsModal = function() {
     if (generateResultsModal) {
         generateResultsModal.classList.remove('hidden');
@@ -4052,8 +4446,8 @@ window.showGenerateResultsModal = function() {
     if (generateResultsForm) {
         generateResultsForm.reset();
     }
-    console.log('Generate Exam Results modal opened.');
-};
+    console.log('Generate Results modal opened.');
+}
 
 if (closeGenerateResultsModal) {
     closeGenerateResultsModal.addEventListener('click', () => {
@@ -4061,8 +4455,10 @@ if (closeGenerateResultsModal) {
             generateResultsModal.classList.add('hidden');
             generateResultsModal.style.display = 'none';
         }
-        if (generateResultsForm) generateResultsForm.reset();
-        console.log('Generate Exam Results modal closed.');
+        if (generateResultsForm) {
+            generateResultsForm.reset();
+        }
+        console.log('Generate Results modal closed.');
     });
 }
 
@@ -4071,292 +4467,299 @@ if (generateResultsModal) {
         if (e.target === generateResultsModal) {
             generateResultsModal.classList.add('hidden');
             generateResultsModal.style.display = 'none';
-            if (generateResultsForm) generateResultsForm.reset();
-            console.log('Generate Exam Results modal closed by outside click.');
+            if (generateResultsForm) {
+                generateResultsForm.reset();
+            }
+            console.log('Generate Results modal closed by outside click.');
         }
     });
 }
 
 if (generateResultsForm) {
-    generateResultsForm.addEventListener('submit', async (e) => {
+    generateResultsForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const selectedClass = document.getElementById('resultsClassFilter').value;
-        const selectedExamType = document.getElementById('resultsExamTypeFilter').value;
-
-        if (!selectedClass || !selectedExamType) {
-            alert('Please select both Class and Exam Type.');
-            return;
-        }
-
-        alert(`Generating PDF report for ${selectedExamType} exams in ${selectedClass}. (Functionality to be implemented)`);
-        const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-        await addAuditLog(loggedInUser?.email || 'admin', 'Generated Exam Report', 'Exams', `Generated PDF for ${selectedExamType} exams in ${selectedClass}`);
-
-        // Here you would typically fetch exam results data based on selectedClass and selectedExamType
-        // and then use jsPDF to generate a detailed report.
-        // For now, it's a placeholder.
-
+        const selectedClass = resultsClassFilter ? resultsClassFilter.value : '';
+        const examType = resultsExamTypeFilter ? resultsExamTypeFilter.value : '';
+        alert(`Generating PDF report for Class: ${selectedClass}, Exam Type: ${examType}`);
+        console.log(`Generating PDF report for Class: ${selectedClass}, Exam Type: ${examType}`);
+        // Here you would typically fetch exam results data based on filters
+        // and then use jspdf to generate the PDF.
+        // For now, it's just an alert.
         if (generateResultsModal) {
             generateResultsModal.classList.add('hidden');
             generateResultsModal.style.display = 'none';
         }
-        if (generateResultsForm) generateResultsForm.reset();
     });
 }
 
-// Reports Module Charts (Chart.js)
+// Reports Module Charts
 function initReportsCharts() {
-    console.log('Initializing reports charts...');
-
-    // Destroy existing chart instances
+    // Destroy existing chart instances if they exist
     safeDestroy(reportsAttendanceChart);
     safeDestroy(reportsPerformanceChart);
     safeDestroy(reportsStudentStatusChart);
     safeDestroy(reportsClassPerformanceChart);
 
-    // Example: Student Attendance Report Chart
-    const attendanceReportCtx = document.getElementById('attendanceReportChart')?.getContext('2d');
-    if (attendanceReportCtx) {
-        reportsAttendanceChart = new Chart(attendanceReportCtx, {
+    // Sample data for reports charts (replace with actual fetched data)
+    const attendanceData = {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+            label: 'Student Attendance %',
+            data: [90, 85, 92, 88, 95, 90],
+            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1
+        }]
+    };
+
+    const performanceData = {
+        labels: ['Math', 'Science', 'English', 'History'],
+        datasets: [{
+            label: 'Average Score',
+            data: [85, 78, 90, 70],
+            backgroundColor: ['rgba(255, 99, 132, 0.6)', 'rgba(54, 162, 235, 0.6)', 'rgba(255, 206, 86, 0.6)', 'rgba(75, 192, 192, 0.6)'],
+            borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)'],
+            borderWidth: 1
+        }]
+    };
+
+    const studentStatusData = {
+        labels: ['Active', 'Inactive', 'On Leave'],
+        datasets: [{
+            label: 'Student Status',
+            data: [students.filter(s => s.status === 'Active').length, students.filter(s => s.status === 'Inactive').length, students.filter(s => s.status === 'Leave').length],
+            backgroundColor: ['rgba(40, 167, 69, 0.6)', 'rgba(255, 193, 7, 0.6)', 'rgba(23, 162, 184, 0.6)'],
+            borderColor: ['rgba(40, 167, 69, 1)', 'rgba(255, 193, 7, 1)', 'rgba(23, 162, 184, 1)'],
+            borderWidth: 1
+        }]
+    };
+
+    const classPerformanceData = {
+        labels: ['Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5'],
+        datasets: [{
+            label: 'Average Performance',
+            data: [75, 80, 82, 79, 85],
+            backgroundColor: 'rgba(153, 102, 255, 0.6)',
+            borderColor: 'rgba(153, 102, 255, 1)',
+            borderWidth: 1
+        }]
+    };
+
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    };
+
+    const reportsAttendanceCtx = document.getElementById('reportsAttendanceChart')?.getContext('2d');
+    if (reportsAttendanceCtx) {
+        reportsAttendanceChart = new Chart(reportsAttendanceCtx, {
+            type: 'line',
+            data: attendanceData,
+            options: chartOptions
+        });
+    }
+
+    const reportsPerformanceCtx = document.getElementById('reportsPerformanceChart')?.getContext('2d');
+    if (reportsPerformanceCtx) {
+        reportsPerformanceChart = new Chart(reportsPerformanceCtx, {
+            type: 'bar',
+            data: performanceData,
+            options: chartOptions
+        });
+    }
+
+    const reportsStudentStatusCtx = document.getElementById('reportsStudentStatusChart')?.getContext('2d');
+    if (reportsStudentStatusCtx) {
+        reportsStudentStatusChart = new Chart(reportsStudentStatusCtx, {
+            type: 'pie',
+            data: studentStatusData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+            }
+        });
+    }
+
+    const reportsClassPerformanceCtx = document.getElementById('reportsClassPerformanceChart')?.getContext('2d');
+    if (reportsClassPerformanceCtx) {
+        reportsClassPerformanceChart = new Chart(reportsClassPerformanceCtx, {
+            type: 'bar',
+            data: classPerformanceData,
+            options: chartOptions
+        });
+    }
+    console.log('Reports charts initialized.');
+}
+
+window.applyReportFilters = function() {
+    const classFilter = document.getElementById('reportClassFilter')?.value;
+    const startDate = document.getElementById('reportStartDate')?.value;
+    const endDate = document.getElementById('reportEndDate')?.value;
+
+    console.log(`Applying report filters: Class=${classFilter}, StartDate=${startDate}, EndDate=${endDate}`);
+    // In a real application, you would re-fetch data based on these filters
+    // and then update the charts with the new data.
+    // For this example, we'll just re-initialize with static data.
+    initReportsCharts();
+    alert('Report filters applied. Charts updated with sample data.');
+}
+
+
+// Dashboard Charts
+function initCharts() {
+    // Destroy existing chart instances before creating new ones
+    safeDestroy(financeOverviewChartInstance);
+    safeDestroy(studentAttendanceChartInstance);
+    safeDestroy(teacherAttendanceChartInstance);
+    safeDestroy(monthlyAttendanceTrendChartInstance);
+
+    // Finance Overview Chart (Example: Monthly Revenue)
+    const financeCtx = document.getElementById('financeOverviewChart')?.getContext('2d');
+    if (financeCtx) {
+        const monthlyRevenueData = {};
+        invoices.forEach(invoice => {
+            if (invoice.status === 'Paid') {
+                const monthYear = new Date(invoice.date).toLocaleString('en-US', { month: 'short', year: 'numeric' });
+                monthlyRevenueData[monthYear] = (monthlyRevenueData[monthYear] || 0) + parseFloat(invoice.amount);
+            }
+        });
+        const labels = Object.keys(monthlyRevenueData).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+        const data = labels.map(label => monthlyRevenueData[label]);
+
+        financeOverviewChartInstance = new Chart(financeCtx, {
             type: 'line',
             data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                labels: labels,
                 datasets: [{
-                    label: 'Average Attendance %',
-                    data: [90, 88, 92, 85, 95, 90],
-                    borderColor: '#4CAF50',
-                    tension: 0.1
+                    label: 'Monthly Revenue (₹)',
+                    data: data,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1,
+                    fill: false
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Overall Student Attendance Trend',
-                        font: { size: 16 }
-                    }
-                }
-            }
-        });
-    }
-
-    // Example: Student Performance Report Chart
-    const performanceReportCtx = document.getElementById('performanceReportChart')?.getContext('2d');
-    if (performanceReportCtx) {
-        reportsPerformanceChart = new Chart(performanceReportCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5'],
-                datasets: [{
-                    label: 'Average Score',
-                    data: [75, 80, 70, 85, 78],
-                    backgroundColor: '#2196F3'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Average Performance by Grade',
-                        font: { size: 16 }
-                    }
-                },
                 scales: {
-                    y: { beginAtZero: true }
+                    y: {
+                        beginAtZero: true
+                    }
                 }
             }
         });
     }
 
-    // Example: Student Status Distribution Chart
-    const studentStatusCtx = document.getElementById('studentStatusChart')?.getContext('2d');
-    if (studentStatusCtx) {
-        const activeStudents = students.filter(s => s.status === 'Active').length;
-        const inactiveStudents = students.filter(s => s.status === 'Inactive').length;
-        reportsStudentStatusChart = new Chart(studentStatusCtx, {
+    // Student Attendance Chart (Example: Present vs Absent)
+    const studentAttendanceCtx = document.getElementById('studentAttendanceChart')?.getContext('2d');
+    if (studentAttendanceCtx) {
+        const today = new Date().toISOString().split('T')[0];
+        const todayAttendance = attendanceRecords.filter(rec => rec.date === today);
+        const presentCount = new Set(todayAttendance.filter(rec => rec.status === 'Present').map(rec => rec.student_id)).size;
+        const absentCount = new Set(todayAttendance.filter(rec => rec.status === 'Absent').map(rec => rec.student_id)).size;
+        const leaveCount = new Set(todayAttendance.filter(rec => rec.status === 'Leave').map(rec => rec.student_id)).size;
+
+        studentAttendanceChartInstance = new Chart(studentAttendanceCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Active', 'Inactive'],
+                labels: ['Present', 'Absent', 'On Leave'],
                 datasets: [{
-                    data: [activeStudents, inactiveStudents],
-                    backgroundColor: ['#FFC107', '#9E9E9E'],
+                    data: [presentCount, absentCount, leaveCount],
+                    backgroundColor: ['#4CAF50', '#F44336', '#FFC107'],
                     hoverOffset: 4
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Student Status Distribution',
-                        font: { size: 16 }
-                    },
-                    legend: {
-                        position: 'bottom',
-                    }
-                }
             }
         });
     }
 
-    // Example: Class Performance Comparison Chart
-    const classPerformanceCtx = document.getElementById('classPerformanceChart')?.getContext('2d');
-    if (classPerformanceCtx) {
-        reportsClassPerformanceChart = new Chart(classPerformanceCtx, {
-            type: 'radar',
+    // Teacher Attendance Chart (Example: Present vs Absent)
+    const teacherAttendanceCtx = document.getElementById('teacherAttendanceChart')?.getContext('2d');
+    if (teacherAttendanceCtx) {
+        const today = new Date().toISOString().split('T')[0];
+        const todayTeacherAttendance = teacherAttendanceRecords.filter(rec => rec.date === today);
+        const presentCount = new Set(todayTeacherAttendance.filter(rec => rec.status === 'Present').map(rec => rec.teacher_id)).size;
+        const absentCount = new Set(todayTeacherAttendance.filter(rec => rec.status === 'Absent').map(rec => rec.teacher_id)).size;
+        const leaveCount = new Set(todayTeacherAttendance.filter(rec => rec.status === 'Leave').map(rec => rec.teacher_id)).size;
+
+        teacherAttendanceChartInstance = new Chart(teacherAttendanceCtx, {
+            type: 'pie',
             data: {
-                labels: ['Math', 'Science', 'English', 'History', 'Art'],
-                datasets: [
-                    {
-                        label: 'Grade 10 A',
-                        data: [65, 59, 90, 81, 56],
-                        fill: true,
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        borderColor: 'rgb(255, 99, 132)',
-                        pointBackgroundColor: 'rgb(255, 99, 132)',
-                        pointBorderColor: '#fff',
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: 'rgb(255, 99, 132)'
-                    },
-                    {
-                        label: 'Grade 10 B',
-                        data: [28, 48, 40, 19, 96],
-                        fill: true,
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderColor: 'rgb(54, 162, 235)',
-                        pointBackgroundColor: 'rgb(54, 162, 235)',
-                        pointBorderColor: '#fff',
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: 'rgb(54, 162, 235)'
-                    }
-                ]
+                labels: ['Present', 'Absent', 'On Leave'],
+                datasets: [{
+                    data: [presentCount, absentCount, leaveCount],
+                    backgroundColor: ['#2196F3', '#FF9800', '#9C27B0'],
+                    hoverOffset: 4
+                }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Class Performance Comparison',
-                        font: { size: 16 }
-                    }
-                },
-                elements: {
-                    line: {
-                        borderWidth: 3
+            }
+        });
+    }
+
+    // Monthly Attendance Trend Chart (Example: Student Attendance over last 6 months)
+    const monthlyAttendanceTrendCtx = document.getElementById('monthlyAttendanceTrendChart')?.getContext('2d');
+    if (monthlyAttendanceTrendCtx) {
+        const monthlyData = {};
+        const today = new Date();
+        for (let i = 0; i < 6; i++) {
+            const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+            const monthYear = d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+            monthlyData[monthYear] = { present: 0, total: 0 };
+        }
+
+        attendanceRecords.forEach(record => {
+            const recordDate = new Date(record.date);
+            const monthYear = recordDate.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+            if (monthlyData[monthYear]) {
+                monthlyData[monthYear].total++;
+                if (record.status === 'Present') {
+                    monthlyData[monthYear].present++;
+                }
+            }
+        });
+
+        const labels = Object.keys(monthlyData).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+        const percentages = labels.map(label =>
+            monthlyData[label].total > 0 ? (monthlyData[label].present / monthlyData[label].total * 100).toFixed(2) : 0
+        );
+
+        monthlyAttendanceTrendChartInstance = new Chart(monthlyAttendanceTrendCtx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Student Attendance %',
+                    data: percentages,
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
                     }
                 }
             }
         });
     }
-    console.log('Reports charts initialized.');
+    console.log('Dashboard charts initialized/updated.');
 }
-
-// Reports Module Generate Report
-window.generateReport = function() {
-    const reportType = reportTypeSelect ? reportTypeSelect.value : '';
-    const reportClass = reportClassFilterSelect ? reportClassFilterSelect.value : '';
-    const startDate = reportStartDateInput ? reportStartDateInput.value : '';
-    const endDate = reportEndDateInput ? reportEndDateInput.value : '';
-    const displayArea = reportDisplayArea;
-
-    if (!displayArea) return;
-
-    displayArea.innerHTML = ''; // Clear previous report
-
-    if (!reportType) {
-        displayArea.innerHTML = '<p class="text-red-500">Please select a report type.</p>';
-        return;
-    }
-
-    let reportContent = `
-        <h4 class="text-lg font-semibold mb-3">Generated Report: ${reportType.replace(/_/g, ' ').toUpperCase()}</h4>
-        <p><strong>Filters:</strong> Class: ${reportClass || 'All'}, Start Date: ${startDate || 'N/A'}, End Date: ${endDate || 'N/A'}</p>
-        <hr class="my-4" style="border-color: var(--border-color);">
-    `;
-
-    switch (reportType) {
-        case 'student_performance':
-            reportContent += `<p>This is a detailed student performance report. (Data to be dynamically loaded)</p>`;
-            // Example: Add a table for student performance
-            reportContent += `
-                <table class="min-w-full mt-4">
-                    <thead>
-                        <tr>
-                            <th class="text-left py-2 px-3">Student Name</th>
-                            <th class="text-left py-2 px-3">Class</th>
-                            <th class="text-left py-2 px-3">Subject</th>
-                            <th class="text-left py-2 px-3">Score</th>
-                            <th class="text-left py-2 px-3">Grade</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td class="py-2 px-3">John Doe</td><td class="py-2 px-3">Grade 10</td><td class="py-2 px-3">Math</td><td class="py-2 px-3">85</td><td class="py-2 px-3">A</td></tr>
-                        <tr><td class="py-2 px-3">Jane Smith</td><td class="py-2 px-3">Grade 10</td><td class="py-2 px-3">Science</td><td class="py-2 px-3">78</td><td class="py-2 px-3">B</td></tr>
-                    </tbody>
-                </table>
-            `;
-            break;
-        case 'attendance_summary':
-            reportContent += `<p>This is an attendance summary report. (Data to be dynamically loaded)</p>`;
-            // Example: Add a summary of attendance
-            const totalStudents = students.length;
-            const totalPresent = attendanceRecords.filter(rec => rec.status === 'Present').length;
-            const totalAbsent = attendanceRecords.filter(rec => rec.status === 'Absent').length;
-            reportContent += `
-                <div class="grid grid-cols-3 gap-4 mt-4">
-                    <div class="module-card p-4 text-center">Total Students: ${totalStudents}</div>
-                    <div class="module-card p-4 text-center">Total Present: ${totalPresent}</div>
-                    <div class="module-card p-4 text-center">Total Absent: ${totalAbsent}</div>
-                </div>
-            `;
-            break;
-        case 'financial_overview':
-            reportContent += `<p>This is a financial overview report. (Data to be dynamically loaded)</p>`;
-            const totalInvoiced = invoices.reduce((sum, inv) => sum + (parseFloat(inv.amount) || 0), 0);
-            const totalCollected = invoices.reduce((sum, inv) => sum + (parseFloat(inv.paid_amount) || 0), 0);
-            const totalOutstanding = totalInvoiced - totalCollected;
-            reportContent += `
-                <div class="grid grid-cols-3 gap-4 mt-4">
-                    <div class="module-card p-4 text-center">Total Invoiced: ₹${totalInvoiced.toLocaleString('en-IN')}</div>
-                    <div class="module-card p-4 text-center">Total Collected: ₹${totalCollected.toLocaleString('en-IN')}</div>
-                    <div class="module-card p-4 text-center">Total Outstanding: ₹${totalOutstanding.toLocaleString('en-IN')}</div>
-                </div>
-            `;
-            break;
-        case 'teacher_load':
-            reportContent += `<p>This is a teacher load report. (Data to be dynamically loaded)</p>`;
-            reportContent += `
-                <table class="min-w-full mt-4">
-                    <thead>
-                        <tr>
-                            <th class="text-left py-2 px-3">Teacher Name</th>
-                            <th class="text-left py-2 px-3">Subject</th>
-                            <th class="text-left py-2 px-3">Classes Taught</th>
-                            <th class="text-left py-2 px-3">Total Students</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td class="py-2 px-3">Mr. Sharma</td><td class="py-2 px-3">Math</td><td class="py-2 px-3">3</td><td class="py-2 px-3">90</td></tr>
-                        <tr><td class="py-2 px-3">Ms. Khan</td><td class="py-2 px-3">English</td><td class="py-2 px-3">4</td><td class="py-2 px-3">120</td></tr>
-                    </tbody>
-                </table>
-            `;
-            break;
-        default:
-            reportContent += `<p>No report content available for this type.</p>`;
-            break;
-    }
-    displayArea.innerHTML = reportContent;
-    console.log(`Report generated: ${reportType}`);
-    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    addAuditLog(loggedInUser?.email || 'admin', 'Generated Report', 'Reports', `Generated ${reportType} report.`);
-};
 
 // Homework Module Functions
 function renderHomeworkTable(filteredHomework = homeworkAssignments) {
@@ -4366,27 +4769,24 @@ function renderHomeworkTable(filteredHomework = homeworkAssignments) {
         homeworkTableBody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-gray-500">No homework assignments found.</td></tr>';
         return;
     }
-    // const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser')); // Not used for rendering
-    // const userRole = loggedInUser ? loggedInUser.user_metadata?.role || loggedInUser.app_metadata?.role : null;
-
-    filteredHomework.forEach(assignment => {
+    filteredHomework.forEach(homework => {
         const newRow = document.createElement('tr');
         newRow.className = 'border-b hover:bg-gray-50';
         newRow.innerHTML = `
-            <td class="py-3 px-4">${assignment.id}</td>
-            <td class="py-3 px-4">${assignment.title}</td>
-            <td class="py-3 px-4">${assignment.class}</td>
-            <td class="py-3 px-4">${assignment.subject}</td>
-            <td class="py-3 px-4">${assignment.assigned_date}</td>
-            <td class="py-3 px-4">${assignment.due_date}</td>
+            <td class="py-3 px-4">${homework.id}</td>
+            <td class="py-3 px-4">${homework.title}</td>
+            <td class="py-3 px-4">${homework.class}</td>
+            <td class="py-3 px-4">${homework.subject}</td>
+            <td class="py-3 px-4">${homework.assigned_date}</td>
+            <td class="py-3 px-4">${homework.due_date}</td>
             <td class="py-3 px-4 table-actions">
-                <button class="text-blue-600 mr-3" title="Edit Homework" onclick="editHomework('${assignment.id}')">
+                <button class="text-blue-600 mr-3" title="Edit Homework" onclick="editHomework('${homework.id}')">
                     <i class="fas fa-edit"></i>
                 </button>
-                <button class="text-red-600 mr-3" title="Delete Homework" onclick="deleteHomework('${assignment.id}')">
+                <button class="text-red-600 mr-3" title="Delete Homework" onclick="deleteHomework('${homework.id}')">
                     <i class="fas fa-trash"></i>
                 </button>
-                <button class="text-green-600" title="View Details" onclick="showHomeworkDetailsModal('${assignment.id}')">
+                <button class="text-green-600" title="View Details" onclick="showHomeworkDetailsModal('${homework.id}')">
                     <i class="fas fa-info-circle"></i>
                 </button>
             </td>
@@ -4397,51 +4797,46 @@ function renderHomeworkTable(filteredHomework = homeworkAssignments) {
 }
 
 window.showAddHomeworkModal = function() {
-    if (addHomeworkModal) {
-        addHomeworkModal.classList.remove('hidden');
-        addHomeworkModal.style.display = 'flex';
-    }
-    if (homeworkForm) {
-        homeworkForm.reset();
-        document.getElementById('homeworkId').value = ''; // Clear ID for new entry
-    }
     if (homeworkModalTitle) {
         homeworkModalTitle.textContent = 'Add New Homework';
     }
     if (homeworkFormSubmitBtn) {
         homeworkFormSubmitBtn.textContent = 'Add Homework';
     }
-    console.log('Add Homework modal opened.');
-};
+    document.getElementById('homeworkId').value = '';
+    if (homeworkForm) {
+        homeworkForm.reset();
+    }
+    if (addHomeworkModal) {
+        addHomeworkModal.classList.remove('hidden');
+        addHomeworkModal.style.display = 'flex';
+        console.log('Add Homework modal opened.');
+    }
+}
 
-window.editHomework = async function(id) {
-    console.log(`Editing homework ID: ${id}`);
-    const assignment = homeworkAssignments.find(hw => hw.id === id);
-    if (assignment) {
-        document.getElementById('homeworkId').value = assignment.id;
-        document.getElementById('homeworkTitle').value = assignment.title;
-        document.getElementById('homeworkClass').value = assignment.class;
-        document.getElementById('homeworkSubject').value = assignment.subject;
-        document.getElementById('homeworkAssignedDate').value = assignment.assigned_date;
-        document.getElementById('homeworkDueDate').value = assignment.due_date;
-        document.getElementById('homeworkDescription').value = assignment.description || '';
-
+window.editHomework = function(id) {
+    const homework = homeworkAssignments.find(h => h.id === id);
+    if (homework) {
         if (homeworkModalTitle) {
             homeworkModalTitle.textContent = 'Edit Homework';
         }
         if (homeworkFormSubmitBtn) {
             homeworkFormSubmitBtn.textContent = 'Save Changes';
         }
+        document.getElementById('homeworkId').value = homework.id;
+        document.getElementById('homeworkTitle').value = homework.title;
+        document.getElementById('homeworkClass').value = homework.class;
+        document.getElementById('homeworkSubject').value = homework.subject;
+        document.getElementById('homeworkAssignedDate').value = homework.assigned_date;
+        document.getElementById('homeworkDueDate').value = homework.due_date;
+        document.getElementById('homeworkDescription').value = homework.description || '';
         if (addHomeworkModal) {
             addHomeworkModal.classList.remove('hidden');
             addHomeworkModal.style.display = 'flex';
+            console.log(`Edit Homework modal opened for ID: ${id}`);
         }
-        console.log(`Homework ${id} data loaded for editing.`);
-    } else {
-        alert('Homework assignment not found.');
-        console.error(`Homework assignment with ID ${id} not found for editing.`);
     }
-};
+}
 
 window.deleteHomework = async function(id) {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
@@ -4452,39 +4847,17 @@ window.deleteHomework = async function(id) {
             const { error } = await supabase.from('homework').delete().eq('id', id);
             if (error) throw error;
 
-            const deletedAssignment = homeworkAssignments.find(hw => hw.id === id);
-            await addAuditLog(userEmail, 'Deleted Homework', 'Homework', `Deleted homework: ${deletedAssignment?.title || id}`);
+            const deletedHomework = homeworkAssignments.find(h => h.id === id);
+            await addAuditLog(userEmail, 'Deleted Homework', 'Homework', `Deleted homework: "${deletedHomework?.title || 'Unknown'}" (ID: ${deletedHomework?.id || id})`);
             alert('Homework assignment deleted successfully!');
-            await fetchHomework(); // Re-fetch to update the table
-            console.log(`Homework assignment ${id} deleted successfully.`);
+            await fetchHomework();
+            console.log(`Homework ID ${id} deleted successfully.`);
         } catch (error) {
-            alert('Error deleting homework assignment: ' + error.message);
-            console.error('Supabase error deleting homework assignment:', error);
+            alert('Error deleting homework: ' + error.message);
+            console.error('Supabase error deleting homework:', error);
             await addAuditLog(userEmail, 'Delete Homework Failed', 'Homework', `Error: ${error.message}`);
         }
     }
-};
-
-if (closeAddHomeworkModal) {
-    closeAddHomeworkModal.addEventListener('click', () => {
-        if (addHomeworkModal) {
-            addHomeworkModal.classList.add('hidden');
-            addHomeworkModal.style.display = 'none';
-        }
-        if (homeworkForm) homeworkForm.reset();
-        console.log('Add Homework modal closed.');
-    });
-}
-
-if (addHomeworkModal) {
-    addHomeworkModal.addEventListener('click', (e) => {
-        if (e.target === addHomeworkModal) {
-            addHomeworkModal.classList.add('hidden');
-            addHomeworkModal.style.display = 'none';
-            if (homeworkForm) homeworkForm.reset();
-            console.log('Add Homework modal closed by outside click.');
-        }
-    });
 }
 
 if (homeworkForm) {
@@ -4493,56 +4866,35 @@ if (homeworkForm) {
         const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
         const userEmail = loggedInUser?.email || 'admin';
 
-        const id = document.getElementById('homeworkId').value;
-        const title = document.getElementById('homeworkTitle').value;
-        const homeworkClass = document.getElementById('homeworkClass').value;
-        const subject = document.getElementById('homeworkSubject').value;
-        const assignedDate = document.getElementById('homeworkAssignedDate').value;
-        const dueDate = document.getElementById('homeworkDueDate').value;
-        const description = document.getElementById('homeworkDescription').value;
-
-        if (!title || !homeworkClass || !subject || !assignedDate || !dueDate) {
-            alert('Please fill in all required fields.');
-            console.warn('Homework form submission failed: Missing required fields.');
-            return;
-        }
-
+        const homeworkId = document.getElementById('homeworkId').value;
         const homeworkData = {
-            title: title,
-            class: homeworkClass,
-            subject: subject,
-            assigned_date: assignedDate,
-            due_date: dueDate,
-            description: description || null
+            title: document.getElementById('homeworkTitle').value,
+            class: document.getElementById('homeworkClass').value,
+            subject: document.getElementById('homeworkSubject').value,
+            assigned_date: document.getElementById('homeworkAssignedDate').value,
+            due_date: document.getElementById('homeworkDueDate').value,
+            description: document.getElementById('homeworkDescription').value || null,
         };
 
         try {
             let result;
-            if (id) {
-                // Update existing record
-                console.log(`Updating homework record ${id}...`);
-                result = await supabase.from('homework').update(homeworkData).eq('id', id).select();
-                await addAuditLog(userEmail, 'Updated Homework', 'Homework', `Updated homework: ${title}`);
-                alert('Homework updated successfully!');
+            if (homeworkId) {
+                result = await supabase.from('homework').update(homeworkData).eq('id', homeworkId).select();
+                alert('Homework assignment updated successfully!');
+                await addAuditLog(userEmail, 'Updated Homework', 'Homework', `Updated homework: "${homeworkData.title}" (ID: ${homeworkId})`);
             } else {
-                // Add new record
-                console.log(`Adding new homework: ${title}...`);
-                result = await supabase.from('homework').insert([homeworkData]).select();
-                await addAuditLog(userEmail, 'Added Homework', 'Homework', `Added homework: ${title}`);
-                alert('Homework added successfully!');
+                result = await supabase.from('homework').insert(homeworkData).select();
+                alert('Homework assignment added successfully!');
+                await addAuditLog(userEmail, 'Added Homework', 'Homework', `Added new homework: "${homeworkData.title}"`);
             }
-
             if (result.error) throw result.error;
-
-            await fetchHomework(); // Re-fetch to update the table
+            await fetchHomework();
             if (addHomeworkModal) {
                 addHomeworkModal.classList.add('hidden');
                 addHomeworkModal.style.display = 'none';
             }
-            if (homeworkForm) {
-                homeworkForm.reset();
-            }
-            console.log('Homework operation completed successfully.');
+            homeworkForm.reset();
+            console.log('Homework form submitted successfully.');
         } catch (error) {
             alert('Error saving homework: ' + error.message);
             console.error('Supabase error saving homework:', error);
@@ -4551,46 +4903,73 @@ if (homeworkForm) {
     });
 }
 
+if (closeAddHomeworkModal) {
+    closeAddHomeworkModal.addEventListener('click', () => {
+        if (addHomeworkModal) {
+            addHomeworkModal.classList.add('hidden');
+            addHomeworkModal.style.display = 'none';
+        }
+        if (homeworkForm) {
+            homeworkForm.reset();
+        }
+        console.log('Add Homework modal closed.');
+    });
+}
+if (addHomeworkModal) {
+    addHomeworkModal.addEventListener('click', (e) => {
+        if (e.target === addHomeworkModal) {
+            addHomeworkModal.classList.add('hidden');
+            addHomeworkModal.style.display = 'none';
+            if (homeworkForm) {
+                homeworkForm.reset();
+            }
+            console.log('Add Homework modal closed by outside click.');
+        }
+    });
+}
+
 window.filterHomework = function() {
-    const classFilter = filterHomeworkClass ? filterHomeworkClass.value : '';
-    const subjectFilter = filterHomeworkSubject ? filterHomeworkSubject.value : '';
+    const classFilter = filterHomeworkClass ? filterHomeworkClass.value.toLowerCase() : '';
+    const subjectFilter = filterHomeworkSubject ? filterHomeworkSubject.value.toLowerCase() : '';
     const dueDateFilter = filterHomeworkDueDate ? filterHomeworkDueDate.value : '';
 
-    const filtered = homeworkAssignments.filter(hw => {
-        const classMatch = classFilter === '' || hw.class === classFilter;
-        const subjectMatch = subjectFilter === '' || hw.subject === subjectFilter;
-        const dueDateMatch = dueDateFilter === '' || hw.due_date === dueDateFilter;
+    const filtered = homeworkAssignments.filter(homework => {
+        const classMatch = classFilter === '' || homework.class.toLowerCase() === classFilter;
+        const subjectMatch = subjectFilter === '' || homework.subject.toLowerCase() === subjectFilter;
+        const dueDateMatch = dueDateFilter === '' || homework.due_date === dueDateFilter;
         return classMatch && subjectMatch && dueDateMatch;
     });
     renderHomeworkTable(filtered);
     console.log('Homework filtered.');
-};
+}
 
 window.showHomeworkDetailsModal = function(id) {
-    const assignment = homeworkAssignments.find(hw => hw.id === id);
-    if (!assignment) {
+    const homework = homeworkAssignments.find(h => h.id === id);
+    if (homework) {
+        if (homeworkDetailsModalTitle) {
+            homeworkDetailsModalTitle.textContent = `Details for "${homework.title}"`;
+        }
+        if (homeworkDetailsContent) {
+            homeworkDetailsContent.innerHTML = `
+                <p><strong>ID:</strong> ${homework.id}</p>
+                <p><strong>Title:</strong> ${homework.title}</p>
+                <p><strong>Class:</strong> ${homework.class}</p>
+                <p><strong>Subject:</strong> ${homework.subject}</p>
+                <p><strong>Assigned Date:</strong> ${homework.assigned_date}</p>
+                <p><strong>Due Date:</strong> ${homework.due_date}</p>
+                <p><strong>Description:</strong> ${homework.description || 'N/A'}</p>
+            `;
+        }
+        if (homeworkDetailsModal) {
+            homeworkDetailsModal.classList.remove('hidden');
+            homeworkDetailsModal.style.display = 'flex';
+            console.log(`Homework details modal opened for ID: ${id}`);
+        }
+    } else {
         alert('Homework assignment not found.');
-        console.error(`Homework assignment with ID ${id} not found for details.`);
-        return;
+        console.warn(`Homework with ID ${id} not found for details.`);
     }
-
-    if (homeworkDetailsContent) {
-        homeworkDetailsContent.innerHTML = `
-            <p><strong>Title:</strong> ${assignment.title}</p>
-            <p><strong>Class:</strong> ${assignment.class}</p>
-            <p><strong>Subject:</strong> ${assignment.subject}</p>
-            <p><strong>Assigned Date:</strong> ${assignment.assigned_date}</p>
-            <p><strong>Due Date:</strong> ${assignment.due_date}</p>
-            <p><strong>Description:</strong> ${assignment.description || 'N/A'}</p>
-        `;
-    }
-
-    if (homeworkDetailsModal) {
-        homeworkDetailsModal.classList.remove('hidden');
-        homeworkDetailsModal.style.display = 'flex';
-    }
-    console.log(`Homework details modal opened for ID: ${id}`);
-};
+}
 
 if (closeHomeworkDetailsModal) {
     closeHomeworkDetailsModal.addEventListener('click', () => {
@@ -4601,7 +4980,6 @@ if (closeHomeworkDetailsModal) {
         console.log('Homework details modal closed.');
     });
 }
-
 if (homeworkDetailsModal) {
     homeworkDetailsModal.addEventListener('click', (e) => {
         if (e.target === homeworkDetailsModal) {
@@ -4612,955 +4990,116 @@ if (homeworkDetailsModal) {
     });
 }
 
-// Student Management Functions
-window.showAddStudentForm = function() {
-    if (studentModal) {
-        studentModal.classList.remove('hidden');
-        studentModal.style.display = 'flex';
-    }
-    if (studentForm) {
-        studentForm.reset();
-        document.getElementById('studentId').value = ''; // Clear ID for new entry
-    }
-    if (studentModalTitle) {
-        studentModalTitle.textContent = 'Add New Student';
-    }
-    if (studentFormSubmitBtn) {
-        studentFormSubmitBtn.textContent = 'Add Student';
-    }
-    console.log('Add Student modal opened.');
-};
-
-window.editStudent = async function(id) {
-    console.log(`Editing student ID: ${id}`);
-    const student = students.find(s => s.id === id);
-    if (student) {
-        document.getElementById('studentId').value = student.id;
-        document.getElementById('studentFullName').value = student.name;
-        document.getElementById('studentFatherName').value = student.father_name;
-        document.getElementById('studentMotherName').value = student.mother_name;
-        document.getElementById('studentClass').value = student.class;
-        document.getElementById('studentRollNo').value = student.roll_no;
-        document.getElementById('studentAadharNo').value = student.aadhar_no;
-        document.getElementById('studentBloodGroup').value = student.blood_group || '';
-        document.getElementById('studentAdmissionNo').value = student.admission_no || '';
-        document.getElementById('studentAdmissionDate').value = student.admission_date || '';
-        document.getElementById('studentFatherAadhar').value = student.father_aadhar || '';
-        document.getElementById('studentMotherAadhar').value = student.mother_aadhar || '';
-        document.getElementById('studentEmail').value = student.email || '';
-        document.getElementById('studentPhone').value = student.phone || '';
-        document.getElementById('studentStatus').value = student.status;
-
-        if (studentModalTitle) {
-            studentModalTitle.textContent = 'Edit Student';
-        }
-        if (studentFormSubmitBtn) {
-            studentFormSubmitBtn.textContent = 'Save Changes';
-        }
-        if (studentModal) {
-            studentModal.classList.remove('hidden');
-            studentModal.style.display = 'flex';
-        }
-        console.log(`Student ${id} data loaded for editing.`);
-    } else {
-        alert('Student not found.');
-        console.error(`Student with ID ${id} not found for editing.`);
-    }
-};
-
-window.deleteStudent = async function(id) {
-    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    const userEmail = loggedInUser?.email || 'admin';
-    if (confirm('Are you sure you want to delete this student?')) {
-        console.log(`Deleting student ID: ${id}`);
-        try {
-            const { error } = await supabase.from('students').delete().eq('id', id);
-            if (error) throw error;
-
-            const deletedStudent = students.find(s => s.id === id);
-            await addAuditLog(userEmail, 'Deleted Student', 'Students', `Deleted student: ${deletedStudent?.name || id}`);
-            alert('Student deleted successfully!');
-            await fetchStudents(); // Re-fetch to update the table
-            console.log(`Student ${id} deleted successfully.`);
-        } catch (error) {
-            alert('Error deleting student: ' + error.message);
-            console.error('Supabase error deleting student:', error);
-            await addAuditLog(userEmail, 'Delete Student Failed', 'Students', `Error: ${error.message}`);
-        }
-    }
-};
-
-if (closeStudentModal) {
-    closeStudentModal.addEventListener('click', () => {
-        if (studentModal) {
-            studentModal.classList.add('hidden');
-            studentModal.style.display = 'none';
-        }
-        if (studentForm) studentForm.reset();
-        console.log('Student modal closed.');
+// Fingerprint (Placeholder)
+if (registerStudentFingerprintBtn) {
+    registerStudentFingerprintBtn.addEventListener('click', () => {
+        alert('Fingerprint registration functionality is not implemented.');
+        console.log('Fingerprint registration clicked.');
+    });
+}
+if (verifyStudentFingerprintBtn) {
+    verifyStudentFingerprintBtn.addEventListener('click', () => {
+        alert('Fingerprint verification functionality is not implemented.');
+        console.log('Fingerprint verification clicked.');
+    });
+}
+if (registerTeacherFingerprintBtn) {
+    registerTeacherFingerprintBtn.addEventListener('click', () => {
+        alert('Fingerprint registration functionality is not implemented.');
+        console.log('Teacher Fingerprint registration clicked.');
+    });
+}
+if (verifyTeacherFingerprintBtn) {
+    verifyTeacherFingerprintBtn.addEventListener('click', () => {
+        alert('Fingerprint verification functionality is not implemented.');
+        console.log('Teacher Fingerprint verification clicked.');
     });
 }
 
-if (studentModal) {
-    studentModal.addEventListener('click', (e) => {
-        if (e.target === studentModal) {
-            studentModal.classList.add('hidden');
-            studentModal.style.display = 'none';
-            if (studentForm) studentForm.reset();
-            console.log('Student modal closed by outside click.');
-        }
-    });
+
+
+// === QR Attendance Enhancements === //
+const scannedRecently = new Set();
+
+function speakName(name) {
+    try {
+        const utterance = new SpeechSynthesisUtterance(name);
+        utterance.lang = 'en-IN'; // Indian English
+        utterance.rate = 1;
+        utterance.pitch = 1;
+        // Use a voice that sounds natural for Indian names
+        const voices = speechSynthesis.getVoices();
+        const indianVoice = voices.find(v => v.lang === 'en-IN') || voices.find(v => v.lang.startsWith('en'));
+        if (indianVoice) utterance.voice = indianVoice;
+        speechSynthesis.speak(utterance);
+    } catch (e) {
+        console.warn('Speech synthesis not available:', e);
+    }
 }
 
-if (studentForm) {
-    studentForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-        const userEmail = loggedInUser?.email || 'admin';
-
-        const id = document.getElementById('studentId').value;
-        const name = document.getElementById('studentFullName').value;
-        const fatherName = document.getElementById('studentFatherName').value;
-        const motherName = document.getElementById('studentMotherName').value;
-        const studentClass = document.getElementById('studentClass').value;
-        const rollNo = document.getElementById('studentRollNo').value;
-        const aadharNo = document.getElementById('studentAadharNo').value;
-        const bloodGroup = document.getElementById('studentBloodGroup').value;
-        const admissionNo = document.getElementById('studentAdmissionNo').value;
-        const admissionDate = document.getElementById('studentAdmissionDate').value;
-        const fatherAadhar = document.getElementById('studentFatherAadhar').value;
-        const motherAadhar = document.getElementById('studentMotherAadhar').value;
-        const email = document.getElementById('studentEmail').value;
-        const phone = document.getElementById('studentPhone').value;
-        const status = document.getElementById('studentStatus').value;
-
-        if (!name || !fatherName || !motherName || !studentClass || !rollNo || !aadharNo || !status) {
-            alert('Please fill in all required fields.');
-            console.warn('Student form submission failed: Missing required fields.');
-            return;
-        }
-
-        const studentData = {
-            name: name,
-            father_name: fatherName,
-            mother_name: motherName,
-            class: studentClass,
-            roll_no: rollNo,
-            aadhar_no: aadharNo,
-            blood_group: bloodGroup || null,
-            admission_no: admissionNo || null,
-            admission_date: admissionDate || null,
-            father_aadhar: fatherAadhar || null,
-            mother_aadhar: motherAadhar || null,
-            email: email || null,
-            phone: phone || null,
-            status: status
-        };
-
-        try {
-            let result;
-            if (id) {
-                // Update existing record
-                console.log(`Updating student record ${id}...`);
-                result = await supabase.from('students').update(studentData).eq('id', id).select();
-                await addAuditLog(userEmail, 'Updated Student', 'Students', `Updated student: ${name}`);
-                alert('Student updated successfully!');
-            } else {
-                // Add new record
-                console.log(`Adding new student: ${name}...`);
-                result = await supabase.from('students').insert([studentData]).select();
-                await addAuditLog(userEmail, 'Added Student', 'Students', `Added student: ${name}`);
-                alert('Student added successfully!');
-            }
-
-            if (result.error) throw result.error;
-
-            await fetchStudents(); // Re-fetch to update the table
-            if (studentModal) {
-                studentModal.classList.add('hidden');
-                studentModal.style.display = 'none';
-            }
-            if (studentForm) {
-                studentForm.reset();
-            }
-            console.log('Student operation completed successfully.');
-        } catch (error) {
-            alert('Error saving student: ' + error.message);
-            console.error('Supabase error saving student:', error);
-            await addAuditLog(userEmail, 'Save Student Failed', 'Students', `Error: ${error.message}`);
-        }
-    });
+function playBeep() {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    oscillator.type = 'sine';
+    oscillator.frequency.value = 880; // Hz
+    gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+    oscillator.start();
+    oscillator.stop(ctx.currentTime + 0.15);
 }
 
-window.showStudentDetailsModal = function(id) {
-    const student = students.find(s => s.id === id);
-    if (!student) {
-        alert('Student not found.');
-        console.error(`Student with ID ${id} not found for details.`);
+function showToast(message) {
+    let toast = document.createElement('div');
+    toast.className = 'qr-toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => { toast.classList.add('show'); }, 10);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 500);
+    }, 3000);
+}
+
+// Style for toast
+const toastStyle = document.createElement('style');
+toastStyle.textContent = `
+.qr-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #2d3748;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s, transform 0.3s;
+    z-index: 9999;
+}
+.qr-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}`
+document.head.appendChild(toastStyle);
+
+// Wrap your existing QR success handler
+async function handleQrScanSuccess(entityType, entity) {
+    const idKey = entityType === 'student' ? entity.id : 't' + entity.id;
+    if (scannedRecently.has(idKey)) {
+        console.log('Duplicate scan ignored for', entity.name);
         return;
     }
-
-    if (studentDetailsContent) {
-        studentDetailsContent.innerHTML = `
-            <p><strong>Full Name:</strong> ${student.name}</p>
-            <p><strong>Father's Name:</strong> ${student.father_name}</p>
-            <p><strong>Mother's Name:</strong> ${student.mother_name}</p>
-            <p><strong>Class:</strong> ${student.class}</p>
-            <p><strong>Roll No.:</strong> ${student.roll_no}</p>
-            <p><strong>Aadhar No.:</strong> ${student.aadhar_no}</p>
-            <p><strong>Blood Group:</strong> ${student.blood_group || 'N/A'}</p>
-            <p><strong>Admission No.:</strong> ${student.admission_no || 'N/A'}</p>
-            <p><strong>Admission Date:</strong> ${student.admission_date || 'N/A'}</p>
-            <p><strong>Father's Aadhar:</strong> ${student.father_aadhar || 'N/A'}</p>
-            <p><strong>Mother's Aadhar:</strong> ${student.mother_aadhar || 'N/A'}</p>
-            <p><strong>Email:</strong> ${student.email || 'N/A'}</p>
-            <p><strong>Phone:</strong> ${student.phone || 'N/A'}</p>
-            <p><strong>Status:</strong> ${student.status}</p>
-        `;
-    }
-
-    if (studentDetailsModal) {
-        studentDetailsModal.classList.remove('hidden');
-        studentDetailsModal.style.display = 'flex';
-    }
-    console.log(`Student details modal opened for ID: ${id}`);
-};
-
-if (closeStudentDetailsModal) {
-    closeStudentDetailsModal.addEventListener('click', () => {
-        if (studentDetailsModal) {
-            studentDetailsModal.classList.add('hidden');
-            studentDetailsModal.style.display = 'none';
-        }
-        console.log('Student details modal closed.');
-    });
-}
-
-if (studentDetailsModal) {
-    studentDetailsModal.addEventListener('click', (e) => {
-        if (e.target === studentDetailsModal) {
-            studentDetailsModal.classList.add('hidden');
-            studentDetailsModal.style.display = 'none';
-            console.log('Student details modal closed by outside click.');
-        }
-    });
-}
-
-// Teacher Management Functions
-window.showAddTeacherForm = function() {
-    if (teacherModal) {
-        teacherModal.classList.remove('hidden');
-        teacherModal.style.display = 'flex';
-    }
-    if (teacherForm) {
-        teacherForm.reset();
-        document.getElementById('teacherId').value = ''; // Clear ID for new entry
-    }
-    if (teacherModalTitle) {
-        teacherModalTitle.textContent = 'Add New Teacher';
-    }
-    if (teacherFormSubmitBtn) {
-        teacherFormSubmitBtn.textContent = 'Add Teacher';
-    }
-    console.log('Add Teacher modal opened.');
-};
-
-window.editTeacher = async function(id) {
-    console.log(`Editing teacher ID: ${id}`);
-    const teacher = teachers.find(t => t.id === id);
-    if (teacher) {
-        document.getElementById('teacherId').value = teacher.id;
-        document.getElementById('teacherFullName').value = teacher.name;
-        document.getElementById('teacherSubject').value = teacher.subject;
-        document.getElementById('teacherEmail').value = teacher.email || '';
-        document.getElementById('teacherClasses').value = teacher.classes || '';
-
-        if (teacherModalTitle) {
-            teacherModalTitle.textContent = 'Edit Teacher';
-        }
-        if (teacherFormSubmitBtn) {
-            teacherFormSubmitBtn.textContent = 'Save Changes';
-        }
-        if (teacherModal) {
-            teacherModal.classList.remove('hidden');
-            teacherModal.style.display = 'flex';
-        }
-        console.log(`Teacher ${id} data loaded for editing.`);
-    } else {
-        alert('Teacher not found.');
-        console.error(`Teacher with ID ${id} not found for editing.`);
-    }
-};
-
-window.deleteTeacher = async function(id) {
-    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    const userEmail = loggedInUser?.email || 'admin';
-    if (confirm('Are you sure you want to delete this teacher?')) {
-        console.log(`Deleting teacher ID: ${id}`);
-        try {
-            const { error } = await supabase.from('teachers').delete().eq('id', id);
-            if (error) throw error;
-
-            const deletedTeacher = teachers.find(t => t.id === id);
-            await addAuditLog(userEmail, 'Deleted Teacher', 'Teachers', `Deleted teacher: ${deletedTeacher?.name || id}`);
-            alert('Teacher deleted successfully!');
-            await fetchTeachers(); // Re-fetch to update the table
-            console.log(`Teacher ${id} deleted successfully.`);
-        } catch (error) {
-            alert('Error deleting teacher: ' + error.message);
-            console.error('Supabase error deleting teacher:', error);
-            await addAuditLog(userEmail, 'Delete Teacher Failed', 'Teachers', `Error: ${error.message}`);
-        }
-    }
-};
-
-if (closeTeacherModal) {
-    closeTeacherModal.addEventListener('click', () => {
-        if (teacherModal) {
-            teacherModal.classList.add('hidden');
-            teacherModal.style.display = 'none';
-        }
-        if (teacherForm) teacherForm.reset();
-        console.log('Teacher modal closed.');
-    });
-}
-
-if (teacherModal) {
-    teacherModal.addEventListener('click', (e) => {
-        if (e.target === teacherModal) {
-            teacherModal.classList.add('hidden');
-            teacherModal.style.display = 'none';
-            if (teacherForm) teacherForm.reset();
-            console.log('Teacher modal closed by outside click.');
-        }
-    });
-}
-
-if (teacherForm) {
-    teacherForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-        const userEmail = loggedInUser?.email || 'admin';
-
-        const id = document.getElementById('teacherId').value;
-        const name = document.getElementById('teacherFullName').value;
-        const subject = document.getElementById('teacherSubject').value;
-        const email = document.getElementById('teacherEmail').value;
-        const classes = document.getElementById('teacherClasses').value;
-
-        if (!name || !subject) {
-            alert('Please fill in all required fields.');
-            console.warn('Teacher form submission failed: Missing required fields.');
-            return;
-        }
-
-        const teacherData = {
-            name: name,
-            subject: subject,
-            email: email || null,
-            classes: classes || null
-        };
-
-        try {
-            let result;
-            if (id) {
-                // Update existing record
-                console.log(`Updating teacher record ${id}...`);
-                result = await supabase.from('teachers').update(teacherData).eq('id', id).select();
-                await addAuditLog(userEmail, 'Updated Teacher', 'Teachers', `Updated teacher: ${name}`);
-                alert('Teacher updated successfully!');
-            } else {
-                // Add new record
-                console.log(`Adding new teacher: ${name}...`);
-                result = await supabase.from('teachers').insert([teacherData]).select();
-                await addAuditLog(userEmail, 'Added Teacher', 'Teachers', `Added teacher: ${name}`);
-                alert('Teacher added successfully!');
-            }
-
-            if (result.error) throw result.error;
-
-            await fetchTeachers(); // Re-fetch to update the table
-            if (teacherModal) {
-                teacherModal.classList.add('hidden');
-                teacherModal.style.display = 'none';
-            }
-            if (teacherForm) {
-                teacherForm.reset();
-            }
-            console.log('Teacher operation completed successfully.');
-        } catch (error) {
-            alert('Error saving teacher: ' + error.message);
-            console.error('Supabase error saving teacher:', error);
-            await addAuditLog(userEmail, 'Save Teacher Failed', 'Teachers', `Error: ${error.message}`);
-        }
-    });
-}
-
-window.showTeacherDetailsModal = function(id) {
-    const teacher = teachers.find(t => t.id === id);
-    if (!teacher) {
-        alert('Teacher not found.');
-        console.error(`Teacher with ID ${id} not found for details.`);
-        return;
-    }
-
-    if (teacherDetailsContent) {
-        teacherDetailsContent.innerHTML = `
-            <p><strong>Full Name:</strong> ${teacher.name}</p>
-            <p><strong>Subject:</strong> ${teacher.subject}</p>
-            <p><strong>Email:</strong> ${teacher.email || 'N/A'}</p>
-            <p><strong>Classes:</strong> ${teacher.classes || 'N/A'}</p>
-        `;
-    }
-
-    if (teacherDetailsModal) {
-        teacherDetailsModal.classList.remove('hidden');
-        teacherDetailsModal.style.display = 'flex';
-    }
-    console.log(`Teacher details modal opened for ID: ${id}`);
-};
-
-if (closeTeacherDetailsModal) {
-    closeTeacherDetailsModal.addEventListener('click', () => {
-        if (teacherDetailsModal) {
-            teacherDetailsModal.classList.add('hidden');
-            teacherDetailsModal.style.display = 'none';
-        }
-        console.log('Teacher details modal closed.');
-    });
-}
-
-if (teacherDetailsModal) {
-    teacherDetailsModal.addEventListener('click', (e) => {
-        if (e.target === teacherDetailsModal) {
-            teacherDetailsModal.classList.add('hidden');
-            teacherDetailsModal.style.display = 'none';
-            console.log('Teacher details modal closed by outside click.');
-        }
-    });
-}
-
-// User Management Functions
-window.showAddUserForm = function() {
-    if (userModal) {
-        userModal.classList.remove('hidden');
-        userModal.style.display = 'flex';
-    }
-    if (userForm) {
-        userForm.reset();
-        document.getElementById('userId').value = ''; // Clear ID for new entry
-    }
-    if (userModalTitle) {
-        userModalTitle.textContent = 'Add New User';
-    }
-    if (userFormSubmitBtn) {
-        userFormSubmitBtn.textContent = 'Add User';
-    }
-    console.log('Add User modal opened.');
-};
-
-window.editUser = async function(id) {
-    console.log(`Editing user ID: ${id}`);
-    const profile = profiles.find(p => p.id === id);
-    if (profile) {
-        document.getElementById('userId').value = profile.id;
-        document.getElementById('userFullName').value = profile.full_name;
-        document.getElementById('userEmail').value = profile.email;
-        document.getElementById('userRole').value = profile.role;
-        document.getElementById('userStatus').value = profile.status;
-
-        if (userModalTitle) {
-            userModalTitle.textContent = 'Edit User';
-        }
-        if (userFormSubmitBtn) {
-            userFormSubmitBtn.textContent = 'Save Changes';
-        }
-        if (userModal) {
-            userModal.classList.remove('hidden');
-            userModal.style.display = 'flex';
-        }
-        console.log(`User ${id} data loaded for editing.`);
-    } else {
-        alert('User not found.');
-        console.error(`User with ID ${id} not found for editing.`);
-    }
-};
-
-window.deleteUser = async function(id) {
-    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    const userEmail = loggedInUser?.email || 'admin';
-    if (confirm('Are you sure you want to delete this user? This will also delete their authentication record.')) {
-        console.log(`Deleting user ID: ${id}`);
-        try {
-            // First, delete from profiles table
-            const { error: profileError } = await supabase.from('profiles').delete().eq('id', id);
-            if (profileError) throw profileError;
-
-            // Then, delete the user from Supabase Auth (requires service role key on backend or admin context)
-            // This part might fail if not called from a secure backend function or with admin privileges.
-            // For client-side, it's generally not recommended to allow direct user deletion from auth.
-            // However, if your RLS allows it for 'admin' role, it might work.
-            const { error: authError } = await supabase.auth.admin.deleteUser(id);
-            if (authError) {
-                console.warn('Could not delete user from Supabase Auth (might require admin context or RLS policy):', authError.message);
-                alert('User profile deleted, but could not delete authentication record. Please delete manually if necessary.');
-                await addAuditLog(userEmail, 'Deleted User (Partial)', 'User Management', `Deleted profile for user ID ${id}, but auth record deletion failed: ${authError.message}`);
-            } else {
-                alert('User deleted successfully!');
-                await addAuditLog(userEmail, 'Deleted User', 'User Management', `Deleted user ID ${id}`);
-            }
-
-            await fetchProfiles(); // Re-fetch to update the table
-            console.log(`User ${id} deleted successfully.`);
-        } catch (error) {
-            alert('Error deleting user: ' + error.message);
-            console.error('Supabase error deleting user:', error);
-            await addAuditLog(userEmail, 'Delete User Failed', 'User Management', `Error: ${error.message}`);
-        }
-    }
-};
-
-if (closeUserModal) {
-    closeUserModal.addEventListener('click', () => {
-        if (userModal) {
-            userModal.classList.add('hidden');
-            userModal.style.display = 'none';
-        }
-        if (userForm) userForm.reset();
-        console.log('User modal closed.');
-    });
-}
-
-if (userModal) {
-    userModal.addEventListener('click', (e) => {
-        if (e.target === userModal) {
-            userModal.classList.add('hidden');
-            userModal.style.display = 'none';
-            if (userForm) userForm.reset();
-            console.log('User modal closed by outside click.');
-        }
-    });
-}
-
-if (userForm) {
-    userForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-        const userEmail = loggedInUser?.email || 'admin';
-
-        const id = document.getElementById('userId').value;
-        const fullName = document.getElementById('userFullName').value;
-        const email = document.getElementById('userEmail').value;
-        const role = document.getElementById('userRole').value;
-        const password = document.getElementById('userPassword').value;
-        const status = document.getElementById('userStatus').value;
-
-        if (!fullName || !email || !role || !status) {
-            alert('Please fill in all required fields.');
-            console.warn('User form submission failed: Missing required fields.');
-            return;
-        }
-
-        try {
-            if (id) {
-                // Update existing user profile
-                console.log(`Updating user profile ${id}...`);
-                const updateData = {
-                    full_name: fullName,
-                    email: email, // Note: Changing email in profile doesn't change auth email directly
-                    role: role,
-                    status: status
-                };
-                const { error: profileUpdateError } = await supabase.from('profiles').update(updateData).eq('id', id);
-                if (profileUpdateError) throw profileUpdateError;
-
-                // If password is provided, update auth password
-                if (password) {
-                    const { error: passwordUpdateError } = await supabase.auth.updateUser({ password: password });
-                    if (passwordUpdateError) {
-                        console.warn('Failed to update user password:', passwordUpdateError.message);
-                        alert('User profile updated, but failed to update password. ' + passwordUpdateError.message);
-                    }
-                }
-                alert('User updated successfully!');
-                await addAuditLog(userEmail, 'Updated User', 'User Management', `Updated user: ${fullName}`);
-            } else {
-                // Add new user (sign up)
-                console.log(`Adding new user: ${email}...`);
-                if (!password) {
-                    alert('Password is required for new users.');
-                    return;
-                }
-                const { data: authData, error: authError } = await supabase.auth.signUp({
-                    email: email,
-                    password: password,
-                    options: {
-                        data: {
-                            full_name: fullName,
-                            role: role
-                        }
-                    }
-                });
-
-                if (authError) throw authError;
-
-                // Insert into profiles table
-                const { error: profileInsertError } = await supabase.from('profiles').insert([
-                    {
-                        id: authData.user.id,
-                        full_name: fullName,
-                        email: email,
-                        role: role,
-                        status: status
-                    }
-                ]);
-                if (profileInsertError) throw profileInsertError;
-
-                alert('User added successfully! An email confirmation might be sent to the user.');
-                await addAuditLog(userEmail, 'Added New User', 'User Management', `Added new user: ${fullName} (${email}) with role: ${role}`);
-            }
-
-            await fetchProfiles(); // Re-fetch to update the table
-            if (userModal) {
-                userModal.classList.add('hidden');
-                userModal.style.display = 'none';
-            }
-            if (userForm) {
-                userForm.reset();
-            }
-            console.log('User operation completed successfully.');
-        } catch (error) {
-            alert('Error saving user: ' + error.message);
-            console.error('Supabase error saving user:', error);
-            await addAuditLog(userEmail, 'Save User Failed', 'User Management', `Error: ${error.message}`);
-        }
-    });
-}
-
-// Announcement Management Functions
-window.showAddAnnouncementModal = function() {
-    if (announcementModal) {
-        announcementModal.classList.remove('hidden');
-        announcementModal.style.display = 'flex';
-    }
-    if (announcementForm) {
-        announcementForm.reset();
-        document.getElementById('announcementId').value = ''; // Clear ID for new entry
-    }
-    if (announcementModalTitle) {
-        announcementModalTitle.textContent = 'Add New Announcement';
-    }
-    if (announcementFormSubmitBtn) {
-        announcementFormSubmitBtn.textContent = 'Publish Announcement';
-    }
-    console.log('Add Announcement modal opened.');
-};
-
-window.editAnnouncement = async function(id) {
-    console.log(`Editing announcement ID: ${id}`);
-    const announcement = announcements.find(ann => ann.id === id);
-    if (announcement) {
-        document.getElementById('announcementId').value = announcement.id;
-        document.getElementById('announcementTitle').value = announcement.title;
-        document.getElementById('announcementContent').value = announcement.content;
-        document.getElementById('announcementStatus').value = announcement.status;
-
-        if (announcementModalTitle) {
-            announcementModalTitle.textContent = 'Edit Announcement';
-        }
-        if (announcementFormSubmitBtn) {
-            announcementFormSubmitBtn.textContent = 'Save Changes';
-        }
-        if (announcementModal) {
-            announcementModal.classList.remove('hidden');
-            announcementModal.style.display = 'flex';
-        }
-        console.log(`Announcement ${id} data loaded for editing.`);
-    } else {
-        alert('Announcement not found.');
-        console.error(`Announcement with ID ${id} not found for editing.`);
-    }
-};
-
-window.deleteAnnouncement = async function(id) {
-    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    const userEmail = loggedInUser?.email || 'admin';
-    if (confirm('Are you sure you want to delete this announcement?')) {
-        console.log(`Deleting announcement ID: ${id}`);
-        try {
-            const { error } = await supabase.from('announcements').delete().eq('id', id);
-            if (error) throw error;
-
-            const deletedAnnouncement = announcements.find(ann => ann.id === id);
-            await addAuditLog(userEmail, 'Deleted Announcement', 'Announcements', `Deleted announcement: ${deletedAnnouncement?.title || id}`);
-            alert('Announcement deleted successfully!');
-            await fetchAnnouncements(); // Re-fetch to update the table
-            console.log(`Announcement ${id} deleted successfully.`);
-        } catch (error) {
-            alert('Error deleting announcement: ' + error.message);
-            console.error('Supabase error deleting announcement:', error);
-            await addAuditLog(userEmail, 'Delete Announcement Failed', 'Announcements', `Error: ${error.message}`);
-        }
-    }
-};
-
-if (closeAnnouncementModal) {
-    closeAnnouncementModal.addEventListener('click', () => {
-        if (announcementModal) {
-            announcementModal.classList.add('hidden');
-            announcementModal.style.display = 'none';
-        }
-        if (announcementForm) announcementForm.reset();
-        console.log('Announcement modal closed.');
-    });
-}
-
-if (announcementModal) {
-    announcementModal.addEventListener('click', (e) => {
-        if (e.target === announcementModal) {
-            announcementModal.classList.add('hidden');
-            announcementModal.style.display = 'none';
-            if (announcementForm) announcementForm.reset();
-            console.log('Announcement modal closed by outside click.');
-        }
-    });
-}
-
-if (announcementForm) {
-    announcementForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-        const userEmail = loggedInUser?.email || 'admin';
-
-        const id = document.getElementById('announcementId').value;
-        const title = document.getElementById('announcementTitle').value;
-        const content = document.getElementById('announcementContent').value;
-        const status = document.getElementById('announcementStatus').value;
-
-        if (!title || !content || !status) {
-            alert('Please fill in all required fields.');
-            console.warn('Announcement form submission failed: Missing required fields.');
-            return;
-        }
-
-        const announcementData = {
-            title: title,
-            content: content,
-            status: status,
-            date_posted: new Date().toISOString().split('T')[0] // Set current date
-        };
-
-        try {
-            let result;
-            if (id) {
-                // Update existing record
-                console.log(`Updating announcement record ${id}...`);
-                result = await supabase.from('announcements').update(announcementData).eq('id', id).select();
-                await addAuditLog(userEmail, 'Updated Announcement', 'Announcements', `Updated announcement: ${title}`);
-                alert('Announcement updated successfully!');
-            } else {
-                // Add new record
-                console.log(`Adding new announcement: ${title}...`);
-                result = await supabase.from('announcements').insert([announcementData]).select();
-                await addAuditLog(userEmail, 'Added Announcement', 'Announcements', `Added announcement: ${title}`);
-                alert('Announcement published successfully!');
-            }
-
-            if (result.error) throw result.error;
-
-            await fetchAnnouncements(); // Re-fetch to update the table
-            if (announcementModal) {
-                announcementModal.classList.add('hidden');
-                announcementModal.style.display = 'none';
-            }
-            if (announcementForm) {
-                announcementForm.reset();
-            }
-            console.log('Announcement operation completed successfully.');
-        } catch (error) {
-            alert('Error saving announcement: ' + error.message);
-            console.error('Supabase error saving announcement:', error);
-            await addAuditLog(userEmail, 'Save Announcement Failed', 'Announcements', `Error: ${error.message}`);
-        }
-    });
-}
-
-// Student Attendance Module Functions
-// Populate Student Select for Attendance Modal
-async function populateStudentSelect(selectedStudentId = '') {
-    if (!attendanceStudentSelect) return;
-
-    if (students.length === 0) {
-        await fetchStudents(); // Ensure students data is available
-    }
-
-    attendanceStudentSelect.innerHTML = '<option value="">Select Student</option>';
-    students.forEach(student => {
-        const option = document.createElement('option');
-        option.value = student.id;
-        option.textContent = `${student.name} (Roll No: ${student.roll_no}, Class: ${student.class})`;
-        if (student.id === selectedStudentId) {
-            option.selected = true;
-        }
-        attendanceStudentSelect.appendChild(option);
-    });
-    console.log('Student select populated for attendance.');
-}
-
-// Add/Edit Attendance Modal Functions
-window.showAddAttendanceModal = function() {
-    if (attendanceModal) {
-        attendanceModal.classList.remove('hidden');
-        attendanceModal.style.display = 'flex';
-    }
-    if (attendanceForm) {
-        attendanceForm.reset();
-        document.getElementById('attendanceId').value = ''; // Clear ID for new entry
-    }
-    if (attendanceModalTitle) {
-        attendanceModalTitle.textContent = 'Mark Attendance';
-    }
-    if (attendanceFormSubmitBtn) {
-        attendanceFormSubmitBtn.textContent = 'Mark Attendance';
-    }
-    populateStudentSelect();
-    console.log('Add Attendance modal opened.');
-};
-
-window.editAttendance = async function(id) {
-    console.log(`Editing attendance ID: ${id}`);
-    const record = attendanceRecords.find(rec => rec.id === id);
-    if (record) {
-        document.getElementById('attendanceId').value = record.id;
-        document.getElementById('attendanceDate').value = record.date;
-        document.getElementById('attendanceStatus').value = record.status;
-        document.getElementById('arrivalTime').value = record.arrival_time || '';
-        document.getElementById('departureTime').value = record.departure_time || '';
-        document.getElementById('attendanceRemarks').value = record.remarks || '';
-
-        await populateStudentSelect(record.student_id); // Pre-select student
-
-        if (attendanceModalTitle) {
-            attendanceModalTitle.textContent = 'Edit Attendance';
-        }
-        if (attendanceFormSubmitBtn) {
-            attendanceFormSubmitBtn.textContent = 'Save Changes';
-        }
-        if (attendanceModal) {
-            attendanceModal.classList.remove('hidden');
-            attendanceModal.style.display = 'flex';
-        }
-        console.log(`Attendance ${id} data loaded for editing.`);
-    } else {
-        alert('Attendance record not found.');
-        console.error(`Attendance record with ID ${id} not found for editing.`);
-    }
-};
-
-window.deleteAttendance = async function(id) {
-    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    const userEmail = loggedInUser?.email || 'admin';
-    if (confirm('Are you sure you want to delete this attendance record?')) {
-        console.log(`Deleting attendance ID: ${id}`);
-        try {
-            const { error } = await supabase.from('attendance').delete().eq('id', id);
-            if (error) throw error;
-
-            const deletedRecord = attendanceRecords.find(rec => rec.id === id);
-            await addAuditLog(userEmail, 'Deleted Attendance', 'Attendance', `Deleted attendance for student ID ${deletedRecord?.student_id || id} on ${deletedRecord?.date || 'N/A'}`);
-            alert('Attendance record deleted successfully!');
-            await fetchAttendanceRecords(); // Re-fetch to update the table
-            console.log(`Attendance record ${id} deleted successfully.`);
-        } catch (error) {
-            alert('Error deleting attendance record: ' + error.message);
-            console.error('Supabase error deleting attendance record:', error);
-            await addAuditLog(userEmail, 'Delete Attendance Failed', 'Attendance', `Error: ${error.message}`);
-        }
-    }
-};
-
-if (closeAttendanceModal) {
-    closeAttendanceModal.addEventListener('click', () => {
-        if (attendanceModal) {
-            attendanceModal.classList.add('hidden');
-            attendanceModal.style.display = 'none';
-        }
-        if (attendanceForm) attendanceForm.reset();
-        console.log('Attendance modal closed.');
-    });
-}
-
-if (attendanceModal) {
-    attendanceModal.addEventListener('click', (e) => {
-        if (e.target === attendanceModal) {
-            attendanceModal.classList.add('hidden');
-            attendanceModal.style.display = 'none';
-            if (attendanceForm) attendanceForm.reset();
-            console.log('Attendance modal closed by outside click.');
-        }
-    });
-}
-
-if (attendanceForm) {
-    attendanceForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-        const userEmail = loggedInUser?.email || 'admin';
-
-        const id = document.getElementById('attendanceId').value;
-        const studentId = document.getElementById('attendanceStudentSelect').value;
-        const date = document.getElementById('attendanceDate').value;
-        const status = document.getElementById('attendanceStatus').value;
-        const arrivalTime = document.getElementById('arrivalTime').value;
-        const departureTime = document.getElementById('departureTime').value;
-        const remarks = document.getElementById('attendanceRemarks').value;
-
-        if (!studentId || !date || !status) {
-            alert('Please fill in all required fields.');
-            console.warn('Attendance form submission failed: Missing required fields.');
-            return;
-        }
-
-        const attendanceData = {
-            student_id: studentId,
-            date: date,
-            status: status,
-            arrival_time: arrivalTime || null,
-            departure_time: departureTime || null,
-            remarks: remarks || null
-        };
-
-        try {
-            let result;
-            if (id) {
-                // Update existing record
-                console.log(`Updating attendance record ${id}...`);
-                result = await supabase.from('attendance').update(attendanceData).eq('id', id).select();
-                await addAuditLog(userEmail, 'Updated Attendance', 'Attendance', `Updated attendance for student ID ${studentId} on ${date}`);
-                alert('Attendance record updated successfully!');
-            } else {
-                // Add new record
-                console.log(`Adding new attendance record for student ID ${studentId}...`);
-                result = await supabase.from('attendance').insert([attendanceData]).select();
-                await addAuditLog(userEmail, 'Added Attendance', 'Attendance', `Added attendance for student ID ${studentId} on ${date}`);
-                alert('Attendance record added successfully!');
-            }
-
-            if (result.error) throw result.error;
-
-            await fetchAttendanceRecords(); // Re-fetch to update the table
-            if (attendanceModal) {
-                attendanceModal.classList.add('hidden');
-                attendanceModal.style.display = 'none';
-            }
-            if (attendanceForm) {
-                attendanceForm.reset();
-            }
-            console.log('Attendance operation completed successfully.');
-        } catch (error) {
-            alert('Error saving attendance record: ' + error.message);
-            console.error('Supabase error saving attendance record:', error);
-            await addAuditLog(userEmail, 'Save Attendance Failed', 'Attendance', `Error: ${error.message}`);
-        }
-    });
+    scannedRecently.add(idKey);
+    setTimeout(() => scannedRecently.delete(idKey), 30000); // 30 sec lock
+
+    playBeep();
+    speakName(entity.name);
+    const detail = entityType === 'student' ? `${entity.name} | Class ${entity.class} - Present` : `${entity.name} | ${entity.subject} - Present`;
+    showToast(detail);
+
+    // Here you can call your existing attendance mark logic
 }
