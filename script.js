@@ -78,140 +78,144 @@ async function loadLabeledDescriptors(userType) {
 // FACE RECOGNITION MODULE
 // =============================================
 
+// FACE RECOGNITION MODULE
+// =============================================
+
 // Global variables
+let modelsLoaded = false; // Track if models are loaded
+let isRecognitionActive = false; // Track if recognition is active
+const videoElement = document.getElementById('teacherFaceRecognitionVideo'); // Ensure this element exists
+const teacherFaceRecognitionFeedback = document.getElementById('teacherFaceRecognitionFeedback'); // Ensure this element exists
 
 // Main initialization function
 async function initFaceRecognition() {
-  try {
-    // Load models first
-    await loadModels();
-    
-    // Setup camera if models loaded successfully
-    if (modelsLoaded) {
-      await setupCamera();
-      isRecognitionActive = true;
-      detectFaces();
-      teacherFaceRecognitionFeedback.textContent = 'Face recognition started';
+    try {
+        // Load models first
+        await loadModels();
+        
+        // Setup camera if models loaded successfully
+        if (modelsLoaded) {
+            await setupCamera();
+            isRecognitionActive = true;
+            detectFaces(); // Start detecting faces
+            teacherFaceRecognitionFeedback.textContent = 'Face recognition started';
+        }
+    } catch (error) {
+        console.error('Initialization failed:', error);
+        teacherFaceRecognitionFeedback.textContent = 'Failed to initialize: ' + error.message;
     }
-  } catch (error) {
-    console.error('Initialization failed:', error);
-    teacherFaceRecognitionFeedback.textContent = 'Failed to initialize: ' + error.message;
-  }
 }
 
 // Load all required models
 async function loadModels() {
-  try {
-    console.log('Loading face recognition models...');
-    teacherFaceRecognitionFeedback.textContent = 'Loading models...';
-    
-     async function loadFaceApiModels() {
-    const MODEL_URL = 'https://aatifakram.github.io/TPS/models'; // Correct URL for models
     try {
-        await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
-        await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
-        await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
-        await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
-        await faceapi.nets.tinyYolov2.loadFromUri(MODEL_URL);
-        console.log("✅ Face-api models loaded successfully");
+        console.log('Loading face recognition models...');
+        teacherFaceRecognitionFeedback.textContent = 'Loading models...';
+        
+        const MODEL_URL = 'https://aatifakram.github.io/TPS/models'; // Correct URL for models
+        try {
+            await faceapi.nets.tinyFaceDetector.loadFromUri(`${MODEL_URL}/tiny_face_detector_model-weights_manifest.json`);
+            await faceapi.nets.faceLandmark68Net.loadFromUri(`${MODEL_URL}/face_landmark_68_model-weights_manifest.json`);
+            await faceapi.nets.faceRecognitionNet.loadFromUri(`${MODEL_URL}/face_recognition_model-weights_manifest.json`);
+            await faceapi.nets.ssdMobilenetv1.loadFromUri(`${MODEL_URL}/ssd_mobilenetv1_model-weights_manifest.json`);
+            await faceapi.nets.tinyYolov2.loadFromUri(`${MODEL_URL}/tiny_yolov2_model-weights_manifest.json`);
+            modelsLoaded = true; // Set modelsLoaded to true after successful loading
+            console.log("✅ Face-api models loaded successfully");
+            teacherFaceRecognitionFeedback.textContent = 'Models loaded successfully';
+        } catch (error) {
+            console.error("Error loading face-api models:", error);
+            teacherFaceRecognitionFeedback.textContent = 'Model loading failed';
+            throw error; // Rethrow to handle in the main function
+        }
     } catch (error) {
-        console.error("Error loading face-api models:", error);
+        console.error('Model loading error:', error);
+        teacherFaceRecognitionFeedback.textContent = 'Model loading failed';
+        throw error; // Rethrow to handle in the main function
     }
-}
-
-
-    modelsLoaded = true;
-    teacherFaceRecognitionFeedback.textContent = 'Models loaded successfully';
-    console.log('Models loaded: SSD MobilenetV1, FaceLandmark68, FaceRecognition');
-  } catch (error) {
-    console.error('Model loading error:', error);
-    teacherFaceRecognitionFeedback.textContent = 'Model loading failed';
-    throw error;
-  }
 }
 
 // Set up camera stream
 async function setupCamera() {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ 
-      video: { width: 640, height: 480 } 
-    });
-    videoElement.srcObject = stream;
-    return new Promise((resolve) => {
-      videoElement.onloadedmetadata = () => {
-        videoElement.play();
-        resolve();
-      };
-    });
-  } catch (error) {
-    console.error('Camera setup failed:', error);
-    throw new Error('Could not access camera: ' + error.message);
-  }
+    try {
+        const stream = await navigator.mediaDevices.getUser Media({ 
+            video: { width: 640, height: 480 } 
+        });
+        videoElement.srcObject = stream; // Set the video source to the stream
+        return new Promise((resolve) => {
+            videoElement.onloadedmetadata = () => {
+                videoElement.play(); // Play the video
+                resolve(); // Resolve the promise
+            };
+        });
+    } catch (error) {
+        console.error('Camera setup failed:', error);
+        throw new Error('Could not access camera: ' + error.message);
+    }
 }
 
 // Face detection loop
 async function detectFaces() {
-  if (!isRecognitionActive || !modelsLoaded) return;
+    if (!isRecognitionActive || !modelsLoaded) return; // Exit if not active or models not loaded
 
-  try {
-    const detections = await faceapi.detectAllFaces(
-      videoElement,
-      new faceapi.SsdMobilenetv1Options()
-    )
-    .withFaceLandmarks()
-    .withFaceDescriptors();
+    try {
+        const detections = await faceapi.detectAllFaces(
+            videoElement,
+            new faceapi.SsdMobilenetv1Options()
+        )
+        .withFaceLandmarks()
+        .withFaceDescriptors();
 
-    if (detections.length > 0) {
-      // Process detections
-      const teacherId = await recognizeTeacher(detections[0].descriptor);
-      if (teacherId) {
-        await markTeacherAttendance(teacherId, 'face_recognition');
-      }
+        if (detections.length > 0) {
+            // Process detections
+            const teacherId = await recognizeTeacher(detections[0].descriptor);
+            if (teacherId) {
+                await markTeacherAttendance(teacherId, 'face_recognition');
+            }
+        }
+
+        // Continue detection loop
+        requestAnimationFrame(detectFaces);
+    } catch (error) {
+        console.error('Detection error:', error);
+        teacherFaceRecognitionFeedback.textContent = 'Detection error occurred';
     }
-
-    // Continue detection loop
-    requestAnimationFrame(detectFaces);
-  } catch (error) {
-    console.error('Detection error:', error);
-    teacherFaceRecognitionFeedback.textContent = 'Detection error occurred';
-  }
 }
 
 // Face matching function
 async function recognizeTeacher(descriptor) {
-  try {
-    const { data: teacherFaces } = await supabase
-      .from('teacher_faces')
-      .select('teacher_id, descriptor');
-    
-    if (!teacherFaces || teacherFaces.length === 0) {
-      return null;
+    try {
+        const { data: teacherFaces } = await supabase
+            .from('teacher_faces')
+            .select('teacher_id, descriptor');
+        
+        if (!teacherFaces || teacherFaces.length === 0) {
+            return null; // No teacher faces found
+        }
+
+        const bestMatch = teacherFaces.reduce((match, face) => {
+            const distance = faceapi.euclideanDistance(
+                JSON.parse(face.descriptor),
+                descriptor
+            );
+            return distance < (match.distance || Infinity) ? 
+                { id: face.teacher_id, distance } : match;
+        }, {});
+
+        return bestMatch.distance < 0.6 ? bestMatch.id : null; // Return the best match if within threshold
+    } catch (error) {
+        console.error('Recognition error:', error);
+        return null; // Return null if an error occurs
     }
-
-    const bestMatch = teacherFaces.reduce((match, face) => {
-      const distance = faceapi.euclideanDistance(
-        JSON.parse(face.descriptor),
-        descriptor
-      );
-      return distance < (match.distance || Infinity) ? 
-        { id: face.teacher_id, distance } : match;
-    }, {});
-
-    return bestMatch.distance < 0.6 ? bestMatch.id : null;
-  } catch (error) {
-    console.error('Recognition error:', error);
-    return null;
-  }
 }
 
 // Clean up function
 function stopFaceRecognition() {
-  isRecognitionActive = false;
-  if (videoElement.srcObject) {
-    videoElement.srcObject.getTracks().forEach(track => track.stop());
-    videoElement.srcObject = null;
-  }
-  teacherFaceRecognitionFeedback.textContent = 'Face recognition stopped';
+    isRecognitionActive = false; // Stop recognition
+    if (videoElement.srcObject) {
+        videoElement.srcObject.getTracks().forEach(track => track.stop()); // Stop all video tracks
+        videoElement.srcObject = null; // Clear the video source
+    }
+    teacherFaceRecognitionFeedback.textContent = 'Face recognition stopped'; // Update feedback
 }
 
 // =============================================
@@ -7701,6 +7705,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (stopBtn) stopBtn.addEventListener('click', stopFaceRecognition);
   });
 })();
+
 
 
 
