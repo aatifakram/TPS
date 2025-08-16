@@ -106,7 +106,7 @@ async function loadModels() {
     teacherFaceRecognitionFeedback.textContent = 'Loading models...';
     
    async function loadFaceApiModels() {
-    const MODEL_URL = './models';
+    const MODEL_URL = 'https://aatifakram.github.io/TPS/models';
     await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
     await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
     await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
@@ -7697,3 +7697,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (stopBtn) stopBtn.addEventListener('click', stopFaceRecognition);
   });
 })();
+
