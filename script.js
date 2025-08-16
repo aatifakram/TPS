@@ -108,7 +108,7 @@ async function loadModels() {
      async function loadFaceApiModels() {
     const MODEL_URL = 'https://aatifakram.github.io/TPS/models'; // Correct URL for models
     try {
-        await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+        await faceapi.nets.tinyFaceDetector.loadFromUri(https://aatifakram.github.io/models/tiny_face_detector_model-weights_manifest.json);
         await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
         await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
         await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
@@ -7708,6 +7708,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (stopBtn) stopBtn.addEventListener('click', stopFaceRecognition);
   });
 })();
+
 
 
 
