@@ -85,7 +85,7 @@ async function loadLabeledDescriptors(userType) {
 
 // Global variables
 let modelsLoaded = false; // Track if models are loaded
-let isRecognitionActive = false; // Track if recognition is active
+
 
 
 // Main initialization function
@@ -7710,6 +7710,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (stopBtn) stopBtn.addEventListener('click', stopFaceRecognition);
   });
 })();
+
 
 
 
