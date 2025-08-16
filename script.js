@@ -81,14 +81,12 @@ async function loadLabeledDescriptors(userType) {
 // FACE RECOGNITION MODULE
 // =============================================
 
-// FACE RECOGNITION MODULE
-// =============================================
+
 
 // Global variables
 let modelsLoaded = false; // Track if models are loaded
 let isRecognitionActive = false; // Track if recognition is active
-const videoElement = document.getElementById('teacherFaceRecognitionVideo'); // Ensure this element exists
-const teacherFaceRecognitionFeedback = document.getElementById('teacherFaceRecognitionFeedback'); // Ensure this element exists
+
 
 // Main initialization function
 async function initFaceRecognition() {
@@ -7712,6 +7710,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (stopBtn) stopBtn.addEventListener('click', stopFaceRecognition);
   });
 })();
+
 
 
 
