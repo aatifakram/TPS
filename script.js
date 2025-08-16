@@ -106,7 +106,7 @@ async function loadModels() {
     teacherFaceRecognitionFeedback.textContent = 'Loading models...';
     
      async function loadFaceApiModels() {
-    const MODEL_URL = 'https://github.com/aatifakram/TPS/models'; // Correct URL for models
+    const MODEL_URL = 'https://aatifakram.github.io/TPS/models'; // Correct URL for models
     try {
         await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
         await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
@@ -119,14 +119,7 @@ async function loadModels() {
     }
 }
 
-// Call the function when the DOM is fully loaded
-document.addEventListener('DOMContentLoaded', async () => {
-    await loadFaceApiModels(); // Ensure this is called
-    // Other initialization code...
-});
 
-   
-    
     modelsLoaded = true;
     teacherFaceRecognitionFeedback.textContent = 'Models loaded successfully';
     console.log('Models loaded: SSD MobilenetV1, FaceLandmark68, FaceRecognition');
@@ -7708,6 +7701,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (stopBtn) stopBtn.addEventListener('click', stopFaceRecognition);
   });
 })();
+
 
 
 
