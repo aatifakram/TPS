@@ -106,7 +106,7 @@ async function loadModels() {
 // Set up camera stream
 async function setupCamera() {
     try {
-        const stream = await navigator.mediaDevices.getUser Media({ 
+        const stream = await navigator.mediaDevices.getUserMedia({ 
             video: { width: 640, height: 480 } 
         });
         videoElement.srcObject = stream; // Set the video source to the stream
@@ -7527,6 +7527,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (stopBtn) stopBtn.addEventListener('click', stopFaceRecognition);
   });
 })();
+
 
 
 
