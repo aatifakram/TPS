@@ -509,6 +509,9 @@ function toggleTeacherFaceRegistrationSection() {
         stopTeacherFaceRegistration(); // Stop camera when hiding
     }
 }
+=
+
+// Toggle Teacher Face Recognition Section
 function toggleTeacherFaceRecognitionSection() {
   const section = document.getElementById("teacherFaceRecognitionSection");
   if (!section) {
@@ -525,7 +528,6 @@ function toggleTeacherFaceRecognitionSection() {
     section.classList.add("hidden");
   }
 }
-
 
 
 // Global variable for QR Scanner instances
@@ -7697,3 +7699,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (stopBtn) stopBtn.addEventListener('click', stopFaceRecognition);
   });
 })();
+
