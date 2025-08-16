@@ -87,6 +87,9 @@ async function loadLabeledDescriptors(userType) {
 let modelsLoaded = false; // Track if models are loaded
 
 
+let isRecognitionActive = false; // Track if recognition is active
+const videoElement = document.getElementById('teacherFaceRecognitionVideo'); // Ensure this element exists
+const teacherFaceRecognitionFeedback = document.getElementById('teacherFaceRecognitionFeedback'); // Ensure this element exists
 
 // Main initialization function
 async function initFaceRecognition() {
@@ -138,7 +141,7 @@ async function loadModels() {
 // Set up camera stream
 async function setupCamera() {
     try {
-        const stream = await navigator.mediaDevices.getUser Media({ // Fixed typo here
+        const stream = await navigator.mediaDevices.getUserMedia({ // Fixed typo here
             video: { width: 640, height: 480 } 
         });
         videoElement.srcObject = stream; // Set the video source to the stream
@@ -7710,6 +7713,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (stopBtn) stopBtn.addEventListener('click', stopFaceRecognition);
   });
 })();
+
 
 
 
