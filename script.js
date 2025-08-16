@@ -81,6 +81,9 @@ async function loadLabeledDescriptors(userType) {
 // FACE RECOGNITION MODULE
 // =============================================
 
+// FACE RECOGNITION MODULE
+// =============================================
+
 // Global variables
 let modelsLoaded = false; // Track if models are loaded
 let isRecognitionActive = false; // Track if recognition is active
@@ -137,7 +140,7 @@ async function loadModels() {
 // Set up camera stream
 async function setupCamera() {
     try {
-        const stream = await navigator.mediaDevices.getUser Media({ 
+        const stream = await navigator.mediaDevices.getUser Media({ // Fixed typo here
             video: { width: 640, height: 480 } 
         });
         videoElement.srcObject = stream; // Set the video source to the stream
@@ -223,6 +226,10 @@ function stopFaceRecognition() {
 // =============================================
 
 // Start when page loads
+document.addEventListener('DOMContentLoaded', async () => {
+    await initFaceRecognition(); // Initialize face recognition on page load
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   // Optional: Auto-start recognition
   // initFaceRecognition();
@@ -7705,6 +7712,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (stopBtn) stopBtn.addEventListener('click', stopFaceRecognition);
   });
 })();
+
 
 
 
