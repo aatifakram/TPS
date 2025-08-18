@@ -107,8 +107,9 @@ async function loadModels() {
 // Set up camera stream
 async function setupCamera() {
     try {
-        const stream = await navigator.mediaDevices.getUser Media({ // Corrected here
-            video: { width: 640, height: 480 } 
+        const stream = await navigator.mediaDevices.getUserMedia({  // ✅ fixed
+            video: { width: 640, height: 480 },
+            audio: false // explicitly disable audio since not needed
         });
         videoElement.srcObject = stream; // Set the video source to the stream
         return new Promise((resolve) => {
@@ -122,6 +123,7 @@ async function setupCamera() {
         throw new Error('Could not access camera: ' + error.message);
     }
 }
+
 
 // Face detection loop
 async function detectFaces() {
@@ -7524,6 +7526,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (stopBtn) stopBtn.addEventListener('click', stopFaceRecognition);
   });
 })();
+
 
 
 
