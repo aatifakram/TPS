@@ -1,4 +1,3 @@
-
 // Global variables for data (will be populated from Supabase)
 let students = [];
 let teachers = [];
@@ -15,28 +14,36 @@ let exams = []; // Global variable for exams
 let homeworkAssignments = []; // Global variable for homework
 let holidays = []; // Global variable for holidays
 let currentInvoiceId = null; // New global variable for tracking the invoice being edited
-let labeledDescriptors = [];
+let teacherFaceRegStream = null;
+const teacherFaceRegVideo = document.getElementById('teacherFaceRegVideo');
+const teacherFaceRegCanvas = document.getElementById('teacherFaceRegCanvas');
+const teacherFaceRegFeedback = document.getElementById('teacherFaceRegFeedback');
+
 
 // Supabase Client Initialization (Replace with your actual keys)
 const SUPABASE_URL = 'https://zyvwttzwjweeslvjbatg.supabase.co'; // Replace with your Supabase URL
-const SUPABASE_ANON_KEY = 'your-anon-key'; // Replace with your actual Supabase Anon Key
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp5dnd0dHp3andlZXNsdmpiYXRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5NTQwODMsImV4cCI6MjA2OTUzMDA4M30.pgzB45XBJAyGBlkKUJF4Jr0yVNunXjwa8p8JOaX7Nso'; // Replace with your actual Supabase Anon Key
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Face Recognition Variables
-let modelsLoaded = false; // Track if models are loaded
-let isRecognitionActive = false; // Track if recognition is active
-const videoElement = document.getElementById('teacherFaceRecognitionVideo'); // Ensure this element exists
-const teacherFaceRecognitionFeedback = document.getElementById('teacherFaceRecognitionFeedback'); // Ensure this element exists
+// Global variable to store loaded labeled descriptors
+let labeledDescriptors = [];
 
-// Load labeled face descriptors for a given user type (e.g., 'teacher', 'student')
+/**
+ * Loads labeled face descriptors for a given user type (e.g., 'teacher', 'student')
+ * from Supabase storage.
+ * @param {string} userType - 'teacher' or 'student'
+ * @returns {Promise<faceapi.LabeledFaceDescriptors[]>} An array of LabeledFaceDescriptors.
+ */
 async function loadLabeledDescriptors(userType) {
     console.log(`Loading labeled descriptors for ${userType}s...`);
-    const tableName = `${userType}_face_descriptors`;
+    const tableName = `${userType}_face_descriptors`; // Assuming a table like 'teacher_face_descriptors'
+    // If you store descriptors directly in 'teacher_faces' table, adjust this:
+    // const tableName = `${userType}_faces`;
 
     try {
         const { data, error } = await supabase
             .from(tableName)
-            .select('teacher_id, descriptor');
+            .select('teacher_id, descriptor'); // Select the ID and the descriptor JSONB column
 
         if (error) {
             console.error(`Error fetching ${userType} face descriptors:`, error);
@@ -49,7 +56,9 @@ async function loadLabeledDescriptors(userType) {
         }
 
         const descriptors = data.map(item => {
+            // Ensure the descriptor is a Float32Array
             const descriptorArray = new Float32Array(item.descriptor);
+            // Use the teacher_id (UUID) as the label for recognition
             return new faceapi.LabeledFaceDescriptors(item.teacher_id, [descriptorArray]);
         });
 
@@ -63,130 +72,137 @@ async function loadLabeledDescriptors(userType) {
     }
 }
 
+
+
+// =============================================
+// FACE RECOGNITION MODULE
+// =============================================
+
+// Global variables
+
 // Main initialization function
 async function initFaceRecognition() {
-    try {
-        await loadModels();
-        if (modelsLoaded) {
-            await setupCamera();
-            isRecognitionActive = true;
-            detectFaces(); // Start detecting faces
-            teacherFaceRecognitionFeedback.textContent = 'Face recognition started';
-        }
-    } catch (error) {
-        console.error('Initialization failed:', error);
-        teacherFaceRecognitionFeedback.textContent = 'Failed to initialize: ' + error.message;
+  try {
+    // Load models first
+    await loadModels();
+    
+    // Setup camera if models loaded successfully
+    if (modelsLoaded) {
+      await setupCamera();
+      isRecognitionActive = true;
+      detectFaces();
+      teacherFaceRecognitionFeedback.textContent = 'Face recognition started';
     }
+  } catch (error) {
+    console.error('Initialization failed:', error);
+    teacherFaceRecognitionFeedback.textContent = 'Failed to initialize: ' + error.message;
+  }
 }
 
 // Load all required models
 async function loadModels() {
-    try {
-        console.log('Loading face recognition models...');
-        teacherFaceRecognitionFeedback.textContent = 'Loading models...';
-        
-        const MODEL_URL = 'https://aatifakram.github.io/TPS/models'; // Correct URL for models
-        await Promise.all([
-            faceapi.nets.tinyFaceDetector.loadFromUri(`${MODEL_URL}/tiny_face_detector_model-weights_manifest.json`),
-            faceapi.nets.faceLandmark68Net.loadFromUri(`${MODEL_URL}/face_landmark_68_model-weights_manifest.json`),
-            faceapi.nets.faceRecognitionNet.loadFromUri(`${MODEL_URL}/face_recognition_model-weights_manifest.json`),
-            faceapi.nets.ssdMobilenetv1.loadFromUri(`${MODEL_URL}/ssd_mobilenetv1_model-weights_manifest.json`),
-            faceapi.nets.tinyYolov2.loadFromUri(`${MODEL_URL}/tiny_yolov2_model-weights_manifest.json`)
-        ]);
-        
-        modelsLoaded = true; // Set modelsLoaded to true after successful loading
-        console.log("✅ Face-api models loaded successfully");
-        teacherFaceRecognitionFeedback.textContent = 'Models loaded successfully';
-    } catch (error) {
-        console.error("Error loading face-api models:", error);
-        teacherFaceRecognitionFeedback.textContent = 'Model loading failed';
-        throw error; // Rethrow to handle in the main function
-    }
+  try {
+    console.log('Loading face recognition models...');
+    teacherFaceRecognitionFeedback.textContent = 'Loading models...';
+    
+    await Promise.all([
+      faceapi.nets.ssdMobilenetv1.loadFromUri('/models'),
+      faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
+      faceapi.nets.faceRecognitionNet.loadFromUri('/models')
+    ]);
+    
+    modelsLoaded = true;
+    teacherFaceRecognitionFeedback.textContent = 'Models loaded successfully';
+    console.log('Models loaded: SSD MobilenetV1, FaceLandmark68, FaceRecognition');
+  } catch (error) {
+    console.error('Model loading error:', error);
+    teacherFaceRecognitionFeedback.textContent = 'Model loading failed';
+    throw error;
+  }
 }
 
 // Set up camera stream
 async function setupCamera() {
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({  // ✅ fixed
-            video: { width: 640, height: 480 },
-            audio: false // explicitly disable audio since not needed
-        });
-        videoElement.srcObject = stream; // Set the video source to the stream
-        return new Promise((resolve) => {
-            videoElement.onloadedmetadata = () => {
-                videoElement.play(); // Play the video
-                resolve(); // Resolve the promise
-            };
-        });
-    } catch (error) {
-        console.error('Camera setup failed:', error);
-        throw new Error('Could not access camera: ' + error.message);
-    }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ 
+      video: { width: 640, height: 480 } 
+    });
+    videoElement.srcObject = stream;
+    return new Promise((resolve) => {
+      videoElement.onloadedmetadata = () => {
+        videoElement.play();
+        resolve();
+      };
+    });
+  } catch (error) {
+    console.error('Camera setup failed:', error);
+    throw new Error('Could not access camera: ' + error.message);
+  }
 }
-
 
 // Face detection loop
 async function detectFaces() {
-    if (!isRecognitionActive || !modelsLoaded) return; // Exit if not active or models not loaded
+  if (!isRecognitionActive || !modelsLoaded) return;
 
-    try {
-        const detections = await faceapi.detectAllFaces(
-            videoElement,
-            new faceapi.SsdMobilenetv1Options()
-        )
-        .withFaceLandmarks()
-        .withFaceDescriptors();
+  try {
+    const detections = await faceapi.detectAllFaces(
+      videoElement,
+      new faceapi.SsdMobilenetv1Options()
+    )
+    .withFaceLandmarks()
+    .withFaceDescriptors();
 
-        if (detections.length > 0) {
-            const teacherId = await recognizeTeacher(detections[0].descriptor);
-            if (teacherId) {
-                await markTeacherAttendance(teacherId, 'face_recognition');
-            }
-        }
-
-        // Continue detection loop
-        requestAnimationFrame(detectFaces);
-    } catch (error) {
-        console.error('Detection error:', error);
-        teacherFaceRecognitionFeedback.textContent = 'Detection error occurred';
+    if (detections.length > 0) {
+      // Process detections
+      const teacherId = await recognizeTeacher(detections[0].descriptor);
+      if (teacherId) {
+        await markTeacherAttendance(teacherId, 'face_recognition');
+      }
     }
+
+    // Continue detection loop
+    requestAnimationFrame(detectFaces);
+  } catch (error) {
+    console.error('Detection error:', error);
+    teacherFaceRecognitionFeedback.textContent = 'Detection error occurred';
+  }
 }
 
 // Face matching function
 async function recognizeTeacher(descriptor) {
-    try {
-        const { data: teacherFaces } = await supabase
-            .from('teacher_faces')
-            .select('teacher_id, descriptor');
-        
-        if (!teacherFaces || teacherFaces.length === 0) {
-            return null; // No teacher faces found
-        }
-
-        const bestMatch = teacherFaces.reduce((match, face) => {
-            const distance = faceapi.euclideanDistance(
-                JSON.parse(face.descriptor),
-                descriptor
-            );
-            return distance < (match.distance || Infinity) ? 
-                { id: face.teacher_id, distance } : match;
-        }, {});
-
-        return bestMatch.distance < 0.6 ? bestMatch.id : null; // Return the best match if within threshold
-    } catch (error) {
-        console.error('Recognition error:', error);
-        return null; // Return null if an error occurs
+  try {
+    const { data: teacherFaces } = await supabase
+      .from('teacher_faces')
+      .select('teacher_id, descriptor');
+    
+    if (!teacherFaces || teacherFaces.length === 0) {
+      return null;
     }
+
+    const bestMatch = teacherFaces.reduce((match, face) => {
+      const distance = faceapi.euclideanDistance(
+        JSON.parse(face.descriptor),
+        descriptor
+      );
+      return distance < (match.distance || Infinity) ? 
+        { id: face.teacher_id, distance } : match;
+    }, {});
+
+    return bestMatch.distance < 0.6 ? bestMatch.id : null;
+  } catch (error) {
+    console.error('Recognition error:', error);
+    return null;
+  }
 }
 
 // Clean up function
 function stopFaceRecognition() {
-    isRecognitionActive = false; // Stop recognition
-    if (videoElement.srcObject) {
-        videoElement.srcObject.getTracks().forEach(track => track.stop()); // Stop all video tracks
-        videoElement.srcObject = null; // Clear the video source
-    }
-    teacherFaceRecognitionFeedback.textContent = 'Face recognition stopped'; // Update feedback
+  isRecognitionActive = false;
+  if (videoElement.srcObject) {
+    videoElement.srcObject.getTracks().forEach(track => track.stop());
+    videoElement.srcObject = null;
+  }
+  teacherFaceRecognitionFeedback.textContent = 'Face recognition stopped';
 }
 
 // =============================================
@@ -194,13 +210,163 @@ function stopFaceRecognition() {
 // =============================================
 
 // Start when page loads
-document.addEventListener('DOMContentLoaded', async () => {
-    await initFaceRecognition(); // Initialize face recognition on page load
-    document.getElementById('startRecognition')?.addEventListener('click', initFaceRecognition);
-    document.getElementById('stopRecognition')?.addEventListener('click', stopFaceRecognition);
+document.addEventListener('DOMContentLoaded', () => {
+  // Optional: Auto-start recognition
+  // initFaceRecognition();
+  
+  // Or use button click
+  document.getElementById('startRecognition')?.addEventListener('click', initFaceRecognition);
+  document.getElementById('stopRecognition')?.addEventListener('click', stopFaceRecognition);
 });
 
+// Global variables for face-api.js
+const teacherFaceRecognitionVideo = document.getElementById('teacherFaceRecognitionVideo');
+const teacherFaceRecognitionCanvas = document.getElementById('teacherFaceRecognitionCanvas');
+let faceDetectionInterval = null; // To store the interval ID for face detection
 
+// =============================================
+// FACE RECOGNITION MODULE
+// =============================================
+
+// Global variables
+let isRecognitionActive = false;
+let modelsLoaded = false;
+const teacherFaceRecognitionFeedback = document.getElementById('faceRecognitionFeedback');
+const videoElement = document.getElementById('teacherFaceRecognitionVideo');
+
+// Main initialization function
+async function initFaceRecognition() {
+  try {
+    // Load models first
+    await loadModels();
+    
+    // Setup camera if models loaded successfully
+    if (modelsLoaded) {
+      await setupCamera();
+      isRecognitionActive = true;
+      detectFaces();
+      teacherFaceRecognitionFeedback.textContent = 'Face recognition started';
+    }
+  } catch (error) {
+    console.error('Initialization failed:', error);
+    teacherFaceRecognitionFeedback.textContent = 'Failed to initialize: ' + error.message;
+  }
+}
+
+// Load all required models
+async function loadModels() {
+  try {
+    console.log('Loading face recognition models...');
+    teacherFaceRecognitionFeedback.textContent = 'Loading models...';
+    
+    await Promise.all([
+      faceapi.nets.ssdMobilenetv1.loadFromUri('/models'),
+      faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
+      faceapi.nets.faceRecognitionNet.loadFromUri('/models')
+    ]);
+    
+    modelsLoaded = true;
+    teacherFaceRecognitionFeedback.textContent = 'Models loaded successfully';
+    console.log('Models loaded: SSD MobilenetV1, FaceLandmark68, FaceRecognition');
+  } catch (error) {
+    console.error('Model loading error:', error);
+    teacherFaceRecognitionFeedback.textContent = 'Model loading failed';
+    throw error;
+  }
+}
+
+// Set up camera stream
+async function setupCamera() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ 
+      video: { width: 640, height: 480 } 
+    });
+    videoElement.srcObject = stream;
+    return new Promise((resolve) => {
+      videoElement.onloadedmetadata = () => {
+        videoElement.play();
+        resolve();
+      };
+    });
+  } catch (error) {
+    console.error('Camera setup failed:', error);
+    throw new Error('Could not access camera: ' + error.message);
+  }
+}
+
+// Face detection loop
+async function detectFaces() {
+  if (!isRecognitionActive || !modelsLoaded) return;
+
+  try {
+    const detections = await faceapi.detectAllFaces(
+      videoElement,
+      new faceapi.SsdMobilenetv1Options()
+    )
+    .withFaceLandmarks()
+    .withFaceDescriptors();
+
+    if (detections.length > 0) {
+      // Process detections
+      const teacherId = await recognizeTeacher(detections[0].descriptor);
+      if (teacherId) {
+        await markTeacherAttendance(teacherId, 'face_recognition');
+      }
+    }
+
+    // Continue detection loop
+    requestAnimationFrame(detectFaces);
+  } catch (error) {
+    console.error('Detection error:', error);
+    teacherFaceRecognitionFeedback.textContent = 'Detection error occurred';
+  }
+}
+
+// Face matching function
+async function recognizeTeacher(descriptor) {
+  try {
+    const { data: teacherFaces } = await supabase
+      .from('teacher_faces')
+      .select('teacher_id, descriptor');
+    
+    if (!teacherFaces || teacherFaces.length === 0) {
+      return null;
+    }
+
+    const bestMatch = teacherFaces.reduce((match, face) => {
+      const distance = faceapi.euclideanDistance(
+        JSON.parse(face.descriptor),
+        descriptor
+      );
+      return distance < (match.distance || Infinity) ? 
+        { id: face.teacher_id, distance } : match;
+    }, {});
+
+    return bestMatch.distance < 0.6 ? bestMatch.id : null;
+  } catch (error) {
+    console.error('Recognition error:', error);
+    return null;
+  }
+}
+
+// Clean up function
+function stopFaceRecognition() {
+  isRecognitionActive = false;
+  if (videoElement.srcObject) {
+    videoElement.srcObject.getTracks().forEach(track => track.stop());
+    videoElement.srcObject = null;
+  }
+  teacherFaceRecognitionFeedback.textContent = 'Face recognition stopped';
+}
+
+// =============================================
+// EVENT LISTENERS
+// =============================================
+
+// Start when page loads
+document.addEventListener('DOMContentLoaded', () => {
+  // Optional: Auto-start recognition
+  // initFaceRecognition();
   
   // Or use button click
   document.getElementById('startRecognition')?.addEventListener('click', initFaceRecognition);
@@ -338,23 +504,6 @@ function toggleTeacherFaceRegistrationSection() {
         stopTeacherFaceRegistration(); // Stop camera when hiding
     }
 }
-function toggleTeacherFaceRecognitionSection() {
-  const section = document.getElementById("teacherFaceRecognitionSection");
-  if (!section) {
-    console.warn("Teacher Face Recognition section not found!");
-    return;
-  }
-
-  // Toggle hidden/display
-  if (section.style.display === "none" || section.classList.contains("hidden")) {
-    section.style.display = "block";
-    section.classList.remove("hidden");
-  } else {
-    section.style.display = "none";
-    section.classList.add("hidden");
-  }
-}
-
 
 
 // Global variable for QR Scanner instances
@@ -7312,234 +7461,3 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateDashboardStats(); // Update dashboard stats after data load
     initCharts(); // Initialize charts after data load
 });
-
-
-/* ========================
-   SAFE PATCH: Face Recognition & Missing Globals (appended by fixer)
-   ======================== */
-(function(){
-  // Avoid re-applying the patch
-  if (window.__FR_PATCH_APPLIED__) return;
-  window.__FR_PATCH_APPLIED__ = true;
-
-  // Supabase client must exist
-  if (typeof supabase === 'undefined') {
-    console.error('Supabase client not found. Ensure Supabase is initialized before this patch.');
-    return;
-  }
-
-  // Missing globals
-  window.teacherFaceRecognitionStream = window.teacherFaceRecognitionStream || null;
-  window.teacherFacePlayHandlerRef = window.teacherFacePlayHandlerRef || null;
-  window.detectionInterval = window.detectionInterval || null;
-
-  // Element getters (safe)
-  const $ = (id) => document.getElementById(id);
-  const videoEl = $('teacherFaceRecognitionVideo');
-  const canvasEl = $('teacherFaceRecognitionCanvas');
-  const feedbackEl = $('teacherFaceRecognitionFeedback');
-
-  // Provide loadFaceApiModels if not defined
-  if (typeof window.loadFaceApiModels !== 'function') {
-    window.loadFaceApiModels = async function loadFaceApiModels() {
-      if (window.__FR_MODELS_LOADED__) return;
-      const modelsPath = '/models'; // change if needed
-      await Promise.all([
-        faceapi.nets.tinyFaceDetector.loadFromUri(modelsPath),
-        faceapi.nets.faceLandmark68Net.loadFromUri(modelsPath),
-        faceapi.nets.faceRecognitionNet.loadFromUri(modelsPath)
-      ]);
-      window.__FR_MODELS_LOADED__ = true;
-    };
-  }
-
-  // Unified recognizeTeacher using teacher_faces table where descriptor is stored as JSON array
-  async function recognizeTeacher(descriptor) {
-    try {
-      const { data: teacherFaces, error } = await supabase
-        .from('teacher_faces')
-        .select('teacher_id, descriptor');
-
-      if (error) {
-        console.error('Supabase error loading teacher_faces:', error);
-        return null;
-      }
-      if (!Array.isArray(teacherFaces) || teacherFaces.length === 0) return null;
-
-      let bestId = null, bestDist = Infinity;
-      for (const row of teacherFaces) {
-        let stored = row.descriptor;
-        // descriptor might be JSON string or array
-        if (typeof stored === 'string') {
-          try { stored = JSON.parse(stored); } catch {}
-        }
-        const a = new Float32Array(stored);
-        const dist = faceapi.euclideanDistance(a, descriptor);
-        if (dist < bestDist) {
-          bestDist = dist;
-          bestId = row.teacher_id;
-        }
-      }
-      return (bestDist < 0.6) ? bestId : null;
-    } catch (e) {
-      console.error('recognizeTeacher failed:', e);
-      return null;
-    }
-  }
-
-  // Robust markTeacherAttendance
-  async function markTeacherAttendance(teacherUuid, method) {
-    const today = new Date().toISOString().split('T')[0];
-    const currentTime = new Date().toTimeString().split(' ')[0];
-    const loggedInUser = (()=>{ try { return JSON.parse(localStorage.getItem('loggedInUser')); } catch(e){ return null; } })();
-    const userEmail = (loggedInUser && loggedInUser.email) ? loggedInUser.email : 'Face Recognition System';
-
-    try {
-      const { data: existing, error: selErr } = await supabase
-        .from('teacher_attendance')
-        .select('*')
-        .eq('teacher_id', teacherUuid)
-        .eq('date', today);
-
-      if (selErr) {
-        console.error('Attendance select error:', selErr);
-        try { await addAuditLog(userEmail, 'Error Fetching Attendance', 'Teacher Attendance', selErr.message || 'error'); } catch {}
-        return;
-      }
-
-      if (Array.isArray(existing) && existing.length > 0) {
-        const rec = existing[0];
-        if (rec.arrival_time) {
-          if (feedbackEl) feedbackEl.textContent = `Arrival already marked for ${teacherUuid}.`;
-          try { await addAuditLog(userEmail, 'Duplicate Arrival', 'Teacher Attendance', `Teacher ${teacherUuid}`); } catch {}
-        } else {
-          const { error: updErr } = await supabase
-            .from('teacher_attendance')
-            .update({ arrival_time: currentTime, status: 'Present' })
-            .eq('id', rec.id);
-          if (updErr) {
-            console.error('Attendance update error:', updErr);
-            if (feedbackEl) feedbackEl.textContent = 'Failed to update attendance.';
-            return;
-          }
-          if (feedbackEl) feedbackEl.textContent = `Arrival marked for ${teacherUuid}.`;
-        }
-      } else {
-        const { error: insErr } = await supabase
-          .from('teacher_attendance')
-          .insert([{ teacher_id: teacherUuid, date: today, status: 'Present', arrival_time: currentTime, remarks: method || 'Face Recognition' }]);
-        if (insErr) {
-          console.error('Attendance insert error:', insErr);
-          if (feedbackEl) feedbackEl.textContent = 'Failed to mark attendance.';
-          return;
-        }
-        if (feedbackEl) feedbackEl.textContent = `Attendance marked for ${teacherUuid}.`;
-      }
-    } catch (e) {
-      console.error('markTeacherAttendance exception:', e);
-      if (feedbackEl) feedbackEl.textContent = `Error: ${e.message}`;
-    }
-  }
-
-  // Unified initFaceRecognition that overrides earlier duplicates
-  async function initFaceRecognition() {
-    if (!videoEl || !canvasEl || !feedbackEl) {
-      console.warn('Face recognition UI elements missing; skipping init.');
-      return;
-    }
-    try {
-      feedbackEl.textContent = 'Loading models...';
-      await window.loadFaceApiModels();
-      if (window.teacherFaceRecognitionStream) {
-        window.teacherFaceRecognitionStream.getTracks().forEach(t => t.stop());
-      }
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 }, audio: false });
-      window.teacherFaceRecognitionStream = stream;
-      videoEl.srcObject = stream;
-      await videoEl.play();
-
-      const displaySize = { width: videoEl.videoWidth || 640, height: videoEl.videoHeight || 480 };
-      canvasEl.width = displaySize.width; canvasEl.height = displaySize.height;
-      faceapi.matchDimensions(canvasEl, displaySize);
-      feedbackEl.textContent = 'Detecting faces...';
-
-      const detect = async () => {
-        if (!window.teacherFaceRecognitionStream) return;
-        try {
-          const detections = await faceapi
-            .detectAllFaces(videoEl, new faceapi.TinyFaceDetectorOptions())
-            .withFaceLandmarks()
-            .withFaceDescriptors();
-          const resized = faceapi.resizeResults(detections, displaySize);
-          const ctx = canvasEl.getContext('2d');
-          ctx.clearRect(0,0,canvasEl.width, canvasEl.height);
-          faceapi.draw.drawDetections(canvasEl, resized);
-          faceapi.draw.drawFaceLandmarks(canvasEl, resized);
-
-          if (detections.length > 0) {
-            feedbackEl.textContent = `Face detected (${detections.length}). Recognizing...`;
-            const teacherId = await recognizeTeacher(detections[0].descriptor);
-            if (teacherId) {
-              await markTeacherAttendance(teacherId, 'Face Recognition');
-            } else {
-              feedbackEl.textContent = 'No matching teacher found.';
-            }
-          } else {
-            feedbackEl.textContent = 'No face detected. Look at the camera.';
-          }
-          window.requestAnimationFrame(detect);
-        } catch (err) {
-          console.error('Detection loop error:', err);
-          feedbackEl.textContent = 'Detection error.';
-          window.requestAnimationFrame(detect);
-        }
-      };
-      window.requestAnimationFrame(detect);
-    } catch (err) {
-      console.error('initFaceRecognition error:', err);
-      feedbackEl.textContent = (err && err.message) ? err.message : 'Camera error';
-    }
-  }
-
-  function stopFaceRecognition() {
-    if (window.teacherFaceRecognitionStream) {
-      window.teacherFaceRecognitionStream.getTracks().forEach(t => t.stop());
-      window.teacherFaceRecognitionStream = null;
-    }
-    if (videoEl) videoEl.srcObject = null;
-    if (canvasEl) {
-      const ctx = canvasEl.getContext('2d');
-      ctx && ctx.clearRect(0,0,canvasEl.width, canvasEl.height);
-    }
-    if (feedbackEl) feedbackEl.textContent = 'Stopped';
-  }
-
-  // Expose overrides globally to overshadow duplicates defined earlier
-  window.initFaceRecognition = initFaceRecognition;
-  window.stopFaceRecognition = stopFaceRecognition;
-
-  // Wire buttons if present
-  document.addEventListener('DOMContentLoaded', () => {
-    const startBtn = $('startRecognition');
-    const stopBtn = $('stopRecognition');
-    if (startBtn) startBtn.addEventListener('click', initFaceRecognition);
-    if (stopBtn) stopBtn.addEventListener('click', stopFaceRecognition);
-  });
-})();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
