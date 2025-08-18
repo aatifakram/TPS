@@ -1,24 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Tapowan Public School - Login / Dashboard</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
-<!-- Chart.js for dashboard charts (removed from reports module) -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- html5-qrcode for QR scanning -->
-<script src="https://unpkg.com/html5-qrcode@2.3.8/dist/html5-qrcode.min.js"></script>
-<!-- QRious for QR code generation -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-<link href="style.css" rel="stylesheet"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
-<script defer="defer" src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Tapowan Public School - Login / Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <!-- Chart.js for dashboard charts (removed from reports module) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- html5-qrcode for QR scanning -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/dist/html5-qrcode.min.js"></script>
+    <!-- QRious for QR code generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <!-- Login UI -->
@@ -56,9 +52,9 @@
             </div>
             <div class="flex justify-between items-center mt-4">
                 <button class="login-button" type="submit">Login</button>
-                <button class="login-button bg-blue-500 hover:bg-blue-600" id="signUpButton" type="button">Sign Up</button>
+                <button class="login-button bg-blue-500 hover:bg-blue-600" type="button" id="signUpButton">Sign Up</button>
             </div>
-            <button class="mt-4 rounded-full p-2 bg-indigo-600 text-white" onclick="startVoiceAssistant()" type="button">
+            <button class="mt-4 rounded-full p-2 bg-indigo-600 text-white" type="button" onclick="startVoiceAssistant()">
                 <i class="fas fa-microphone"></i>
             </button>
         </form>
@@ -68,9 +64,9 @@
     </div>
 </div>
 <!-- Forgot Password Modal -->
-<div aria-labelledby="forgotPasswordTitle" aria-modal="true" class="modal-overlay" id="forgotPasswordModal" role="dialog" tabindex="-1">
+<div class="modal-overlay" id="forgotPasswordModal" aria-labelledby="forgotPasswordTitle" aria-modal="true" role="dialog" tabindex="-1">
     <div class="modal-content">
-        <button aria-label="Close forgot password modal" class="modal-close-button" id="closeForgotPasswordModal" type="button">×</button>
+        <button class="modal-close-button" id="closeForgotPasswordModal" type="button" aria-label="Close forgot password modal">×</button>
         <h2 id="forgotPasswordTitle">Forgot Password</h2>
         <p>Enter your email address below and we'll send you a link to reset your password.</p>
         <form id="forgotPasswordForm">
@@ -82,10 +78,11 @@
         </form>
     </div>
 </div>
+
 <!-- Sign Up Modal -->
-<div aria-labelledby="signUpModalTitle" aria-modal="true" class="modal-overlay" id="signUpModal" role="dialog" tabindex="-1">
+<div class="modal-overlay" id="signUpModal" aria-labelledby="signUpModalTitle" aria-modal="true" role="dialog" tabindex="-1">
     <div class="modal-content">
-        <button aria-label="Close sign up modal" class="modal-close-button" id="closeSignUpModal" type="button">×</button>
+        <button class="modal-close-button" id="closeSignUpModal" type="button" aria-label="Close sign up modal">×</button>
         <h2 id="signUpModalTitle">Sign Up for an Account</h2>
         <form id="signUpForm">
             <div class="form-group">
@@ -114,8 +111,9 @@
         </form>
     </div>
 </div>
+
 <!-- School Site UI -->
-<div class="hidden" id="school-site-ui">
+<div id="school-site-ui" class="hidden">
     <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
         <div class="sidebar w-64 bg-white shadow-md flex flex-col animate-slideInFromLeft">
@@ -212,12 +210,12 @@
             <header class="bg-white shadow-sm flex justify-between items-center relative animate-slideInFromTop">
                 <h2 id="currentModuleTitle">Dashboard</h2>
                 <div class="flex items-center space-x-4">
-                    <button aria-label="Show notifications" class="p-2 rounded-full hover:bg-gray-100 relative" id="notificationButton" type="button">
+                    <button class="p-2 rounded-full hover:bg-gray-100 relative" id="notificationButton" type="button" aria-label="Show notifications">
                         <i class="fas fa-bell text-gray-600"></i>
                         <span class="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full" id="notificationCount">3</span>
                     </button>
                     <!-- NEW: Dark Mode Toggle -->
-                    <button aria-label="Toggle dark mode" class="p-2 rounded-full hover:bg-gray-100" id="darkModeToggle" type="button">
+                    <button class="p-2 rounded-full hover:bg-gray-100" id="darkModeToggle" type="button" aria-label="Toggle dark mode">
                         <i class="fas fa-moon text-gray-600"></i> <!-- Moon icon for light mode -->
                     </button>
                     <!-- Notification Dropdown UI -->
@@ -237,7 +235,7 @@
                     <!-- End Notification Dropdown UI -->
                     <div class="relative"> <!-- Added relative positioning for the dropdown -->
                         <div class="flex items-center space-x-2 cursor-pointer p-2 rounded-md hover:bg-gray-100" id="userProfileToggle">
-                            <span class="font-medium text-gray-700" id="loggedInUserName">Admin</span>
+                            <span id="loggedInUserName" class="font-medium text-gray-700">Admin</span>
                             <i class="fas fa-chevron-down text-xs text-gray-500"></i>
                         </div>
                         <!-- User Dropdown UI -->
@@ -252,7 +250,7 @@
                 </div>
             </header>
             <!-- Dashboard Content -->
-            <main class="p-6 animate-fadeIn" id="dashboardMainContent" style="animation-delay: 0.5s;">
+            <main class="p-6 animate-fadeIn" id="dashboardMainContent" style="animation-delay: 0.5s;" onload="initCharts()">
                 <!-- Module Tabs -->
                 <div class="tabs mb-6" id="moduleTabs">
                     <button class="tab" data-tab="dashboard" type="button">Dashboard</button>
@@ -303,7 +301,7 @@
                             <div>
                                 <p class="text-gray-500" id="studentsPresentLabel">Students Present Today</p>
                                 <h3 class="text-2xl font-bold mt-1" id="studentsPresentToday">0</h3>
-                                <div class="text-xs text-blue-600 hidden" id="holidayIndicator">Today is a holiday</div>
+                                <div id="holidayIndicator" class="text-xs text-blue-600 hidden">Today is a holiday</div>
                             </div>
                             <div class="icon-wrapper bg-indigo-50 text-indigo-600">
                                 <i class="fas fa-check-circle"></i>
@@ -536,14 +534,14 @@
             <!-- Module Containers -->
             <div class="hidden" id="modulesContainer">
                 <!-- Dashboard Module (kept hidden as per original, JS will show it) -->
-                <div class="module-content hidden" id="dashboardModule">
+                <div id="dashboardModule" class="module-content hidden">
                     <!-- Dashboard content is already in main#dashboardMainContent, this div is just a placeholder for the JS logic -->
                 </div>
                 <!-- User Management Module -->
                 <div class="module-content p-6 hidden" id="user-managementModule">
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-2xl font-semibold">User Management</h3>
-                        <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700" onclick="showAddUserForm()" type="button">
+                        <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700" type="button" onclick="showAddUserForm()">
                             <i class="fas fa-plus mr-2"></i>Add User
                         </button>
                     </div>
@@ -551,17 +549,17 @@
                         <div class="overflow-x-auto">
                             <table class="min-w-full">
                                 <thead>
-                                    <tr>
-                                        <th class="text-left py-3 px-4">ID</th>
-                                        <th class="text-left py-3 px-4">Name</th>
-                                        <th class="text-left py-3 px-4">Email</th>
-                                        <th class="text-left py-3 px-4">Role</th>
-                                        <th class="text-left py-3 px-4">Status</th>
-                                        <th class="text-left py-3 px-4">Actions</th>
-                                    </tr>
+                                <tr>
+                                    <th class="text-left py-3 px-4">ID</th>
+                                    <th class="text-left py-3 px-4">Name</th>
+                                    <th class="text-left py-3 px-4">Email</th>
+                                    <th class="text-left py-3 px-4">Role</th>
+                                    <th class="text-left py-3 px-4">Status</th>
+                                    <th class="text-left py-3 px-4">Actions</th>
+                                </tr>
                                 </thead>
                                 <tbody id="userTableBody">
-                                    <!-- Users will be dynamically loaded here -->
+                                <!-- Users will be dynamically loaded here -->
                                 </tbody>
                             </table>
                         </div>
@@ -571,7 +569,7 @@
                 <div class="module-content p-6 hidden" id="roles-permissionsModule">
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-2xl font-semibold">Role &amp; Permissions Management</h3>
-                        <button class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700" onclick="alert('Add New Role functionality goes here!')" type="button">
+                        <button class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700" type="button" onclick="alert('Add New Role functionality goes here!')">
                             <i class="fas fa-plus mr-2"></i>Add New Role
                         </button>
                     </div>
@@ -579,53 +577,53 @@
                         <div class="overflow-x-auto">
                             <table class="min-w-full">
                                 <thead>
-                                    <tr>
-                                        <th class="text-left py-3 px-4">Role Name</th>
-                                        <th class="text-left py-3 px-4">Description</th>
-                                        <th class="text-left py-3 px-4">Permissions</th>
-                                        <th class="text-left py-3 px-4">Actions</th>
-                                    </tr>
+                                <tr>
+                                    <th class="text-left py-3 px-4">Role Name</th>
+                                    <th class="text-left py-3 px-4">Description</th>
+                                    <th class="text-left py-3 px-4">Permissions</th>
+                                    <th class="text-left py-3 px-4">Actions</th>
+                                </tr>
                                 </thead>
                                 <tbody>
-                                    <tr class="border-b hover:bg-gray-50">
-                                        <td class="py-3 px-4">Admin</td>
-                                        <td class="py-3 px-4">Full access to all modules and settings.</td>
-                                        <td class="py-3 px-4">All</td>
-                                        <td class="py-3 px-4">
-                                            <button class="text-blue-600 hover:text-blue-800 mr-3" title="Edit Role" type="button">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="text-purple-600 hover:text-purple-800" title="Manage Permissions" type="button">
-                                                <i class="fas fa-user-shield"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b hover:bg-gray-50">
-                                        <td class="py-3 px-4">Teacher</td>
-                                        <td class="py-3 px-4">Manage students, grades, and attendance for assigned classes.</td>
-                                        <td class="py-3 px-4">Students, Calendar, Reports</td>
-                                        <td class="py-3 px-4">
-                                            <button class="text-blue-600 hover:text-blue-800 mr-3" title="Edit Role" type="button">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="text-purple-600 hover:text-purple-800" title="Manage Permissions" type="button">
-                                                <i class="fas fa-user-shield"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b hover:bg-gray-50">
-                                        <td class="py-3 px-4">Student</td>
-                                        <td class="py-3 px-4">View personal profile, grades, and school calendar.</td>
-                                        <td class="py-3 px-4">Profile, Calendar</td>
-                                        <td class="py-3 px-4">
-                                            <button class="text-blue-600 hover:text-blue-800 mr-3" title="Edit Role" type="button">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="text-purple-600 hover:text-purple-800" title="Manage Permissions" type="button">
-                                                <i class="fas fa-user-shield"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="py-3 px-4">Admin</td>
+                                    <td class="py-3 px-4">Full access to all modules and settings.</td>
+                                    <td class="py-3 px-4">All</td>
+                                    <td class="py-3 px-4">
+                                        <button class="text-blue-600 hover:text-blue-800 mr-3" title="Edit Role" type="button">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-purple-600 hover:text-purple-800" title="Manage Permissions" type="button">
+                                            <i class="fas fa-user-shield"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="py-3 px-4">Teacher</td>
+                                    <td class="py-3 px-4">Manage students, grades, and attendance for assigned classes.</td>
+                                    <td class="py-3 px-4">Students, Calendar, Reports</td>
+                                    <td class="py-3 px-4">
+                                        <button class="text-blue-600 hover:text-blue-800 mr-3" title="Edit Role" type="button">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-purple-600 hover:text-purple-800" title="Manage Permissions" type="button">
+                                            <i class="fas fa-user-shield"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="py-3 px-4">Student</td>
+                                    <td class="py-3 px-4">View personal profile, grades, and school calendar.</td>
+                                    <td class="py-3 px-4">Profile, Calendar</td>
+                                    <td class="py-3 px-4">
+                                        <button class="text-blue-600 hover:text-blue-800 mr-3" title="Edit Role" type="button">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-purple-600 hover:text-purple-800" title="Manage Permissions" type="button">
+                                            <i class="fas fa-user-shield"></i>
+                                        </button>
+                                    </td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -687,8 +685,8 @@
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-2xl font-semibold">Audit Logs</h3>
                         <div class="flex items-center space-x-4">
-                            <input class="p-2 border border-gray-300 rounded-lg" name="auditLogStartDate" type="date"/>
-                            <input class="p-2 border border-gray-300 rounded-lg" name="auditLogEndDate" type="date"/>
+                            <input class="p-2 border border-gray-300 rounded-lg" type="date" name="auditLogStartDate"/>
+                            <input class="p-2 border border-gray-300 rounded-lg" type="date" name="auditLogEndDate"/>
                             <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700" type="button">
                                 <i class="fas fa-filter mr-2"></i>Filter
                             </button>
@@ -698,16 +696,16 @@
                         <div class="overflow-x-auto">
                             <table class="min-w-full">
                                 <thead>
-                                    <tr>
-                                        <th class="text-left py-3 px-4">Timestamp</th>
-                                        <th class="text-left py-3 px-4">User</th>
-                                        <th class="text-left py-3 px-4">Action</th>
-                                        <th class="text-left py-3 px-4">Module</th>
-                                        <th class="text-left py-3 px-4">Details</th>
-                                    </tr>
+                                <tr>
+                                    <th class="text-left py-3 px-4">Timestamp</th>
+                                    <th class="text-left py-3 px-4">User</th>
+                                    <th class="text-left py-3 px-4">Action</th>
+                                    <th class="text-left py-3 px-4">Module</th>
+                                    <th class="text-left py-3 px-4">Details</th>
+                                </tr>
                                 </thead>
                                 <tbody id="auditLogTableBody">
-                                    <!-- Audit logs will be dynamically loaded here -->
+                                <!-- Audit logs will be dynamically loaded here -->
                                 </tbody>
                             </table>
                         </div>
@@ -717,7 +715,7 @@
                 <div class="module-content p-6 hidden" id="backup-restoreModule">
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-2xl font-semibold">Backup &amp; Restore</h3>
-                        <button class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700" onclick="alert('Initiating database backup...')" type="button">
+                        <button class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700" type="button" onclick="alert('Initiating database backup...')">
                             <i class="fas fa-database mr-2"></i>Create New Backup
                         </button>
                     </div>
@@ -726,23 +724,23 @@
                         <div class="overflow-x-auto mb-6">
                             <table class="min-w-full">
                                 <thead>
-                                    <tr>
-                                        <th class="text-left py-3 px-4">Backup ID</th>
-                                        <th class="text-left py-3 px-4">Date</th>
-                                        <th class="text-left py-3 px-4">Size</th>
-                                        <th class="text-left py-3 px-4">Type</th>
-                                        <th class="text-left py-3 px-4">Actions</th>
-                                    </tr>
+                                <tr>
+                                    <th class="text-left py-3 px-4">Backup ID</th>
+                                    <th class="text-left py-3 px-4">Date</th>
+                                    <th class="text-left py-3 px-4">Size</th>
+                                    <th class="text-left py-3 px-4">Type</th>
+                                    <th class="text-left py-3 px-4">Actions</th>
+                                </tr>
                                 </thead>
                                 <tbody id="backupTableBody">
-                                    <!-- Backups will be dynamically loaded here -->
+                                <!-- Backups will be dynamically loaded here -->
                                 </tbody>
                             </table>
                         </div>
                         <h4 class="text-lg font-medium text-gray-700 mb-3">Manual Restore</h4>
                         <div class="flex items-center space-x-4">
-                            <input accept=".sql,.zip" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100" name="restoreFile" type="file"/>
-                            <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700" onclick="alert('Initiating manual restore...')" type="button">
+                            <input accept=".sql,.zip" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100" type="file" name="restoreFile">
+                            <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700" type="button" onclick="alert('Initiating manual restore...')">
                                 <i class="fas fa-upload mr-2"></i>Upload &amp; Restore
                             </button>
                         </div>
@@ -752,7 +750,7 @@
                 <div class="module-content p-6 hidden" id="announcementsModule">
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-2xl font-semibold">Announcements</h3>
-                        <button class="bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700" onclick="showAddAnnouncementModal()" type="button">
+                        <button class="bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700" type="button" onclick="showAddAnnouncementModal()">
                             <i class="fas fa-plus mr-2"></i>Add New Announcement
                         </button>
                     </div>
@@ -760,16 +758,16 @@
                         <div class="overflow-x-auto">
                             <table class="min-w-full">
                                 <thead>
-                                    <tr>
-                                        <th class="text-left py-3 px-4">Title</th>
-                                        <th class="text-left py-3 px-4">Content</th>
-                                        <th class="text-left py-3 px-4">Date Posted</th>
-                                        <th class="text-left py-3 px-4">Status</th>
-                                        <th class="text-left py-3 px-4">Actions</th>
-                                    </tr>
+                                <tr>
+                                    <th class="text-left py-3 px-4">Title</th>
+                                    <th class="text-left py-3 px-4">Content</th>
+                                    <th class="text-left py-3 px-4">Date Posted</th>
+                                    <th class="text-left py-3 px-4">Status</th>
+                                    <th class="text-left py-3 px-4">Actions</th>
+                                </tr>
                                 </thead>
                                 <tbody id="announcementTableBody">
-                                    <!-- Announcements will be dynamically loaded here -->
+                                <!-- Announcements will be dynamically loaded here -->
                                 </tbody>
                             </table>
                         </div>
@@ -780,18 +778,18 @@
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-2xl font-semibold">Students Management</h3>
                         <div class="flex space-x-2"> <!-- Added a flex container for buttons -->
-                            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700" onclick="showAddStudentForm()" type="button">
+                            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700" type="button" onclick="showAddStudentForm()">
                                 <i class="fas fa-plus mr-2"></i>Add Student
                             </button>
-                            <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700" onclick="exportStudentsToExcel()" type="button">
+                            <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700" type="button" onclick="exportStudentsToExcel()">
                                 <i class="fas fa-file-excel mr-2"></i>Export to Excel
                             </button>
                         </div>
                     </div>
                     <div class="module-card p-6">
                         <div class="flex flex-wrap items-center gap-4 mb-4">
-                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-auto" id="searchStudentName" name="searchStudentName" placeholder="Search by Name" type="text">
-                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-auto" id="searchRoll" name="searchRoll" placeholder="Search by Roll No." type="text"/>
+                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-auto" id="searchStudentName" placeholder="Search by Name" type="text" name="searchStudentName"/>
+                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-auto" id="searchRoll" placeholder="Search by Roll No." type="text" name="searchRoll"/>
                             <select class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-auto" id="searchClass" name="searchClass">
                                 <option value="">All Classes</option>
                                 <option value="1">Grade 1</option>
@@ -814,25 +812,25 @@
                         <div class="overflow-x-auto">
                             <table class="min-w-full" id="studentsTable"> <!-- Added ID for easy access -->
                                 <thead>
-                                    <tr>
-                                        <th class="text-left py-3 px-4">ID</th>
-                                        <th class="text-left py-3 px-4">Name</th>
-                                        <th class="text-left py-3 px-4">Father's Name</th>
-                                        <th class="text-left py-3 px-4">Mother's Name</th>
-                                        <th class="text-left py-3 px-4">Class</th>
-                                        <th class="text-left py-3 px-4">Roll No.</th>
-                                        <th class="text-left py-3 px-4">Aadhar No.</th>
-                                        <th class="text-left py-3 px-4">Blood Group</th>
-                                        <th class="text-left py-3 px-4">Admission No.</th>
-                                        <th class="text-left py-3 px-4">Admission Date</th>
-                                        <th class="text-left py-3 px-4">Father's Aadhar</th>
-                                        <th class="text-left py-3 px-4">Mother's Aadhar</th>
-                                        <th class="text-left py-3 px-4">Status</th>
-                                        <th class="text-left py-3 px-4">Actions</th>
-                                    </tr>
+                                <tr>
+                                    <th class="text-left py-3 px-4">ID</th>
+                                    <th class="text-left py-3 px-4">Name</th>
+                                    <th class="text-left py-3 px-4">Father's Name</th>
+                                    <th class="text-left py-3 px-4">Mother's Name</th>
+                                    <th class="text-left py-3 px-4">Class</th>
+                                    <th class="text-left py-3 px-4">Roll No.</th>
+                                    <th class="text-left py-3 px-4">Aadhar No.</th>
+                                    <th class="text-left py-3 px-4">Blood Group</th>
+                                    <th class="text-left py-3 px-4">Admission No.</th>
+                                    <th class="text-left py-3 px-4">Admission Date</th>
+                                    <th class="text-left py-3 px-4">Father's Aadhar</th>
+                                    <th class="text-left py-3 px-4">Mother's Aadhar</th>
+                                    <th class="text-left py-3 px-4">Status</th>
+                                    <th class="text-left py-3 px-4">Actions</th>
+                                </tr>
                                 </thead>
                                 <tbody id="studentTableBody">
-                                    <!-- Students will be dynamically loaded here -->
+                                <!-- Students will be dynamically loaded here -->
                                 </tbody>
                             </table>
                         </div>
@@ -843,17 +841,17 @@
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-2xl font-semibold">Teachers Management</h3>
                         <div class="flex space-x-2"> <!-- Added a flex container for buttons -->
-                            <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700" onclick="showAddTeacherForm()" type="button">
+                            <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700" type="button" onclick="showAddTeacherForm()">
                                 <i class="fas fa-plus mr-2"></i>Add Teacher
                             </button>
-                            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700" onclick="exportTeachersToExcel()" type="button">
+                            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700" type="button" onclick="exportTeachersToExcel()">
                                 <i class="fas fa-file-excel mr-2"></i>Export to Excel
                             </button>
                         </div>
                     </div>
                     <div class="module-card p-6">
                         <div class="flex flex-wrap items-center gap-4 mb-4">
-                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 w-full md:w-auto" id="searchTeacherName" name="searchTeacherName" placeholder="Search by Name" type="text"/>
+                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 w-full md:w-auto" id="searchTeacherName" placeholder="Search by Name" type="text" name="searchTeacherName"/>
                             <select class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 w-full md:w-auto" id="searchTeacherSubject" name="searchTeacherSubject">
                                 <option value="">All Subjects</option>
                                 <option>English</option>
@@ -872,16 +870,16 @@
                         <div class="overflow-x-auto">
                             <table class="min-w-full" id="teachersTable"> <!-- Added ID for easy access -->
                                 <thead>
-                                    <tr>
-                                        <th class="text-left py-3 px-4">ID</th>
-                                        <th class="text-left py-3 px-4">Name</th>
-                                        <th class="text-left py-3 px-4">Subject</th>
-                                        <th class="text-left py-3 px-4">Classes</th>
-                                        <th class="text-left py-3 px-4">Actions</th>
-                                    </tr>
+                                <tr>
+                                    <th class="text-left py-3 px-4">ID</th>
+                                    <th class="text-left py-3 px-4">Name</th>
+                                    <th class="text-left py-3 px-4">Subject</th>
+                                    <th class="text-left py-3 px-4">Classes</th>
+                                    <th class="text-left py-3 px-4">Actions</th>
+                                </tr>
                                 </thead>
                                 <tbody id="teacherTableBody">
-                                    <!-- Teachers will be dynamically loaded here -->
+                                <!-- Teachers will be dynamically loaded here -->
                                 </tbody>
                             </table>
                         </div>
@@ -898,7 +896,7 @@
                     </div>
                     <div class="module-card p-6">
                         <div class="flex flex-wrap items-center gap-4 mb-4">
-                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 w-full md:w-auto" id="searchPayrollPeriod" name="searchPayrollPeriod" placeholder="Search by Period (e.g., October 2023)" type="text"/>
+                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 w-full md:w-auto" id="searchPayrollPeriod" placeholder="Search by Period (e.g., October 2023)" type="text" name="searchPayrollPeriod"/>
                             <button class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 w-full md:w-auto" id="applyPayrollSearch" type="button">
                                 <i class="fas fa-search mr-2"></i>Search
                             </button>
@@ -906,16 +904,16 @@
                         <div class="overflow-x-auto">
                             <table class="min-w-full">
                                 <thead>
-                                    <tr>
-                                        <th class="text-left py-3 px-4">Period</th>
-                                        <th class="text-left py-3 px-4">Staff Count</th>
-                                        <th class="text-left py-3 px-4">Total Amount</th>
-                                        <th class="text-left py-3 px-4">Status</th>
-                                        <th class="text-left py-3 px-4">Actions</th>
-                                    </tr>
+                                <tr>
+                                    <th class="text-left py-3 px-4">Period</th>
+                                    <th class="text-left py-3 px-4">Staff Count</th>
+                                    <th class="text-left py-3 px-4">Total Amount</th>
+                                    <th class="text-left py-3 px-4">Status</th>
+                                    <th class="text-left py-3 px-4">Actions</th>
+                                </tr>
                                 </thead>
                                 <tbody id="payrollTableBody">
-                                    <!-- Payroll entries will be dynamically loaded here -->
+                                <!-- Payroll entries will be dynamically loaded here -->
                                 </tbody>
                             </table>
                         </div>
@@ -932,8 +930,8 @@
                     </div>
                     <div class="module-card p-6">
                         <div class="flex flex-wrap items-center gap-4 mb-4">
-                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 w-full md:w-auto" id="searchInvoiceNumber" name="searchInvoiceNumber" placeholder="Search by Invoice #" type="text"/>
-                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 w-full md:w-auto" id="searchInvoiceStudent" name="searchInvoiceStudent" placeholder="Search by Student Name" type="text"/>
+                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 w-full md:w-auto" id="searchInvoiceNumber" placeholder="Search by Invoice #" type="text" name="searchInvoiceNumber"/>
+                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 w-full md:w-auto" id="searchInvoiceStudent" placeholder="Search by Student Name" type="text" name="searchInvoiceStudent"/>
                             <button class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 w-full md:w-auto" id="applyInvoiceSearch" type="button">
                                 <i class="fas fa-search mr-2"></i>Search
                             </button>
@@ -941,22 +939,22 @@
                         <div class="overflow-x-auto">
                             <table class="min-w-full">
                                 <thead>
-                                    <tr>
-                                        <th class="text-left py-3 px-4">Invoice #</th>
-                                        <th class="text-left py-3 px-4">Student</th>
-                                        <th class="text-left py-3 px-4">Class</th>
-                                        <th class="text-left py-3 px-4">Father</th>
-                                        <th class="text-left py-3 px-4">Total (₹)</th>
-                                        <th class="text-left py-3 px-4">Paid (₹)</th>
-                                        <th class="text-left py-3 px-4">Due (₹)</th>
-                                        <th class="text-left py-3 px-4">Issued</th>
-                                        <th class="text-left py-3 px-4">Due</th>
-                                        <th class="text-left py-3 px-4">Status</th>
-                                        <th class="text-left py-3 px-4">Actions</th>
-                                    </tr>
+                                <tr>
+                                    <th class="text-left py-3 px-4">Invoice #</th>
+                                    <th class="text-left py-3 px-4">Student</th>
+                                    <th class="text-left py-3 px-4">Class</th>
+                                    <th class="text-left py-3 px-4">Father</th>
+                                    <th class="text-left py-3 px-4">Total (₹)</th>
+                                    <th class="text-left py-3 px-4">Paid (₹)</th>
+                                    <th class="text-left py-3 px-4">Due (₹)</th>
+                                    <th class="text-left py-3 px-4">Issued</th>
+                                    <th class="text-left py-3 px-4">Due</th>
+                                    <th class="text-left py-3 px-4">Status</th>
+                                    <th class="text-left py-3 px-4">Actions</th>
+                                </tr>
                                 </thead>
                                 <tbody id="financeTableBody">
-                                    <!-- Invoices will be dynamically loaded here -->
+                                <!-- Invoices will be dynamically loaded here -->
                                 </tbody>
                             </table>
                         </div>
@@ -967,61 +965,67 @@
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-2xl font-semibold">Attendance Management</h3>
                         <div class="flex space-x-2">
-                            <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700" onclick="showAddAttendanceModal()" type="button">
+                            <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700" type="button" onclick="showAddAttendanceModal()">
                                 <i class="fas fa-plus mr-2"></i>Mark Individual Attendance
                             </button>
-                            <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600" onclick="toggleStudentFaceRecognitionSection()" type="button">
+                            <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600" type="button" onclick="toggleStudentFaceRecognitionSection()">
                                 <i class="fas fa-camera mr-2"></i>Toggle Face Recognition
                             </button>
-                            <button class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600" onclick="toggleStudentFaceRegistrationSection()" type="button">
-                                <i class="fas fa-user-plus mr-2"></i>Register Face
-                            </button>
-                            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700" onclick="startQrAttendance()" type="button">
+                            <button class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600" type="button" onclick="toggleStudentFaceRegistrationSection()">
+                            <i class="fas fa-user-plus mr-2"></i>Register Face
+                        </button>
+
+                            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700" type="button" onclick="startQrAttendance()">
                                 <i class="fas fa-qrcode mr-2"></i>Mark QR Attendance
                             </button>
-                            <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700" onclick="exportStudentAttendanceToExcel()" type="button">
+                            <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700" type="button" onclick="exportStudentAttendanceToExcel()">
                                 <i class="fas fa-file-excel mr-2"></i>Export to Excel
                             </button>
-                            <button class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700" onclick="exportStudentAttendanceToPdf()" type="button">
+                            <button class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700" type="button" onclick="exportStudentAttendanceToPdf()">
                                 <i class="fas fa-file-pdf mr-2"></i>Export to PDF
                             </button>
                         </div>
                     </div>
                     <div class="module-card p-6">
                         <!-- QR Scanner Section (initially hidden) -->
-                        <div class="hidden mb-6 p-4 border rounded-lg bg-gray-50" id="qrScannerSection">
+                        <div id="qrScannerSection" class="hidden mb-6 p-4 border rounded-lg bg-gray-50">
                             <h4 class="text-lg font-medium text-gray-700 mb-3">Scan QR Code for Attendance</h4>
-                            <div class="w-full h-64 bg-gray-200 rounded-lg" id="qrVideo"></div>
+                            <div id="qrVideo" class="w-full h-64 bg-gray-200 rounded-lg"></div>
                             <div class="mt-4 flex justify-end">
                                 <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600" onclick="stopQrAttendance()">Stop Scan</button>
                             </div>
                         </div>
-                        <!-- Student Attendance Face Recognition Section -->
-                        <div class="hidden p-4" id="studentFaceRecognitionSection">
-                            <h3 class="text-lg font-bold mb-2">Student Face Recognition</h3>
-                            <video autoplay="" height="240" id="studentFaceRecognitionVideo" muted="" width="320"></video>
-                            <canvas height="240" id="studentFaceRecognitionCanvas" width="320"></canvas>
-                            <p class="mt-2 text-sm text-gray-600" id="studentFaceRecognitionFeedback"></p>
-                            <div class="mt-3 flex gap-2">
-                                <button class="bg-green-600 text-white px-4 py-2 rounded" onclick="startStudentFaceRecognition()">Start Face Recognition</button>
-                                <button class="bg-red-600 text-white px-4 py-2 rounded" onclick="stopStudentFaceRecognition()">Stop</button>
-                            </div>
-                        </div>
-                        <!-- Student Face Registration Section -->
-                        <div class="hidden p-4" id="studentFaceRegistrationSection">
-                            <h3 class="text-lg font-bold mb-2">Register Student Face</h3>
-                            <video autoplay="" height="240" id="studentFaceRegVideo" muted="" width="320"></video>
-                            <canvas height="240" id="studentFaceRegCanvas" width="320"></canvas>
-                            <input class="border p-2 mt-2 w-full" id="studentFaceRegId" placeholder="Enter Student ID" type="text"/>
-                            <p class="mt-2 text-sm text-gray-600" id="studentFaceRegFeedback"></p>
-                            <div class="mt-3 flex gap-2">
-                                <button class="bg-green-600 text-white px-4 py-2 rounded" onclick="startStudentFaceRegistration()">Capture &amp; Save</button>
-                                <button class="bg-red-600 text-white px-4 py-2 rounded" onclick="stopStudentFaceRegistration()">Stop</button>
-                            </div>
-                        </div>
+                         <!-- Student Attendance Face Recognition Section -->
+    <div id="studentFaceRecognitionSection" class="hidden p-4">
+        <h3 class="text-lg font-bold mb-2">Student Face Recognition</h3>
+        <video id="studentFaceRecognitionVideo" width="320" height="240" autoplay muted></video>
+        <canvas id="studentFaceRecognitionCanvas" width="320" height="240"></canvas>
+        <p id="studentFaceRecognitionFeedback" class="mt-2 text-sm text-gray-600"></p>
+        <div class="mt-3 flex gap-2">
+            <button onclick="startStudentFaceRecognition()" class="bg-green-600 text-white px-4 py-2 rounded">Start Face Recognition</button>
+            <button onclick="stopStudentFaceRecognition()" class="bg-red-600 text-white px-4 py-2 rounded">Stop</button>
+        </div>
+    </div>
+</div>
+
+<!-- Student Face Registration Section -->
+<div id="studentFaceRegistrationSection" class="hidden p-4">
+    <h3 class="text-lg font-bold mb-2">Register Student Face</h3>
+    <video id="studentFaceRegVideo" width="320" height="240" autoplay muted></video>
+    <canvas id="studentFaceRegCanvas" width="320" height="240"></canvas>
+    <input type="text" id="studentFaceRegId" placeholder="Enter Student ID" class="border p-2 mt-2 w-full"/>
+    <p id="studentFaceRegFeedback" class="mt-2 text-sm text-gray-600"></p>
+    <div class="mt-3 flex gap-2">
+        <button onclick="startStudentFaceRegistration()" class="bg-green-600 text-white px-4 py-2 rounded">Capture & Save</button>
+        <button onclick="stopStudentFaceRegistration()" class="bg-red-600 text-white px-4 py-2 rounded">Stop</button>
+    </div>
+</div>
+
+
+
                         <h4 class="text-lg font-medium text-gray-700 mb-3">Filter Student Attendance Records</h4>
                         <div class="flex flex-wrap items-center gap-4 mb-4">
-                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full md:w-auto" id="attendanceStudentNameFilter" name="attendanceStudentNameFilter" placeholder="Search by Student Name" type="text"/>
+                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full md:w-auto" id="attendanceStudentNameFilter" placeholder="Search by Student Name" type="text" name="attendanceStudentNameFilter"/>
                             <select class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full md:w-auto" id="attendanceClassFilter" name="attendanceClassFilter">
                                 <option value="">All Classes</option>
                                 <option>Grade 1</option>
@@ -1037,11 +1041,12 @@
                                 <option>Grade 11</option>
                                 <option>Grade 12</option>
                             </select>
-                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full md:w-auto" id="attendanceDateFilter" name="attendanceDateFilter" type="date"/>
+                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full md:w-auto" id="attendanceDateFilter" type="date" name="attendanceDateFilter"/>
                             <button class="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 w-full md:w-auto" id="applyAttendanceFilter" type="button">
                                 <i class="fas fa-filter mr-2"></i>Filter
                             </button>
                         </div>
+
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                             <div class="module-card p-4 text-center">
                                 <p class="text-gray-500 text-sm">Total Students</p>
@@ -1056,6 +1061,7 @@
                                 <h4 class="text-xl font-bold text-red-600" id="attendanceTotalAbsent">0</h4>
                             </div>
                         </div>
+
                         <h4 class="text-lg font-medium text-gray-700 mb-3 mt-6">Class-wise Attendance Marking</h4>
                         <div class="flex flex-wrap items-center gap-4 mb-4">
                             <select class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full md:w-auto" id="classAttendanceSelect" name="classAttendanceSelect">
@@ -1073,7 +1079,7 @@
                                 <option>Grade 11</option>
                                 <option>Grade 12</option>
                             </select>
-                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full md:w-auto" id="classAttendanceDate" name="classAttendanceDate" type="date"/>
+                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full md:w-auto" id="classAttendanceDate" type="date" name="classAttendanceDate"/>
                             <button class="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 w-full md:w-auto" id="loadClassStudentsBtn" type="button">
                                 <i class="fas fa-users mr-2"></i>Load Students
                             </button>
@@ -1084,37 +1090,38 @@
                         <div class="overflow-x-auto">
                             <table class="min-w-full">
                                 <thead>
-                                    <tr>
-                                        <th class="text-left py-3 px-4">Student Name</th>
-                                        <th class="text-left py-3 px-4">Roll No.</th>
-                                        <th class="text-left py-3 px-4">Status</th>
-                                        <th class="text-left py-3 px-4">Remarks</th>
-                                        <th class="text-left py-3 px-4">Actions</th>
-                                    </tr>
+                                <tr>
+                                    <th class="text-left py-3 px-4">Student Name</th>
+                                    <th class="text-left py-3 px-4">Roll No.</th>
+                                    <th class="text-left py-3 px-4">Status</th>
+                                    <th class="text-left py-3 px-4">Remarks</th>
+                                    <th class="text-left py-3 px-4">Actions</th>
+                                </tr>
                                 </thead>
                                 <tbody id="classAttendanceTableBody">
-                                    <!-- Class-wise attendance records will be dynamically loaded here -->
+                                <!-- Class-wise attendance records will be dynamically loaded here -->
                                 </tbody>
                             </table>
                         </div>
+
                         <h4 class="text-lg font-medium text-gray-700 mb-3 mt-6">Student Attendance Records</h4>
                         <div class="overflow-x-auto">
                             <table class="min-w-full">
                                 <thead>
-                                    <tr>
-                                        <th class="text-left py-3 px-4">Student Name</th>
-                                        <th class="text-left py-3 px-4">Roll No.</th>
-                                        <th class="text-left py-3 px-4">Class</th>
-                                        <th class="text-left py-3 px-4">Date</th>
-                                        <th class="text-left py-3 px-4">Status</th>
-                                        <th class="text-left py-3 px-4">Arrival Time</th>
-                                        <th class="text-left py-3 px-4">Departure Time</th>
-                                        <th class="text-left py-3 px-4">Remarks</th>
-                                        <th class="text-left py-3 px-4">Actions</th>
-                                    </tr>
+                                <tr>
+                                    <th class="text-left py-3 px-4">Student Name</th>
+                                    <th class="text-left py-3 px-4">Roll No.</th>
+                                    <th class="text-left py-3 px-4">Class</th>
+                                    <th class="text-left py-3 px-4">Date</th>
+                                    <th class="text-left py-3 px-4">Status</th>
+                                    <th class="text-left py-3 px-4">Arrival Time</th>
+                                    <th class="text-left py-3 px-4">Departure Time</th>
+                                    <th class="text-left py-3 px-4">Remarks</th>
+                                    <th class="text-left py-3 px-4">Actions</th>
+                                </tr>
                                 </thead>
                                 <tbody id="attendanceTableBody">
-                                    <!-- Student attendance records will be dynamically loaded here -->
+                                <!-- Student attendance records will be dynamically loaded here -->
                                 </tbody>
                             </table>
                         </div>
@@ -1125,66 +1132,76 @@
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-2xl font-semibold">Teacher Attendance Management</h3>
                         <div class="flex space-x-2">
-                            <button class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700" onclick="showAddTeacherAttendanceModal()" type="button">
+                            <button class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700" type="button" onclick="showAddTeacherAttendanceModal()">
                                 <i class="fas fa-plus mr-2"></i>Mark Teacher Attendance
                             </button>
-                            <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600" onclick="toggleTeacherFaceRecognitionSection()" type="button">
+                                <!-- Inside teacher-attendanceModule -->
+                             <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600" type="button" onclick="toggleTeacherFaceRecognitionSection()">
                                 <i class="fas fa-camera mr-2"></i>Toggle Face Recognition
                             </button>
-                            <button class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600" onclick="toggleTeacherFaceRegistrationSection()" type="button">
-                                <i class="fas fa-user-plus mr-2"></i>Register Face
-                            </button>
-                            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700" onclick="startTeacherQrAttendance('arrival')" type="button">
+                            <button class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600" type="button" onclick="toggleTeacherFaceRegistrationSection()">
+                            <i class="fas fa-user-plus mr-2"></i>Register Face
+                        </button>
+
+                            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700" type="button" onclick="startTeacherQrAttendance('arrival')">
                                 <i class="fas fa-qrcode mr-2"></i>Mark Arrival QR
                             </button>
-                            <button class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700" onclick="startTeacherQrAttendance('departure')" type="button">
+                            <button class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700" type="button" onclick="startTeacherQrAttendance('departure')">
                                 <i class="fas fa-qrcode mr-2"></i>Mark Departure QR
                             </button>
-                            <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700" onclick="exportTeacherAttendanceToExcel()" type="button">
+                            <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700" type="button" onclick="exportTeacherAttendanceToExcel()">
                                 <i class="fas fa-file-excel mr-2"></i>Export to Excel
                             </button>
-                            <button class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700" onclick="exportTeacherAttendanceToPdf()" type="button">
+                            <button class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700" type="button" onclick="exportTeacherAttendanceToPdf()">
                                 <i class="fas fa-file-pdf mr-2"></i>Export to PDF
                             </button>
                         </div>
                     </div>
                     <div class="module-card p-6">
                         <!-- QR Scanner Section for Teachers (initially hidden) -->
-                        <div class="hidden mb-6 p-4 border rounded-lg bg-gray-50" id="teacherQrScannerSection">
+                        <div id="teacherQrScannerSection" class="hidden mb-6 p-4 border rounded-lg bg-gray-50">
                             <h4 class="text-lg font-medium text-gray-700 mb-3" id="teacherQrScannerTitle">Scan QR Code for Teacher Attendance</h4>
-                            <div class="w-full h-64 bg-gray-200 rounded-lg" id="teacherQrVideo"></div>
+                            <div id="teacherQrVideo" class="w-full h-64 bg-gray-200 rounded-lg"></div>
                             <div class="mt-4 flex justify-end">
                                 <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600" onclick="stopTeacherQrAttendance()">Stop Scan</button>
                             </div>
                         </div>
-                        <!-- Teacher Face Recognition Section -->
-                        <div class="hidden mb-6 p-4 border rounded-lg bg-gray-50" id="teacherFaceRecognitionSection">
+                       <!-- START NEW CODE INSERTION HERE -->
+                        <div id="teacherFaceRecognitionSection" class="hidden mb-6 p-4 border rounded-lg bg-gray-50">
                             <h3 class="text-xl font-semibold mb-4">Teacher Face Recognition Attendance</h3>
                             <div class="relative w-full h-64 bg-gray-200 rounded-lg overflow-hidden">
-                                <video autoplay="" class="object-cover" height="100%" id="teacherFaceRecognitionVideo" muted="" playsinline="" width="100%"></video>
-                                <canvas class="absolute top-0 left-0 w-full h-full" id="teacherFaceRecognitionCanvas"></canvas>
+                                <!-- EXACT LOCATION FOR VIDEO AND CANVAS -->
+                                <video id="teacherFaceRecognitionVideo" width="100%" height="100%" autoplay muted playsinline class="object-cover"></video>
+                                <canvas id="teacherFaceRecognitionCanvas" class="absolute top-0 left-0 w-full h-full"></canvas>
                             </div>
-                            <p class="mt-2 text-center text-sm text-gray-600" id="teacherFaceRecognitionFeedback"></p>
+                            <p id="teacherFaceRecognitionFeedback" class="mt-2 text-center text-sm text-gray-600"></p>
                             <div class="flex justify-center mt-4">
-                                <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 mr-2" id="startTeacherRecognitionBtn" type="button" onclick="startTeacherFaceRecognition()">Start Face Recognition</button>
-                                <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600" id="stopTeacherRecognitionBtn" type="button" onclick="stopTeacherFaceRecognition()">Stop Face Recognition</button>
+                                <button onclick="startTeacherFaceRecognition()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 mr-2">Start Face Recognition</button>
+                                <button onclick="stopTeacherFaceRecognition()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Stop Face Recognition</button>
                             </div>
                         </div>
-                        <!-- Teacher Face Registration Section -->
-                        <div class="hidden p-4" id="teacherFaceRegistrationSection">
+                        <!-- END NEW CODE INSERTION HERE -->
+                         
+                         <!-- Teacher Face Registration Section -->
+                        <div id="teacherFaceRegistrationSection" class="hidden p-4">
                             <h3 class="text-lg font-bold mb-2">Register Teacher Face</h3>
-                            <video autoplay="" height="240" id="teacherFaceRegVideo" muted="" width="320"></video>
-                            <canvas height="240" id="teacherFaceRegCanvas" width="320"></canvas>
-                            <input class="border p-2 mt-2 w-full" id="teacherFaceRegId" placeholder="Enter Teacher ID" type="text"/>
-                            <p class="mt-2 text-sm text-gray-600" id="teacherFaceRegFeedback"></p>
+                            <video id="teacherFaceRegVideo" width="320" height="240" autoplay muted></video>
+                            <canvas id="teacherFaceRegCanvas" width="320" height="240"></canvas>
+                            <input type="text" id="teacherFaceRegId" placeholder="Enter Teacher ID" class="border p-2 mt-2 w-full"/>
+                            <p id="teacherFaceRegFeedback" class="mt-2 text-sm text-gray-600"></p>
                             <div class="mt-3 flex gap-2">
-                                <button class="bg-green-600 text-white px-4 py-2 rounded" onclick="startTeacherFaceRegistration()">Capture &amp; Save</button>
-                                <button class="bg-red-600 text-white px-4 py-2 rounded" onclick="stopTeacherFaceRegistration()">Stop</button>
+                                <button onclick="startTeacherFaceRegistration()" class="bg-green-600 text-white px-4 py-2 rounded">Capture & Save</button>
+                                <button onclick="stopTeacherFaceRegistration()" class="bg-red-600 text-white px-4 py-2 rounded">Stop</button>
                             </div>
                         </div>
                         <h4 class="text-lg font-medium text-gray-700 mb-3">Filter Teacher Attendance Records</h4>
+                        <!-- ... rest of your teacher attendance module content ... -->
+                    </div>
+                </div>
+
+                        <h4 class="text-lg font-medium text-gray-700 mb-3">Filter Teacher Attendance Records</h4>
                         <div class="flex flex-wrap items-center gap-4 mb-4">
-                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 w-full md:w-auto" id="teacherAttendanceNameFilter" name="teacherAttendanceNameFilter" placeholder="Search by Teacher Name" type="text"/>
+                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 w-full md:w-auto" id="teacherAttendanceNameFilter" placeholder="Search by Teacher Name" type="text" name="teacherAttendanceNameFilter"/>
                             <select class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 w-full md:w-auto" id="teacherAttendanceSubjectFilter" name="teacherAttendanceSubjectFilter">
                                 <option value="">All Subjects</option>
                                 <option>English</option>
@@ -1196,7 +1213,7 @@
                                 <option>Social Study</option>
                                 <option>Soil Science</option>
                             </select>
-                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 w-full md:w-auto" id="teacherAttendanceDateFilter" name="teacherAttendanceDateFilter" type="date"/>
+                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 w-full md:w-auto" id="teacherAttendanceDateFilter" type="date" name="teacherAttendanceDateFilter"/>
                             <button class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 w-full md:w-auto" id="applyTeacherAttendanceFilter" type="button">
                                 <i class="fas fa-filter mr-2"></i>Filter
                             </button>
@@ -1219,19 +1236,19 @@
                         <div class="overflow-x-auto">
                             <table class="min-w-full">
                                 <thead>
-                                    <tr>
-                                        <th class="text-left py-3 px-4">Teacher Name</th>
-                                        <th class="text-left py-3 px-4">Subject</th>
-                                        <th class="text-left py-3 px-4">Date</th>
-                                        <th class="text-left py-3 px-4">Status</th>
-                                        <th class="text-left py-3 px-4">Arrival Time</th>
-                                        <th class="text-left py-3 px-4">Departure Time</th>
-                                        <th class="text-left py-3 px-4">Remarks</th>
-                                        <th class="text-left py-3 px-4">Actions</th>
-                                    </tr>
+                                <tr>
+                                    <th class="text-left py-3 px-4">Teacher Name</th>
+                                    <th class="text-left py-3 px-4">Subject</th>
+                                    <th class="text-left py-3 px-4">Date</th>
+                                    <th class="text-left py-3 px-4">Status</th>
+                                    <th class="text-left py-3 px-4">Arrival Time</th>
+                                    <th class="text-left py-3 px-4">Departure Time</th>
+                                    <th class="text-left py-3 px-4">Remarks</th>
+                                    <th class="text-left py-3 px-4">Actions</th>
+                                </tr>
                                 </thead>
                                 <tbody id="teacherAttendanceTableBody">
-                                    <!-- Teacher attendance records will be dynamically loaded here -->
+                                <!-- Teacher attendance records will be dynamically loaded here -->
                                 </tbody>
                             </table>
                         </div>
@@ -1259,10 +1276,10 @@
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-2xl font-semibold">Reports Dashboard</h3>
                         <div class="flex space-x-2">
-                            <button class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700" onclick="exportReportsToPdf()" type="button">
+                            <button class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700" type="button" onclick="exportReportsToPdf()">
                                 <i class="fas fa-file-pdf mr-2"></i>Export to PDF
                             </button>
-                            <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700" onclick="exportReportsToCsv()" type="button">
+                            <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700" type="button" onclick="exportReportsToCsv()">
                                 <i class="fas fa-file-csv mr-2"></i>Export to CSV
                             </button>
                         </div>
@@ -1300,11 +1317,11 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1" for="reportStartDate">Start Date (Optional)</label>
-                                <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" id="reportStartDate" type="date"/>
+                                <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" id="reportStartDate" type="date">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1" for="reportEndDate">End Date (Optional)</label>
-                                <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" id="reportEndDate" type="date"/>
+                                <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" id="reportEndDate" type="date">
                             </div>
                         </div>
                         <div class="mt-4 text-right">
@@ -1315,7 +1332,7 @@
                     </div>
                     <div class="module-card p-6">
                         <h4 class="font-medium mb-3">Generated Report</h4>
-                        <div class="min-h-[300px] bg-gray-50 p-4 rounded-lg overflow-auto text-gray-700" id="reportDisplayArea">
+                        <div id="reportDisplayArea" class="min-h-[300px] bg-gray-50 p-4 rounded-lg overflow-auto text-gray-700">
                             <p class="text-center text-gray-500">Select a report type and click "Generate Report" to view results here.</p>
                         </div>
                     </div>
@@ -1325,10 +1342,10 @@
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-2xl font-semibold">Exams Management</h3>
                         <div class="flex space-x-2">
-                            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700" onclick="showAddExamModal()" type="button">
+                            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700" type="button" onclick="showAddExamModal()">
                                 <i class="fas fa-plus mr-2"></i>Add New Exam
                             </button>
-                            <button class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700" onclick="showGenerateResultsModal()" type="button">
+                            <button class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700" type="button" onclick="showGenerateResultsModal()">
                                 <i class="fas fa-file-alt mr-2"></i>Generate Exam Results
                             </button>
                         </div>
@@ -1336,7 +1353,7 @@
                     <div class="module-card p-6">
                         <h4 class="text-lg font-medium text-gray-700 mb-3">Exam List</h4>
                         <div class="flex flex-wrap items-center gap-4 mb-4">
-                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-auto" id="searchExamName" name="searchExamName" placeholder="Search by Exam Name" type="text">
+                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-auto" id="searchExamName" placeholder="Search by Exam Name" type="text" name="searchExamName"/>
                             <select class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-auto" id="searchExamClass" name="searchExamClass">
                                 <option value="">All Classes</option>
                                 <option>Grade 1</option>
@@ -1359,17 +1376,17 @@
                         <div class="overflow-x-auto">
                             <table class="min-w-full" id="examsTable">
                                 <thead>
-                                    <tr>
-                                        <th class="text-left py-3 px-4">Exam Name</th>
-                                        <th class="text-left py-3 px-4">Class</th>
-                                        <th class="text-left py-3 px-4">Subject</th>
-                                        <th class="text-left py-3 px-4">Date</th>
-                                        <th class="text-left py-3 px-4">Max Marks</th>
-                                        <th class="text-left py-3 px-4">Actions</th>
-                                    </tr>
+                                <tr>
+                                    <th class="text-left py-3 px-4">Exam Name</th>
+                                    <th class="text-left py-3 px-4">Class</th>
+                                    <th class="text-left py-3 px-4">Subject</th>
+                                    <th class="text-left py-3 px-4">Date</th>
+                                    <th class="text-left py-3 px-4">Max Marks</th>
+                                    <th class="text-left py-3 px-4">Actions</th>
+                                </tr>
                                 </thead>
                                 <tbody id="examTableBody">
-                                    <!-- Exam records will be dynamically loaded here -->
+                                <!-- Exam records will be dynamically loaded here -->
                                 </tbody>
                             </table>
                         </div>
@@ -1380,13 +1397,13 @@
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-2xl font-semibold">Homework Management</h3>
                         <div class="flex space-x-2">
-                            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700" onclick="showAddHomeworkModal()" type="button">
+                            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700" type="button" onclick="showAddHomeworkModal()">
                                 <i class="fas fa-plus mr-2"></i>Add New Homework
                             </button>
-                            <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700" onclick="exportHomeworkToExcel()" type="button">
+                            <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700" type="button" onclick="exportHomeworkToExcel()">
                                 <i class="fas fa-file-excel mr-2"></i>Export to Excel
                             </button>
-                            <button class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700" onclick="generateHomeworkReport()" type="button">
+                            <button class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700" type="button" onclick="generateHomeworkReport()">
                                 <i class="fas fa-file-pdf mr-2"></i>Generate Report
                             </button>
                         </div>
@@ -1420,51 +1437,51 @@
                                 <option>Social Study</option>
                                 <option>Soil Science</option>
                             </select>
-                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-auto" id="filterHomeworkDueDate" name="filterHomeworkDueDate" type="date">
-                            <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 w-full md:w-auto" id="applyHomeworkFilter" onclick="filterHomework()" type="button">
+                            <input class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-auto" id="filterHomeworkDueDate" type="date" name="filterHomeworkDueDate"/>
+                            <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 w-full md:w-auto" id="applyHomeworkFilter" type="button" onclick="filterHomework()">
                                 <i class="fas fa-filter mr-2"></i>Filter
                             </button>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="min-w-full" id="homeworkTable">
                                 <thead>
-                                    <tr>
-                                        <th class="text-left py-3 px-4">ID</th>
-                                        <th class="text-left py-3 px-4">Title</th>
-                                        <th class="text-left py-3 px-4">Class</th>
-                                        <th class="text-left py-3 px-4">Subject</th>
-                                        <th class="text-left py-3 px-4">Assigned Date</th>
-                                        <th class="text-left py-3 px-4">Due Date</th>
-                                        <th class="text-left py-3 px-4">Actions</th>
-                                    </tr>
+                                <tr>
+                                    <th class="text-left py-3 px-4">ID</th>
+                                    <th class="text-left py-3 px-4">Title</th>
+                                    <th class="text-left py-3 px-4">Class</th>
+                                    <th class="text-left py-3 px-4">Subject</th>
+                                    <th class="text-left py-3 px-4">Assigned Date</th>
+                                    <th class="text-left py-3 px-4">Due Date</th>
+                                    <th class="text-left py-3 px-4">Actions</th>
+                                </tr>
                                 </thead>
                                 <tbody id="homeworkTableBody">
-                                    <!-- Homework assignments will be dynamically loaded here -->
+                                <!-- Homework assignments will be dynamically loaded here -->
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
                 <!-- Generate Exam Results Modal -->
-                <div aria-labelledby="generateResultsModalTitle" aria-modal="true" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="generateResultsModal" role="dialog" tabindex="-1">
+                <div class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="generateResultsModal" aria-labelledby="generateResultsModalTitle" aria-modal="true" role="dialog" tabindex="-1">
                     <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-xl font-semibold" id="generateResultsModalTitle">Generate Exam Results</h3>
-                            <button aria-label="Close generate results modal" class="text-gray-500 hover:text-gray-700" id="closeGenerateResultsModal" type="button">
+                            <button class="text-gray-500 hover:text-gray-700" id="closeGenerateResultsModal" type="button" aria-label="Close generate results modal">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
                         <form class="space-y-4" id="generateResultsForm">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1" for="resultsClassFilter">Class</label>
-                                <select class="w-full p-2 border border-gray-300 rounded-lg" id="resultsClassFilter" required="">
+                                <select class="w-full p-2 border border-gray-300 rounded-lg" id="resultsClassFilter" required>
                                     <option value="">Select Class</option>
                                     <option>Grade 1</option><option>Grade 2</option><option>Grade 3</option><option>Grade 4</option><option>Grade 5</option><option>Grade 6</option><option>Grade 7</option><option>Grade 8</option><option>Grade 9</option><option>Grade 10</option><option>Grade 11</option><option>Grade 12</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1" for="resultsExamTypeFilter">Exam Type</label>
-                                <select class="w-full p-2 border border-gray-300 rounded-lg" id="resultsExamTypeFilter" required="">
+                                <select class="w-full p-2 border border-gray-300 rounded-lg" id="resultsExamTypeFilter" required>
                                     <option value="">Select Exam Type</option>
                                     <option>Mid-Term</option>
                                     <option>Final</option>
@@ -1494,26 +1511,26 @@
                 </div>
             </div>
             <!-- Process Payroll Modal -->
-            <div aria-labelledby="payrollModalTitle" aria-modal="true" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="payrollModal" role="dialog" tabindex="-1">
+            <div class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="payrollModal" aria-labelledby="payrollModalTitle" aria-modal="true" role="dialog" tabindex="-1">
                 <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-xl font-semibold" id="payrollModalTitle">Process Payroll</h3>
-                        <button aria-label="Close payroll modal" class="text-gray-500 hover:text-gray-700" id="closePayrollModalBtn" type="button">
+                        <button class="text-gray-500 hover:text-gray-700" id="closePayrollModalBtn" type="button" aria-label="Close payroll modal">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
                     <form class="space-y-4" id="payrollForm">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="payrollPeriod">Payroll Period</label>
-                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" id="payrollPeriod" name="payrollPeriod" required="" type="month"/>
+                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" id="payrollPeriod" name="payrollPeriod" required="" type="month">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="staffCount">Staff Count</label>
-                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" id="staffCount" min="1" name="staffCount" placeholder="Enter number of staff" required="" type="number"/>
+                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" id="staffCount" min="1" name="staffCount" placeholder="Enter number of staff" required="" type="number">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="totalAmount">Total Amount (₹)</label>
-                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" id="totalAmount" min="0" name="totalAmount" placeholder="Enter total payroll amount" required="" step="0.01" type="number"/>
+                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" id="totalAmount" min="0" name="totalAmount" placeholder="Enter total payroll amount" required="" step="0.01" type="number">
                         </div>
                         <button class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 font-semibold" type="submit">
                             Submit Payroll
@@ -1522,11 +1539,11 @@
                 </div>
             </div>
             <!-- Add Invoice Modal -->
-            <div aria-labelledby="addInvoiceModalTitle" aria-modal="true" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="addInvoiceModal" role="dialog" tabindex="-1">
+            <div class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="addInvoiceModal" aria-labelledby="addInvoiceModalTitle" aria-modal="true" role="dialog" tabindex="-1">
                 <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-xl font-semibold" id="addInvoiceModalTitle">Add New Invoice</h3>
-                        <button aria-label="Close add invoice modal" class="text-gray-500 hover:text-gray-700" id="closeAddInvoiceModalBtn" type="button">
+                        <button class="text-gray-500 hover:text-gray-700" id="closeAddInvoiceModalBtn" type="button" aria-label="Close add invoice modal">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -1534,31 +1551,31 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1" for="invoiceStudentId">Student</label>
-                                <select class="w-full p-2 border border-gray-300 rounded-lg" id="invoiceStudentId" required="">
+                                <select class="w-full p-2 border border-gray-300 rounded-lg" id="invoiceStudentId" required>
                                     <option value="">Select Student</option>
                                     <!-- Student options will be dynamically loaded here -->
                                 </select>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1" for="invoiceNumber">Invoice #</label>
-                                <input class="w-full p-2 border border-gray-300 rounded-lg" id="invoiceNumber" placeholder="INV-001" required=""/>
+                                <input class="w-full p-2 border border-gray-300 rounded-lg" id="invoiceNumber" placeholder="INV-001" required>
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="invoiceTotalAmount">Total Amount (₹)</label>
-                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" id="invoiceTotalAmount" min="0" name="invoiceTotalAmount" placeholder="e.g., 1500.00" required="" step="0.01" type="number"/>
+                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" id="invoiceTotalAmount" min="0" name="invoiceTotalAmount" placeholder="e.g., 1500.00" required="" step="0.01" type="number">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="invoicePaidAmount">Paid Amount (₹)</label>
-                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" id="invoicePaidAmount" min="0" name="invoicePaidAmount" placeholder="e.g., 1000.00" step="0.01" type="number" value="0.00"/>
+                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" id="invoicePaidAmount" min="0" name="invoicePaidAmount" placeholder="e.g., 1000.00" value="0.00" step="0.01" type="number">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="invoiceIssueDate">Issue Date</label>
-                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" id="invoiceIssueDate" name="invoiceIssueDate" required="" type="date"/>
+                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" id="invoiceIssueDate" name="invoiceIssueDate" required="" type="date">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="invoiceDueDate">Due Date</label>
-                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" id="invoiceDueDate" name="invoiceDueDate" required="" type="date"/>
+                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" id="invoiceDueDate" name="invoiceDueDate" required="" type="date">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="invoiceStatus">Status</label>
@@ -1583,36 +1600,38 @@
                 </div>
             </div>
             <!-- Invoice Details Modal (for printing) -->
-            <div aria-labelledby="invoiceDetailsModalTitle" aria-modal="true" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="invoiceDetailsModal" role="dialog" tabindex="-1">
+            <div class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="invoiceDetailsModal" aria-labelledby="invoiceDetailsModalTitle" aria-modal="true" role="dialog" tabindex="-1">
                 <div class="bg-white rounded-lg p-6 w-full max-w-2xl shadow-lg print-area">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-xl font-semibold" id="invoiceDetailsModalTitle">Invoice Details</h3>
-                        <button aria-label="Close invoice details modal" class="text-gray-500 hover:text-gray-700 print-hide" id="closeInvoiceDetailsModal" type="button">
+                        <button class="text-gray-500 hover:text-gray-700 print-hide" id="closeInvoiceDetailsModal" type="button" aria-label="Close invoice details modal">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
-                    <div class="space-y-4 text-gray-800" id="invoiceContent">
+                    <div id="invoiceContent" class="space-y-4 text-gray-800">
                         <div class="text-center mb-6">
                             <h2 class="text-2xl font-bold">Tapowan Public School</h2>
                             <p class="text-sm text-gray-600">123 Education Lane, School City</p>
                             <p class="text-sm text-gray-600">info@tps.com | +1 (555) 123-4567</p>
                             <p class="text-sm font-medium">OFFICIAL INVOICE</p>
                         </div>
+
                         <div class="flex justify-between items-start mb-6">
                             <div class="w-1/2">
                                 <p class="font-semibold">Invoice To:</p>
-                                <p class="font-medium" id="invoiceDetailStudentName"></p>
+                                <p id="invoiceDetailStudentName" class="font-medium"></p>
                                 <p id="invoiceDetailStudentClass"></p>
                                 <p id="invoiceDetailFatherName"></p>
                                 <p class="mt-2 font-semibold">Billing Date:</p>
                                 <p id="invoiceDetailDate"></p>
                             </div>
                             <div class="text-right">
-                                <p class="font-semibold">Invoice #<span class="font-bold" id="invoiceDetailNumber"></span></p>
+                                <p class="font-semibold">Invoice #<span id="invoiceDetailNumber" class="font-bold"></span></p>
                                 <p>Due Date: <span id="invoiceDetailDueDate"></span></p>
-                                <p class="mt-2">Status: <span class="font-bold text-white px-2 py-1 rounded" id="invoiceDetailStatus"></span></p>
+                                <p class="mt-2">Status: <span id="invoiceDetailStatus" class="font-bold text-white px-2 py-1 rounded"></span></p>
                             </div>
                         </div>
+
                         <div class="border-t border-b border-gray-300 py-4 mb-4">
                             <table class="w-full">
                                 <thead>
@@ -1637,13 +1656,15 @@
                                 </tbody>
                             </table>
                         </div>
+
                         <div class="flex justify-end mb-4">
                             <div class="w-1/2 text-right">
-                                <p class="flex justify-between"><span>Total:</span> <span class="font-semibold" id="invoiceDetailTotalAmountSummary"></span></p>
-                                <p class="flex justify-between"><span>Paid:</span> <span class="text-green-600 font-semibold" id="invoiceDetailPaidAmountSummary"></span></p>
-                                <p class="flex justify-between text-xl font-bold mt-2"><span>Due:</span> <span class="text-red-600" id="invoiceDetailDueAmountSummary"></span></p>
+                                <p class="flex justify-between"><span>Total:</span> <span id="invoiceDetailTotalAmountSummary" class="font-semibold"></span></p>
+                                <p class="flex justify-between"><span>Paid:</span> <span id="invoiceDetailPaidAmountSummary" class="text-green-600 font-semibold"></span></p>
+                                <p class="flex justify-between text-xl font-bold mt-2"><span>Due:</span> <span id="invoiceDetailDueAmountSummary" class="text-red-600"></span></p>
                             </div>
                         </div>
+
                         <div class="text-center text-sm text-gray-500 border-t pt-4">
                             Thank you for your payment!
                         </div>
@@ -1656,23 +1677,23 @@
                 </div>
             </div>
             <!-- Add/Edit User Modal -->
-            <div aria-labelledby="userModalTitle" aria-modal="true" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="userModal" role="dialog" tabindex="-1">
+            <div class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="userModal" aria-labelledby="userModalTitle" aria-modal="true" role="dialog" tabindex="-1">
                 <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-xl font-semibold" id="userModalTitle">Add New User</h3>
-                        <button aria-label="Close user modal" class="text-gray-500 hover:text-gray-700" id="closeUserModal" type="button">
+                        <button class="text-gray-500 hover:text-gray-700" id="closeUserModal" type="button" aria-label="Close user modal">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
                     <form class="space-y-4" id="userForm">
-                        <input id="userId" name="userId" type="hidden">
+                        <input id="userId" type="hidden" name="userId"/>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="userFullName">Full Name</label>
-                            <input class="w-full p-2 border rounded-lg" id="userFullName" name="userFullName" required="" type="text">
+                            <input class="w-full p-2 border rounded-lg" id="userFullName" name="userFullName" required="" type="text"/>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="userEmail">Email</label>
-                            <input class="w-full p-2 border rounded-lg" id="userEmail" name="userEmail" required="" type="email">
+                            <input class="w-full p-2 border rounded-lg" id="userEmail" name="userEmail" required="" type="email"/>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="userRole">Role</label>
@@ -1686,7 +1707,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="userPassword">Password</label>
-                            <input class="w-full p-2 border rounded-lg" id="userPassword" name="userPassword" placeholder="Leave blank to keep current password" type="password">
+                            <input class="w-full p-2 border rounded-lg" id="userPassword" name="userPassword" placeholder="Leave blank to keep current password" type="password"/>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="userStatus">Status</label>
@@ -1702,19 +1723,19 @@
                 </div>
             </div>
             <!-- Add/Edit Announcement Modal -->
-            <div aria-labelledby="announcementModalTitle" aria-modal="true" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="announcementModal" role="dialog" tabindex="-1">
+            <div class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="announcementModal" aria-labelledby="announcementModalTitle" aria-modal="true" role="dialog" tabindex="-1">
                 <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-xl font-semibold" id="announcementModalTitle">Add New Announcement</h3>
-                        <button aria-label="Close announcement modal" class="text-gray-500 hover:text-gray-700" id="closeAnnouncementModal" type="button">
+                        <button class="text-gray-500 hover:text-gray-700" id="closeAnnouncementModal" type="button" aria-label="Close announcement modal">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
                     <form class="space-y-4" id="announcementForm">
-                        <input id="announcementId" name="announcementId" type="hidden"/>
+                        <input id="announcementId" type="hidden" name="announcementId">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="announcementTitle">Title</label>
-                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" id="announcementTitle" name="announcementTitle" required="" type="text"/>
+                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" id="announcementTitle" name="announcementTitle" required="" type="text">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="announcementContent">Content</label>
@@ -1734,27 +1755,27 @@
                 </div>
             </div>
             <!-- Add/Edit Student Modal -->
-            <div aria-labelledby="studentModalTitle" aria-modal="true" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="studentModal" role="dialog" tabindex="-1">
+            <div class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="studentModal" aria-labelledby="studentModalTitle" aria-modal="true" role="dialog" tabindex="-1">
                 <div class="bg-white rounded-lg p-6 w-full max-w-md">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-xl font-semibold" id="studentModalTitle">Add New Student</h3>
-                        <button aria-label="Close student modal" class="text-gray-500 hover:text-gray-700" id="closeStudentModal" type="button">
+                        <button class="text-gray-500 hover:text-gray-700" id="closeStudentModal" type="button" aria-label="Close student modal">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
                     <form class="space-y-4" id="studentForm">
-                        <input id="studentId" name="studentId" type="hidden"/>
+                        <input id="studentId" type="hidden" name="studentId">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="studentFullName">Full Name</label>
-                            <input class="w-full p-2 border rounded-lg" id="studentFullName" name="studentFullName" required="" type="text">
+                            <input class="w-full p-2 border rounded-lg" id="studentFullName" name="studentFullName" required="" type="text"/>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="studentFatherName">Father's Name</label>
-                            <input class="w-full p-2 border rounded-lg" id="studentFatherName" name="studentFatherName" required="" type="text">
+                            <input class="w-full p-2 border rounded-lg" id="studentFatherName" name="studentFatherName" required="" type="text"/>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="studentMotherName">Mother's Name</label>
-                            <input class="w-full p-2 border rounded-lg" id="studentMotherName" name="studentMotherName" required="" type="text">
+                            <input class="w-full p-2 border rounded-lg" id="studentMotherName" name="studentMotherName" required="" type="text"/>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="studentClass">Class</label>
@@ -1776,11 +1797,11 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="studentRollNo">Roll No.</label>
-                            <input class="w-full p-2 border rounded-lg" id="studentRollNo" name="studentRollNo" required="" type="text">
+                            <input class="w-full p-2 border rounded-lg" id="studentRollNo" name="studentRollNo" required="" type="text"/>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="studentAadharNo">Aadhar No.</label>
-                            <input class="w-full p-2 border rounded-lg" id="studentAadharNo" name="studentAadharNo" required="" type="text">
+                            <input class="w-full p-2 border rounded-lg" id="studentAadharNo" name="studentAadharNo" required="" type="text"/>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="studentBloodGroup">Blood Group</label>
@@ -1798,11 +1819,11 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="studentAdmissionNo">Admission No.</label>
-                            <input class="w-full p-2 border rounded-lg" id="studentAdmissionNo" name="studentAdmissionNo" type="text">
+                            <input class="w-full p-2 border rounded-lg" id="studentAdmissionNo" name="studentAdmissionNo" type="text"/>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="studentAdmissionDate">Admission Date</label>
-                            <input class="w-full p-2 border rounded-lg" id="studentAdmissionDate" name="studentAdmissionDate" type="date">
+                            <input class="w-full p-2 border rounded-lg" id="studentAdmissionDate" name="studentAdmissionDate" type="date"/>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="studentFatherAadhar">Father's Aadhar</label>
@@ -1834,11 +1855,11 @@
                 </div>
             </div>
             <!-- Student Details Modal -->
-            <div aria-labelledby="studentDetailsModalTitle" aria-modal="true" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="studentDetailsModal" role="dialog" tabindex="-1">
+            <div class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="studentDetailsModal" aria-labelledby="studentDetailsModalTitle" aria-modal="true" role="dialog" tabindex="-1">
                 <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-xl font-semibold" id="studentDetailsModalTitle">Student Details</h3>
-                        <button aria-label="Close student details modal" class="text-gray-500 hover:text-gray-700" id="closeStudentDetailsModal" type="button">
+                        <button class="text-gray-500 hover:text-gray-700" id="closeStudentDetailsModal" type="button" aria-label="Close student details modal">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -1848,19 +1869,19 @@
                 </div>
             </div>
             <!-- Add/Edit Teacher Modal -->
-            <div aria-labelledby="teacherModalTitle" aria-modal="true" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="teacherModal" role="dialog" tabindex="-1">
+            <div class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="teacherModal" aria-labelledby="teacherModalTitle" aria-modal="true" role="dialog" tabindex="-1">
                 <div class="bg-white rounded-lg p-6 w-full max-w-md">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-xl font-semibold" id="teacherModalTitle">Add New Teacher</h3>
-                        <button aria-label="Close teacher modal" class="text-gray-500 hover:text-gray-700" id="closeTeacherModal" type="button">
+                        <button class="text-gray-500 hover:text-gray-700" id="closeTeacherModal" type="button" aria-label="Close teacher modal">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
                     <form class="space-y-4" id="teacherForm">
-                        <input id="teacherId" name="teacherId" type="hidden"/>
+                        <input id="teacherId" type="hidden" name="teacherId">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="teacherFullName">Full Name</label>
-                            <input class="w-full p-2 border rounded-lg" id="teacherFullName" name="teacherFullName" required="" type="text">
+                            <input class="w-full p-2 border rounded-lg" id="teacherFullName" name="teacherFullName" required="" type="text"/>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="teacherSubject">Subject</label>
@@ -1891,11 +1912,11 @@
                 </div>
             </div>
             <!-- Teacher Details Modal -->
-            <div aria-labelledby="teacherDetailsModalTitle" aria-modal="true" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="teacherDetailsModal" role="dialog" tabindex="-1">
+            <div class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="teacherDetailsModal" aria-labelledby="teacherDetailsModalTitle" aria-modal="true" role="dialog" tabindex="-1">
                 <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-xl font-semibold" id="teacherDetailsModalTitle">Teacher Details</h3>
-                        <button aria-label="Close teacher details modal" class="text-gray-500 hover:text-gray-700" id="closeTeacherDetailsModal" type="button">
+                        <button class="text-gray-500 hover:text-gray-700" id="closeTeacherDetailsModal" type="button" aria-label="Close teacher details modal">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -1905,16 +1926,16 @@
                 </div>
             </div>
             <!-- Add/Edit Attendance Modal -->
-            <div aria-labelledby="attendanceModalTitle" aria-modal="true" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="attendanceModal" role="dialog" tabindex="-1">
+            <div class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="attendanceModal" aria-labelledby="attendanceModalTitle" aria-modal="true" role="dialog" tabindex="-1">
                 <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-xl font-semibold" id="attendanceModalTitle">Mark Attendance</h3>
-                        <button aria-label="Close attendance modal" class="text-gray-500 hover:text-gray-700" id="closeAttendanceModal" type="button">
+                        <button class="text-gray-500 hover:text-gray-700" id="closeAttendanceModal" type="button" aria-label="Close attendance modal">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
                     <form class="space-y-4" id="attendanceForm">
-                        <input id="attendanceId" name="attendanceId" type="hidden"/>
+                        <input id="attendanceId" type="hidden" name="attendanceId">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="attendanceStudentSelect">Student Name</label>
                             <select class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" id="attendanceStudentSelect" name="attendanceStudentSelect" required="">
@@ -1924,7 +1945,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="attendanceDate">Date</label>
-                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" id="attendanceDate" name="attendanceDate" required="" type="date"/>
+                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" id="attendanceDate" name="attendanceDate" required="" type="date">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="attendanceStatus">Status</label>
@@ -1936,11 +1957,11 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="arrivalTime">Arrival Time</label>
-                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" id="arrivalTime" name="arrivalTime" type="time"/>
+                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" id="arrivalTime" name="arrivalTime" type="time">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="departureTime">Departure Time</label>
-                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" id="departureTime" name="departureTime" type="time"/>
+                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" id="departureTime" name="departureTime" type="time">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="attendanceRemarks">Remarks (Optional)</label>
@@ -1961,16 +1982,16 @@
                 </div>
             </div>
             <!-- Add/Edit Teacher Attendance Modal -->
-            <div aria-labelledby="teacherAttendanceModalTitle" aria-modal="true" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="teacherAttendanceModal" role="dialog" tabindex="-1">
+            <div class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="teacherAttendanceModal" aria-labelledby="teacherAttendanceModalTitle" aria-modal="true" role="dialog" tabindex="-1">
                 <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-xl font-semibold" id="teacherAttendanceModalTitle">Mark Teacher Attendance</h3>
-                        <button aria-label="Close teacher attendance modal" class="text-gray-500 hover:text-gray-700" id="closeTeacherAttendanceModal" type="button">
+                        <button class="text-gray-500 hover:text-gray-700" id="closeTeacherAttendanceModal" type="button" aria-label="Close teacher attendance modal">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
                     <form class="space-y-4" id="teacherAttendanceForm">
-                        <input id="teacherAttendanceId" name="teacherAttendanceId" type="hidden"/>
+                        <input id="teacherAttendanceId" type="hidden" name="teacherAttendanceId">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="teacherAttendanceTeacherSelect">Teacher Name</label>
                             <select class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" id="teacherAttendanceTeacherSelect" name="teacherAttendanceTeacherSelect" required="">
@@ -1980,7 +2001,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="teacherAttendanceDate">Date</label>
-                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" id="teacherAttendanceDate" name="teacherAttendanceDate" required="" type="date"/>
+                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" id="teacherAttendanceDate" name="teacherAttendanceDate" required="" type="date">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="teacherAttendanceStatus">Status</label>
@@ -1992,11 +2013,11 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="teacherArrivalTime">Arrival Time</label>
-                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" id="teacherArrivalTime" name="teacherArrivalTime" type="time"/>
+                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" id="teacherArrivalTime" name="teacherArrivalTime" type="time">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="teacherDepartureTime">Departure Time</label>
-                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" id="teacherDepartureTime" name="teacherDepartureTime" type="time"/>
+                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" id="teacherDepartureTime" name="teacherDepartureTime" type="time">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="teacherAttendanceRemarks">Remarks (Optional)</label>
@@ -2017,19 +2038,19 @@
                 </div>
             </div>
             <!-- Add/Edit Exam Modal -->
-            <div aria-labelledby="examModalTitle" aria-modal="true" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="examModal" role="dialog" tabindex="-1">
+            <div class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="examModal" aria-labelledby="examModalTitle" aria-modal="true" role="dialog" tabindex="-1">
                 <div class="bg-white rounded-lg p-6 w-full max-w-md">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-xl font-semibold" id="examModalTitle">Add New Exam</h3>
-                        <button aria-label="Close exam modal" class="text-gray-500 hover:text-gray-700" id="closeExamModal" type="button">
+                        <button class="text-gray-500 hover:text-gray-700" id="closeExamModal" type="button" aria-label="Close exam modal">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
                     <form class="space-y-4" id="examForm">
-                        <input id="examId" name="examId" type="hidden"/>
+                        <input id="examId" type="hidden" name="examId">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="examName">Exam Name</label>
-                            <input class="w-full p-2 border rounded-lg" id="examName" name="examName" required="" type="text">
+                            <input class="w-full p-2 border rounded-lg" id="examName" name="examName" required="" type="text"/>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="examClass">Class</label>
@@ -2051,15 +2072,15 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="examSubject">Subject</label>
-                            <input class="w-full p-2 border rounded-lg" id="examSubject" name="examSubject" required="" type="text">
+                            <input class="w-full p-2 border rounded-lg" id="examSubject" name="examSubject" required="" type="text"/>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="examDate">Date</label>
-                            <input class="w-full p-2 border rounded-lg" id="examDate" name="examDate" required="" type="date">
+                            <input class="w-full p-2 border rounded-lg" id="examDate" name="examDate" required="" type="date"/>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="examMaxMarks">Max Marks</label>
-                            <input class="w-full p-2 border rounded-lg" id="examMaxMarks" min="0" name="examMaxMarks" required="" type="number">
+                            <input class="w-full p-2 border rounded-lg" id="examMaxMarks" name="examMaxMarks" required="" type="number" min="0"/>
                         </div>
                         <button class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700" id="examFormSubmitBtn" type="submit">
                             Save Exam
@@ -2067,23 +2088,24 @@
                     </form>
                 </div>
             </div>
+
             <!-- NEW: Add Holiday Modal Structure -->
-            <div aria-labelledby="addHolidayModalTitle" aria-modal="true" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="addHolidayModal" role="dialog" tabindex="-1">
+            <div class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="addHolidayModal" aria-labelledby="addHolidayModalTitle" aria-modal="true" role="dialog" tabindex="-1">
                 <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-xl font-semibold" id="addHolidayModalTitle">Add New Holiday</h3>
-                        <button aria-label="Close add holiday modal" class="text-gray-500 hover:text-gray-700" id="closeAddHolidayModal" type="button">
+                        <button class="text-gray-500 hover:text-gray-700" id="closeAddHolidayModal" type="button" aria-label="Close add holiday modal">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
                     <form class="space-y-4" id="addHolidayForm">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="holidayName">Holiday Name</label>
-                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" id="holidayName" name="holidayName" required="" type="text"/>
+                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" id="holidayName" name="holidayName" required="" type="text">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="holidayDate">Date</label>
-                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" id="holidayDate" name="holidayDate" required="" type="date"/>
+                            <input class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" id="holidayDate" name="holidayDate" required="" type="date">
                         </div>
                         <button class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 font-semibold" type="submit">
                             Add Holiday
@@ -2091,144 +2113,147 @@
                     </form>
                 </div>
             </div>
-            <!-- Student QR Code Modal -->
-            <div aria-labelledby="studentQrCodeModalTitle" aria-modal="true" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="studentQrCodeModal" role="dialog" tabindex="-1">
-                <div class="bg-white rounded-lg p-6 w-full max-w-sm shadow-lg text-center">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-semibold" id="studentQrCodeModalTitle">Student QR Code</h3>
-                        <button aria-label="Close QR code modal" class="text-gray-500 hover:text-gray-700" id="closeStudentQrCodeModal" type="button">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div class="p-4">
-                        <canvas class="mx-auto border border-gray-300 p-2 rounded-lg" height="200" id="studentQrCodeCanvas" width="200"></canvas>
-                        <p class="mt-4 text-gray-700">Scan this QR code for attendance.</p>
-                        <p class="text-sm text-gray-500" id="qrCodeStudentIdDisplay"></p>
-                    </div>
-                    <div class="mt-6 flex justify-center space-x-4">
-                        <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700" id="printQrCodeBtn" onclick="printStudentQrCode()">
-                            <i class="fas fa-print mr-2"></i>Print
-                        </button>
-                        <a class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 inline-flex items-center" download="student_qr_code.png" id="downloadQrCodeLink">
-                            <i class="fas fa-download mr-2"></i>Download
-                        </a>
-                    </div>
-                </div>
+        </div>
+    </div>
+    <!-- Student QR Code Modal -->
+    <div class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="studentQrCodeModal" aria-labelledby="studentQrCodeModalTitle" aria-modal="true" role="dialog" tabindex="-1">
+        <div class="bg-white rounded-lg p-6 w-full max-w-sm shadow-lg text-center">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold" id="studentQrCodeModalTitle">Student QR Code</h3>
+                <button class="text-gray-500 hover:text-gray-700" id="closeStudentQrCodeModal" type="button" aria-label="Close QR code modal">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <!-- NEW: Add/Edit Homework Modal -->
-            <div aria-labelledby="addHomeworkModalTitle" aria-modal="true" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="addHomeworkModal" role="dialog" tabindex="-1">
-                <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-semibold" id="addHomeworkModalTitle">Add New Homework</h3>
-                        <button aria-label="Close add homework modal" class="text-gray-500 hover:text-gray-700" id="closeAddHomeworkModal" type="button">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <form class="space-y-4" id="homeworkForm">
-                        <input id="homeworkId" name="homeworkId" type="hidden"/>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="homeworkTitle">Title</label>
-                            <input class="w-full p-2 border rounded-lg" id="homeworkTitle" name="homeworkTitle" required="" type="text">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="homeworkClass">Class</label>
-                            <select class="w-full p-2 border rounded-lg" id="homeworkClass" name="homeworkClass" required="">
-                                <option value="">Select Class</option>
-                                <option>Grade 1</option>
-                                <option>Grade 2</option>
-                                <option>Grade 3</option>
-                                <option>Grade 4</option>
-                                <option>Grade 5</option>
-                                <option>Grade 6</option>
-                                <option>Grade 7</option>
-                                <option>Grade 8</option>
-                                <option>Grade 9</option>
-                                <option>Grade 10</option>
-                                <option>Grade 11</option>
-                                <option>Grade 12</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="homeworkSubject">Subject</label>
-                            <select class="w-full p-2 border rounded-lg" id="homeworkSubject" name="homeworkSubject" required="">
-                                <option value="">Select Subject</option>
-                                <option>English</option>
-                                <option>Hindi</option>
-                                <option>Science</option>
-                                <option>Math</option>
-                                <option>Computer</option>
-                                <option>Sanskrit</option>
-                                <option>Social Study</option>
-                                <option>Soil Science</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="homeworkAssignedDate">Assigned Date</label>
-                            <input class="w-full p-2 border rounded-lg" id="homeworkAssignedDate" name="homeworkAssignedDate" required="" type="date">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="homeworkDueDate">Due Date</label>
-                            <input class="w-full p-2 border rounded-lg" id="homeworkDueDate" name="homeworkDueDate" required="" type="date">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="homeworkDescription">Description</label>
-                            <textarea class="w-full p-2 border rounded-lg" id="homeworkDescription" name="homeworkDescription" rows="4"></textarea>
-                        </div>
-                        <button class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700" id="homeworkFormSubmitBtn" type="submit">
-                            Add Homework
-                        </button>
-                    </form>
-                </div>
+            <div class="p-4">
+                <canvas id="studentQrCodeCanvas" width="200" height="200" class="mx-auto border border-gray-300 p-2 rounded-lg"></canvas>
+                <p class="mt-4 text-gray-700">Scan this QR code for attendance.</p>
+                <p class="text-sm text-gray-500" id="qrCodeStudentIdDisplay"></p>
             </div>
-            <!-- NEW: Homework Details Modal -->
-            <div aria-labelledby="homeworkDetailsModalTitle" aria-modal="true" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="homeworkDetailsModal" role="dialog" tabindex="-1">
-                <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-semibold" id="homeworkDetailsModalTitle">Homework Details</h3>
-                        <button aria-label="Close homework details modal" class="text-gray-500 hover:text-gray-700" id="closeHomeworkDetailsModal" type="button">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div class="space-y-4" id="homeworkDetailsContent">
-                        <!-- Homework details will be dynamically loaded here -->
-                    </div>
-                </div>
-            </div>
-            <!-- NEW: Teacher QR Code Modal -->
-            <div aria-labelledby="teacherQrCodeModalTitle" aria-modal="true" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="teacherQrCodeModal" role="dialog" tabindex="-1">
-                <div class="bg-white rounded-lg p-6 w-full max-w-sm shadow-lg text-center">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-semibold" id="teacherQrCodeModalTitle">Teacher QR Code</h3>
-                        <button aria-label="Close QR code modal" class="text-gray-500 hover:text-gray-700" id="closeTeacherQrCodeModal" type="button">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div class="p-4">
-                        <canvas class="mx-auto border border-gray-300 p-2 rounded-lg" height="200" id="teacherQrCodeCanvas" width="200"></canvas>
-                        <p class="mt-4 text-gray-700">Scan this QR code for attendance.</p>
-                        <p class="text-sm text-gray-500" id="qrCodeTeacherIdDisplay"></p>
-                    </div>
-                    <div class="mt-6 flex justify-center space-x-4">
-                        <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700" id="printTeacherQrCodeBtn" onclick="printTeacherQrCode()">
-                            <i class="fas fa-print mr-2"></i>Print
-                        </button>
-                        <a class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 inline-flex items-center" download="teacher_qr_code.png" id="downloadTeacherQrCodeLink">
-                            <i class="fas fa-download mr-2"></i>Download
-                        </a>
-                    </div>
-                </div>
+            <div class="mt-6 flex justify-center space-x-4">
+                <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700" id="printQrCodeBtn" onclick="printStudentQrCode()">
+                    <i class="fas fa-print mr-2"></i>Print
+                </button>
+                <a id="downloadQrCodeLink" download="student_qr_code.png" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 inline-flex items-center">
+                    <i class="fas fa-download mr-2"></i>Download
+                </a>
             </div>
         </div>
     </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.16/jspdf.plugin.autotable.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Faker/3.1.0/faker.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
-<script src="script.js"></script>
-<script defer="" src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+
+    <!-- NEW: Add/Edit Homework Modal -->
+    <div class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="addHomeworkModal" aria-labelledby="addHomeworkModalTitle" aria-modal="true" role="dialog" tabindex="-1">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold" id="addHomeworkModalTitle">Add New Homework</h3>
+                <button class="text-gray-500 hover:text-gray-700" id="closeAddHomeworkModal" type="button" aria-label="Close add homework modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form class="space-y-4" id="homeworkForm">
+                <input type="hidden" id="homeworkId" name="homeworkId">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="homeworkTitle">Title</label>
+                    <input class="w-full p-2 border rounded-lg" id="homeworkTitle" name="homeworkTitle" required="" type="text"/>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="homeworkClass">Class</label>
+                    <select class="w-full p-2 border rounded-lg" id="homeworkClass" name="homeworkClass" required="">
+                        <option value="">Select Class</option>
+                        <option>Grade 1</option>
+                        <option>Grade 2</option>
+                        <option>Grade 3</option>
+                        <option>Grade 4</option>
+                        <option>Grade 5</option>
+                        <option>Grade 6</option>
+                        <option>Grade 7</option>
+                        <option>Grade 8</option>
+                        <option>Grade 9</option>
+                        <option>Grade 10</option>
+                        <option>Grade 11</option>
+                        <option>Grade 12</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="homeworkSubject">Subject</label>
+                    <select class="w-full p-2 border rounded-lg" id="homeworkSubject" name="homeworkSubject" required="">
+                        <option value="">Select Subject</option>
+                        <option>English</option>
+                        <option>Hindi</option>
+                        <option>Science</option>
+                        <option>Math</option>
+                        <option>Computer</option>
+                        <option>Sanskrit</option>
+                        <option>Social Study</option>
+                        <option>Soil Science</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="homeworkAssignedDate">Assigned Date</label>
+                    <input class="w-full p-2 border rounded-lg" id="homeworkAssignedDate" name="homeworkAssignedDate" required="" type="date"/>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="homeworkDueDate">Due Date</label>
+                    <input class="w-full p-2 border rounded-lg" id="homeworkDueDate" name="homeworkDueDate" required="" type="date"/>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="homeworkDescription">Description</label>
+                    <textarea class="w-full p-2 border rounded-lg" id="homeworkDescription" name="homeworkDescription" rows="4"></textarea>
+                </div>
+                <button class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700" id="homeworkFormSubmitBtn" type="submit">
+                    Add Homework
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- NEW: Homework Details Modal -->
+    <div class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="homeworkDetailsModal" aria-labelledby="homeworkDetailsModalTitle" aria-modal="true" role="dialog" tabindex="-1">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold" id="homeworkDetailsModalTitle">Homework Details</h3>
+                <button class="text-gray-500 hover:text-gray-700" id="closeHomeworkDetailsModal" type="button" aria-label="Close homework details modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="space-y-4" id="homeworkDetailsContent">
+                <!-- Homework details will be dynamically loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: Teacher QR Code Modal -->
+    <div class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="teacherQrCodeModal" aria-labelledby="teacherQrCodeModalTitle" aria-modal="true" role="dialog" tabindex="-1">
+        <div class="bg-white rounded-lg p-6 w-full max-w-sm shadow-lg text-center">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold" id="teacherQrCodeModalTitle">Teacher QR Code</h3>
+                <button class="text-gray-500 hover:text-gray-700" id="closeTeacherQrCodeModal" type="button" aria-label="Close QR code modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-4">
+                <canvas id="teacherQrCodeCanvas" width="200" height="200" class="mx-auto border border-gray-300 p-2 rounded-lg"></canvas>
+                <p class="mt-4 text-gray-700">Scan this QR code for attendance.</p>
+                <p class="text-sm text-gray-500" id="qrCodeTeacherIdDisplay"></p>
+            </div>
+            <div class="mt-6 flex justify-center space-x-4">
+                <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700" id="printTeacherQrCodeBtn" onclick="printTeacherQrCode()">
+                    <i class="fas fa-print mr-2"></i>Print
+                </button>
+                <a id="downloadTeacherQrCodeLink" download="teacher_qr_code.png" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 inline-flex items-center">
+                    <i class="fas fa-download mr-2"></i>Download
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.16/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Faker/3.1.0/faker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+    <script src="script.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 </body>
 </html>
