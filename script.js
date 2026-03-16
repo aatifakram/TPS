@@ -23,8 +23,8 @@ let faceAttendanceInterval = null;
 const FACE_MODELS_PATH = '/models'; // Assuming your models folder is at the root
 
 // Supabase Client Initialization (Replace with your actual keys)
-const SUPABASE_URL = 'https://zyvwttzwjweeslvjbatg.supabase.co'; // Replace with your Supabase URL
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp5dnd0dHp3andlZXNsdmpiYXRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5NTQwODMsImV4cCI6MjA2OTUzMDA4M30.pgzB45XBJAyGBlkKUJF4Jr0yVNunXjwa8p8JOaX7Nso'; // Replace with your actual Supabase Anon Key
+const SUPABASE_URL = 'https://npndctkfdbyoyvrmxwoa.supabase.co'; // Replace with your Supabase URL
+const SUPABASE_ANON_KEY = 'sb_publishable_PTWfa6rH2DtckT9YE9MEFg_hDKFcDa6'; // Replace with your actual Supabase Anon Key
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Global variable for QR Scanner instances
